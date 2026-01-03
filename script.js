@@ -1,4 +1,8 @@
-// --- 3D TILT EFFECT (Universal) ---
+/* =========================================
+   1. 3D TILT EFFECT & UI LOGIC
+   ========================================= */
+
+// --- 3D TILT EFFECT ---
 const cards = document.querySelectorAll('.tapt-card');
 const stages = document.querySelectorAll('.card-stage');
 
@@ -18,7 +22,7 @@ if(stages.length > 0) {
     });
 }
 
-// --- CUSTOMIZER LOGIC (Only runs on customize.html) ---
+// --- CUSTOMIZER LOGIC ---
 const nameInput = document.getElementById('c-name');
 const roleInput = document.getElementById('c-role');
 const themeSelect = document.getElementById('c-theme');
@@ -28,91 +32,67 @@ const previewRole = document.getElementById('p-role');
 const previewCard = document.getElementById('p-card');
 
 if (nameInput) {
-    // Update Name
-    nameInput.addEventListener('input', (e) => {
-        previewName.innerText = e.target.value || "YOUR NAME";
-    });
-
-    // Update Role
-    roleInput.addEventListener('input', (e) => {
-        previewRole.innerText = e.target.value || "DESIGNATION";
-    });
-
-    // Update Theme (Material)
+    nameInput.addEventListener('input', (e) => { previewName.innerText = e.target.value || "YOUR NAME"; });
+    roleInput.addEventListener('input', (e) => { previewRole.innerText = e.target.value || "DESIGNATION"; });
     themeSelect.addEventListener('change', (e) => {
-        // Remove old classes
         previewCard.classList.remove('skin-black', 'skin-gold', 'skin-white');
-        // Add new class
         previewCard.classList.add(`skin-${e.target.value}`);
-        
-        // Handle text color changes for light backgrounds
         const textColor = (e.target.value === 'black') ? 'white' : 'black';
         previewName.style.color = textColor;
-        
-        // Wifi icon adjustment
         const wifiIcon = document.querySelector('.wifi-icon');
-        wifiIcon.style.color = (e.target.value === 'black') ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
+        if(wifiIcon) wifiIcon.style.color = (e.target.value === 'black') ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
     });
 }
 
 /* =========================================
-   CART SYSTEM LOGIC (ADDED)
+   2. CART SYSTEM LOGIC
    ========================================= */
 
-/* --- Cart State --- */
-// Try to load from local storage or start empty
+// --- Cart State ---
 let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
 let activeCoupon = null;
 
-// Dummy Coupon Data (Add your own codes here)
 const COUPONS = {
-    'TAPT10': 0.10, // 10% off
-    'GENZ': 0.20,   // 20% off
-    'FREE': 1.00    // 100% off
+    'TAPT10': 0.10,
+    'GENZ': 0.20,
+    'FREE': 1.00
 };
 
-/* --- Core Functions --- */
+// --- Functions ---
 
-// Open/Close Drawer
 function toggleCart() {
+    console.log("Toggling Cart..."); // Debug message
     document.body.classList.toggle('cart-open');
 }
 
-// Add Item (Call this from your product buttons)
 function addToCart(id, title, price, image) {
     const existingItem = cart.find(item => item.id === id);
-    
     if (existingItem) {
         existingItem.qty++;
     } else {
         cart.push({ id, title, price, image, qty: 1 });
     }
-    
     updateCartUI();
+    
+    // Force open cart if closed
     if(!document.body.classList.contains('cart-open')) {
-        toggleCart(); // Auto open cart on add
+        toggleCart(); 
     }
 }
 
-// Increase or Decrease Quantity
 function updateQty(id, change) {
     const item = cart.find(item => item.id === id);
     if (!item) return;
-
     item.qty += change;
-
-    // Remove if quantity hits 0
     if (item.qty <= 0) {
         cart = cart.filter(i => i.id !== id);
     }
     updateCartUI();
 }
 
-// Apply Coupon Code
 function applyCoupon() {
     const input = document.getElementById('coupon-input');
-    if(!input) return; // Guard clause in case element doesn't exist
-    
+    if(!input) return;
     const code = input.value.toUpperCase().trim();
     const msg = document.getElementById('coupon-msg');
     
@@ -129,12 +109,9 @@ function applyCoupon() {
     }
 }
 
-// Main Render Function
 function updateCartUI() {
-    // 1. Save to Storage
     localStorage.setItem('taptCart', JSON.stringify(cart));
     
-    // 2. Update Badge
     const totalCount = cart.reduce((acc, item) => acc + item.qty, 0);
     const badge = document.getElementById('cart-count');
     if(badge) {
@@ -142,9 +119,8 @@ function updateCartUI() {
         badge.style.display = totalCount > 0 ? 'flex' : 'none';
     }
 
-    // 3. Render Items
     const container = document.getElementById('cart-items-container');
-    if(!container) return; // Exit if cart drawer isn't on this page
+    if(!container) return;
 
     if (cart.length === 0) {
         container.innerHTML = '<div class="empty-msg">Your cart is empty.</div>';
@@ -165,10 +141,8 @@ function updateCartUI() {
         `).join('');
     }
 
-    // 4. Calculate Totals
     const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
     let discount = 0;
-
     const discountRow = document.getElementById('discount-row');
     const discountAmount = document.getElementById('discount-amount');
 
@@ -182,10 +156,33 @@ function updateCartUI() {
 
     const subtotalEl = document.getElementById('subtotal-price');
     const totalEl = document.getElementById('total-price');
-
     if(subtotalEl) subtotalEl.innerText = `$${subtotal.toFixed(2)}`;
     if(totalEl) totalEl.innerText = `$${(subtotal - discount).toFixed(2)}`;
 }
 
-// Initialize on Load
-document.addEventListener('DOMContentLoaded', updateCartUI);
+// --- INITIALIZATION (This fixes the click issue) ---
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Load the UI
+    updateCartUI();
+
+    // 2. Force Attach Click Listeners
+    // This finds the buttons in HTML and manually connects them to the function
+    
+    // Cart Trigger Button (The icon)
+    const cartTrigger = document.querySelector('.cart-trigger');
+    if(cartTrigger) {
+        cartTrigger.addEventListener('click', toggleCart);
+    }
+
+    // Close Button (The X inside the drawer)
+    const closeBtn = document.querySelector('.close-cart');
+    if(closeBtn) {
+        closeBtn.addEventListener('click', toggleCart);
+    }
+
+    // Overlay (Clicking background to close)
+    const overlay = document.querySelector('.cart-overlay');
+    if(overlay) {
+        overlay.addEventListener('click', toggleCart);
+    }
+});

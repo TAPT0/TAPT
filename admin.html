@@ -177,30 +177,30 @@
 
     <div id="toast">Action Successful</div>
 
-   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     
     <script>
         /* --- CONFIGURATION --- */
-        const firebaseConfig = {
-            apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
-            authDomain: "tapt-337b8.firebaseapp.com",
-            
-            // --- THIS WAS MISSING ---
-            databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com/", 
-            // ------------------------
+        // We ensure it's not redeclared
+        if (typeof firebaseConfig === 'undefined') {
+            var firebaseConfig = {
+                apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
+                authDomain: "tapt-337b8.firebaseapp.com",
+                
+                // --- FIXED: ADDED DATABASE URL ---
+                databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com/", 
+                // ---------------------------------
 
-            projectId: "tapt-337b8",
-            storageBucket: "tapt-337b8.firebasestorage.app",
-            messagingSenderId: "887956121124",
-            appId: "1:887956121124:web:6856680bf75aa3bacddab1",
-            measurementId: "G-2CB8QXYNJY"
-        };
-
-        // Initialize Firebase (Only do this ONCE)
-        if (!firebase.apps.length) {
+                projectId: "tapt-337b8",
+                storageBucket: "tapt-337b8.firebasestorage.app",
+                messagingSenderId: "887956121124",
+                appId: "1:887956121124:web:6856680bf75aa3bacddab1",
+                measurementId: "G-2CB8QXYNJY"
+            };
             firebase.initializeApp(firebaseConfig);
         }
+        
         const db = firebase.database();
 
         // YOUR IMGBB KEY (You need to paste this from imgbb.com)
@@ -267,6 +267,7 @@
                 formData.append("image", files[i]);
                 
                 try {
+                    // Make sure IMG_BB_API_KEY is replaced at the top
                     const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_BB_API_KEY}`, {
                         method: "POST",
                         body: formData
@@ -276,7 +277,7 @@
                         imageUrls.push(data.data.url);
                     } else {
                         console.error("ImgBB Error", data);
-                        statusText.textContent = "Error uploading image.";
+                        statusText.textContent = "Error uploading image: " + (data.error ? data.error.message : "Unknown");
                         return;
                     }
                 } catch(err) {
@@ -401,5 +402,5 @@
             });
         }
     </script>
-    </body>
+</body>
 </html>

@@ -61,7 +61,7 @@ const COUPONS = {
 // --- Functions ---
 
 function toggleCart() {
-    console.log("Toggling Cart..."); // Debug message
+    // console.log("Toggling Cart..."); // Uncomment if testing
     document.body.classList.toggle('cart-open');
 }
 
@@ -160,29 +160,11 @@ function updateCartUI() {
     if(totalEl) totalEl.innerText = `$${(subtotal - discount).toFixed(2)}`;
 }
 
-// --- INITIALIZATION (This fixes the click issue) ---
+// --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Load the UI
+    // 1. Load the UI on page refresh
     updateCartUI();
-
-    // 2. Force Attach Click Listeners
-    // This finds the buttons in HTML and manually connects them to the function
     
-    // Cart Trigger Button (The icon)
-    const cartTrigger = document.querySelector('.cart-trigger');
-    if(cartTrigger) {
-        cartTrigger.addEventListener('click', toggleCart);
-    }
-
-    // Close Button (The X inside the drawer)
-    const closeBtn = document.querySelector('.close-cart');
-    if(closeBtn) {
-        closeBtn.addEventListener('click', toggleCart);
-    }
-
-    // Overlay (Clicking background to close)
-    const overlay = document.querySelector('.cart-overlay');
-    if(overlay) {
-        overlay.addEventListener('click', toggleCart);
-    }
+    // NOTE: We removed the manual event listeners here to avoid 
+    // conflicts with the onclick="" attributes in your HTML.
 });

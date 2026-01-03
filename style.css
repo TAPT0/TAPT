@@ -83,7 +83,7 @@ nav {
     border-radius: 10px; 
     display: flex; 
     align-items: center; 
-    justify-content: center;
+    justify-content: center; 
     margin-bottom: 15px;
 }
 .p-title { font-weight: 700; font-size: 1.2rem; margin-bottom: 5px; }
@@ -165,4 +165,46 @@ nav {
 /* Ensure the card container doesn't get squashed */
 .hero-stage .card-container {
     margin-bottom: 40px;
+}
+
+/* --- ADDED FEATURE: LOGO UPLOAD & POSITIONING --- */
+/* Styles the file input to look like a cool button */
+input[type="file"] {
+    display: none; /* Hide default ugly input */
+}
+
+.file-upload-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px dashed var(--text-muted);
+    border-radius: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.file-upload-label:hover {
+    border-color: var(--tapt-gold);
+    color: var(--tapt-gold);
+    background: rgba(229, 195, 101, 0.05);
+    box-shadow: 0 0 15px rgba(229, 195, 101, 0.1);
+}
+
+/* Positions the uploaded logo on the card */
+.card-logo {
+    position: absolute;
+    top: 25px;
+    right: 30px; /* Top Right corner opposite the chip usually */
+    max-width: 60px;
+    max-height: 60px;
+    object-fit: contain;
+    z-index: 20;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); /* Slight shadow for realism */
 }

@@ -9,243 +9,52 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     
-    <style>
-        /* --- HIGH PERFORMANCE RESET --- */
-        :root {
-            --bg-deep: #030303;
-            --tapt-gold: #E5C365;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
-            --glow: radial-gradient(circle at 50% 50%, rgba(229, 195, 101, 0.15), transparent 60%);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-
-        body {
-            background-color: var(--bg-deep);
-            color: white;
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* --- TAPT BRANDING --- */
-        .brand-font { font-family: 'Syncopate', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
-        
-        nav {
-            padding: 2rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: fixed;
-            width: 100%;
-            z-index: 10;
-            backdrop-filter: blur(10px);
-        }
-
-        .logo { font-size: 1.8rem; font-weight: 700; color: white; }
-        .dot { color: var(--tapt-gold); }
-
-        .btn-primary {
-            background: white;
-            color: black;
-            padding: 12px 30px;
-            border-radius: 4px;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 1px;
-            border: none;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-        .btn-primary:hover { transform: scale(1.05); }
-
-        /* --- HERO & 3D STAGE --- */
-        .stage {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            background: var(--glow);
-        }
-
-        h1 {
-            font-size: 4vw;
-            text-align: center;
-            line-height: 1.2;
-            margin-bottom: 2rem;
-            mix-blend-mode: overlay;
-            opacity: 0.8;
-            pointer-events: none; /* Let mouse pass through text to card */
-        }
-
-        /* --- THE CARD (GPU ACCELERATED) --- */
-        .card-container {
-            perspective: 1200px; /* Stronger 3D depth */
-        }
-
-        .card {
-            width: 380px;
-            height: 240px;
-            background: #0a0a0a;
-            border-radius: 16px;
-            position: relative;
-            transform-style: preserve-3d;
-            /* Will-change tells the browser to use the GPU */
-            will-change: transform; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.1);
-            background: linear-gradient(145deg, #1a1a1a, #050505);
-        }
-
-        /* Metallic Sheen Overlay */
-        .card::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.1) 40%, transparent 50%);
-            border-radius: 16px;
-            pointer-events: none;
-        }
-
-        .card-content {
-            padding: 30px;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transform: translateZ(30px); /* Pushes text off the card for 3D depth */
-        }
-
-        .chip-icon {
-            width: 50px;
-            height: 35px;
-            background: linear-gradient(#d4af37, #f9f295);
-            border-radius: 6px;
-            opacity: 0.9;
-        }
-
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .user-name {
-            font-family: 'Syncopate', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #fff;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            letter-spacing: 1px;
-        }
-        
-        .brand-mark {
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.3);
-        }
-
-        /* --- INPUT UI --- */
-        .controls {
-            margin-top: 60px;
-            display: flex;
-            gap: 10px;
-            background: var(--glass);
-            padding: 10px;
-            border-radius: 50px;
-            border: 1px solid var(--border);
-            backdrop-filter: blur(20px);
-        }
-
-        input {
-            background: transparent;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            font-family: 'Inter', sans-serif;
-            outline: none;
-            width: 200px;
-            text-align: center;
-        }
-        
-        input::placeholder { color: rgba(255,255,255,0.3); }
-
-        @media (max-width: 600px) {
-            h1 { font-size: 2rem; }
-            .card { width: 300px; height: 190px; }
-            .controls { flex-direction: column; border-radius: 10px; }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
     <nav>
-        <div class="logo brand-font">TAPT<span class="dot">.</span></div>
-        <button class="btn-primary">Get Yours $49</button>
+        <div class="logo">TAPT<span>.</span></div>
+        
+        <div class="nav-links">
+            <a href="shop.html">Shop</a>
+            <a href="customize.html">Create</a>
+        </div>
+
+        <a href="shop.html" class="btn-primary" style="text-decoration:none;">Get Yours $49</a>
     </nav>
 
-    <div class="stage">
-        <h1 class="brand-font">One Card.<br>Infinite Connections.</h1>
+    <div class="stage card-stage"> <h1 class="section-title" style="font-size: 4vw; text-align: center; mix-blend-mode: overlay;">
+            One Card.<br>Infinite Connections.
+        </h1>
 
         <div class="card-container">
-            <div class="card" id="taptCard">
-                <div class="card-content">
+            <div class="tapt-card skin-black"> <div class="card-content">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <div class="chip-icon"></div>
-                        <i class="fa-solid fa-wifi" style="color:rgba(255,255,255,0.5); transform: rotate(90deg);"></i>
+                        <div class="chip"></div>
+                        <i class="fa-solid fa-wifi" style="color:rgba(255,255,255,0.5); transform: rotate(90deg); font-size: 1.5rem;"></i>
                     </div>
 
-                    <div class="card-footer">
+                    <div class="card-footer" style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto;">
                         <div>
-                            <div class="user-name" id="nameDisplay">HASNAIN LORI</div>
-                            <div style="font-size: 0.7rem; color: var(--tapt-gold); margin-top: 5px;">FOUNDER</div>
+                            <div class="p-title" style="font-family: 'Syncopate', sans-serif; font-size:1.2rem;">HASNAIN LORI</div>
+                            <div class="p-desc" style="color:var(--tapt-gold); margin-top: 5px; font-size: 0.8rem;">FOUNDER</div>
                         </div>
-                        <div class="brand-mark brand-font">TAPT.</div>
+                        <div class="logo" style="font-size: 0.8rem; color: rgba(255,255,255,0.3);">TAPT.</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="controls">
-            <input type="text" id="nameInput" placeholder="Type Name..." maxlength="15">
-            <button class="btn-primary" style="padding: 10px 20px; border-radius: 30px;">Preview</button>
+        <div class="controls" style="margin-top: 50px; border:none; background: transparent;">
+            <a href="customize.html" class="filter-btn active" style="text-decoration: none; padding: 15px 40px; font-size: 1rem;">
+                Customize Your Card <i class="fa-solid fa-arrow-right" style="margin-left: 10px;"></i>
+            </a>
         </div>
     </div>
 
-    <script>
-        const card = document.getElementById('taptCard');
-        const container = document.querySelector('.stage');
-        const nameInput = document.getElementById('nameInput');
-        const nameDisplay = document.getElementById('nameDisplay');
-
-        // High Performance 3D Tilt
-        container.addEventListener('mousemove', (e) => {
-            const { innerWidth, innerHeight } = window;
-            const x = (innerWidth / 2 - e.pageX) / 25; // Division controls sensitivity
-            const y = (innerHeight / 2 - e.pageY) / 25;
-
-            // Apply transform (Hardware Accelerated)
-            card.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
-        });
-
-        // Reset
-        container.addEventListener('mouseleave', () => {
-            card.style.transition = 'transform 0.5s ease';
-            card.style.transform = `rotateY(0deg) rotateX(0deg)`;
-            setTimeout(() => { card.style.transition = 'none'; }, 500);
-        });
-
-        // Live Type
-        nameInput.addEventListener('input', (e) => {
-            const val = e.target.value.toUpperCase();
-            nameDisplay.innerText = val === '' ? 'YOUR NAME' : val;
-        });
-    </script>
-    
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
 </body>
 </html>

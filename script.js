@@ -312,34 +312,39 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================================
-   5. 3D TILT EFFECT (Desktop Mouse + Mobile Gyro)
+   5. 3D TILT EFFECT (Mouse + Touch + Gyro)
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
     const tiltElements = document.querySelectorAll('.card-stage, .product-card');
 
     // --- HELPER: Apply Tilt ---
-    function applyTilt(el, x, y) {
+    function applyTilt(el, x, y, isGyro = false) {
         const inner = el.querySelector('.tapt-card') || el.querySelector('.card-content');
         if (!inner) return;
 
-        const rect = el.getBoundingClientRect();
-        
-        // Math for mouse/touch position
-        // If x/y are rotation degrees (mobile), use them directly.
-        // If x/y are coordinates (desktop), calculate rotation.
-        
         let xRotation, yRotation;
 
-        if(x.type === 'gyro') {
-            // Mobile Gyro Input
-            xRotation = x.val; // Front/Back tilt
-            yRotation = y.val; // Left/Right tilt
+        if (isGyro) {
+            // Gyro input is already in degrees
+            xRotation = x; 
+            yRotation = y; 
         } else {
-            // Mouse/Touch Input
-            xRotation = -((y - rect.height / 2) / 20);
-            yRotation = (x - rect.width / 2) / 20;
+            // Mouse/Touch input needs calculation
+            const rect = el.getBoundingClientRect();
+            // Calculate center relative to the element
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            // X & Y relative to center of card
+            const mouseX = x - centerX;
+            const mouseY = y - centerY;
+
+            // Rotate based on distance from center (Divide by 15 for sensitivity)
+            xRotation = -((mouseY) / 15);
+            yRotation = (mouseX) / 15;
         }
 
+        // Apply Transform
         inner.style.transform = `perspective(1000px) rotateX(${xRotation}deg) rotateY(${yRotation}deg) scale(1.02)`;
     }
 
@@ -353,39 +358,58 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- A. DESKTOP MOUSE ---
+    // --- 1. DESKTOP MOUSE EVENTS ---
     tiltElements.forEach(el => {
         el.addEventListener('mousemove', (e) => {
             const rect = el.getBoundingClientRect();
+            // Pass the mouse position relative to the element
             applyTilt(el, e.clientX - rect.left, e.clientY - rect.top);
         });
+        
         el.addEventListener('mouseleave', () => resetTilt(el));
     });
 
-    // --- B. MOBILE GYRO (iOS 13+ requires permission) ---
-    
+    // --- 2. MOBILE TOUCH EVENTS (The "Swipe" Fix) ---
+    tiltElements.forEach(el => {
+        el.addEventListener('touchmove', (e) => {
+            // Prevent scrolling while rotating card
+            if(e.cancelable) e.preventDefault(); 
+            
+            const touch = e.touches[0];
+            const rect = el.getBoundingClientRect();
+            
+            // Calculate touch position within the element
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            applyTilt(el, x, y);
+        }, { passive: false });
+
+        el.addEventListener('touchend', () => resetTilt(el));
+    });
+
+    // --- 3. MOBILE GYRO (Optional Bonus) ---
+    // We try to enable this, but if it fails, Touch Events (above) save the day.
     function handleOrientation(e) {
         let tiltX = e.beta;  // Front-back
         let tiltY = e.gamma; // Left-right
 
-        // Constrain tilt to avoid flipping
+        // Clamp values so it doesn't flip crazy
         if (tiltX > 25) tiltX = 25;
         if (tiltX < -25) tiltX = -25;
         if (tiltY > 25) tiltY = 25;
         if (tiltY < -25) tiltY = -25;
 
-        // Apply to all cards
-        const allCards = document.querySelectorAll('.tapt-card, .card-content');
-        allCards.forEach(card => {
-             // -tiltX to invert for natural feel
-             card.style.transform = `perspective(1000px) rotateX(${-tiltX}deg) rotateY(${tiltY}deg) scale(1.02)`;
+        // Apply to all visible cards
+        tiltElements.forEach(el => {
+             // We invert X (-tiltX) for a more natural feel
+             applyTilt(el, -tiltX, tiltY, true); 
         });
     }
 
-    // Function to request permission (Must be called on click)
+    // Permissions for iOS 13+
     function requestMotionPermission() {
         if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-            // iOS 13+ Logic
             DeviceOrientationEvent.requestPermission()
                 .then(response => {
                     if (response === 'granted') {
@@ -394,16 +418,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .catch(console.error);
         } else {
-            // Android / Non-iOS Logic (No permission needed)
             window.addEventListener('deviceorientation', handleOrientation);
         }
         
-        // Remove this listener so we don't keep asking
+        // Remove listeners so we don't spam
         document.body.removeEventListener('click', requestMotionPermission);
         document.body.removeEventListener('touchstart', requestMotionPermission);
     }
 
-    // Trigger permission request on the FIRST tap anywhere on the site
+    // Attempt to initialize Gyro on first tap
     document.body.addEventListener('click', requestMotionPermission);
     document.body.addEventListener('touchstart', requestMotionPermission);
 });

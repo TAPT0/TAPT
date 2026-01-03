@@ -3,11 +3,12 @@
    ========================================= */
 
 // --- 3D TILT EFFECT ---
-const cards = document.querySelectorAll('.tapt-card');
-const stages = document.querySelectorAll('.card-stage');
+// Renamed variables to avoid conflict with shop.html
+const tiltCards = document.querySelectorAll('.tapt-card');
+const tiltStages = document.querySelectorAll('.card-stage');
 
-if(stages.length > 0) {
-    stages.forEach(stage => {
+if(tiltStages.length > 0) {
+    tiltStages.forEach(stage => {
         stage.addEventListener('mousemove', (e) => {
             const card = stage.querySelector('.tapt-card');
             const ax = -(window.innerWidth / 2 - e.pageX) / 25;
@@ -159,7 +160,7 @@ function updateCartUI() {
     if(totalEl) totalEl.innerText = `$${(subtotal - discount).toFixed(2)}`;
 }
 
-// --- SMART INITIALIZATION (The Fix) ---
+// --- SMART INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Load the UI
     updateCartUI();

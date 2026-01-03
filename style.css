@@ -12,7 +12,8 @@
     --font-body: 'Inter', sans-serif;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* FIX: Ensure cursor is hidden globally, but visible on the custom elements */
+* { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
 
 body {
     background-color: var(--bg-deep);
@@ -21,7 +22,34 @@ body {
     overflow-x: hidden;
 }
 
-a { text-decoration: none; color: white; }
+a { text-decoration: none; color: white; cursor: none; }
+button { cursor: none; }
+
+/* --- FIX: CUSTOM CURSOR STYLES (These were missing) --- */
+.cursor-dot {
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    position: fixed;
+    top: 0; left: 0;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 99999;
+    pointer-events: none;
+}
+
+.cursor-outline {
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    position: fixed;
+    top: 0; left: 0;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 99998;
+    pointer-events: none;
+    transition: width 0.2s, height 0.2s, background-color 0.2s;
+}
 
 /* --- NAVIGATION --- */
 nav {
@@ -54,7 +82,7 @@ nav {
     background: transparent;
     color: white;
     border-radius: 50px;
-    cursor: pointer;
+    cursor: none;
     transition: 0.3s;
 }
 .filter-btn:hover, .filter-btn.active { background: var(--tapt-gold); color: black; border-color: var(--tapt-gold); }
@@ -73,7 +101,8 @@ nav {
     transition: 0.3s;
     position: relative;
     overflow: hidden;
-    cursor: pointer;
+    cursor: none;
+    display: block; /* Ensures anchor tags work as blocks */
 }
 .product-card:hover { border-color: var(--tapt-gold); transform: translateY(-5px); }
 
@@ -91,7 +120,7 @@ nav {
 .p-price { font-family: var(--font-head); color: var(--tapt-gold); }
 
 /* --- 3D BUILDER STAGE --- */
-.builder-layout { display: flex; gap: 50px; flex-wrap: wrap; align-items: center; justify-content: center; min-height: 80vh; }
+.builder-layout { display: flex; gap: 50px; flex-wrap: wrap; align-items: flex-start; justify-content: center; min-height: 80vh; }
 
 .builder-controls {
     flex: 1;
@@ -113,14 +142,15 @@ nav {
     border-radius: 8px;
     outline: none;
     font-family: var(--font-body);
+    cursor: none;
 }
 .input-group input:focus { border-color: var(--tapt-gold); }
 
 /* --- 3D CARD CORE --- */
 .card-stage { perspective: 1200px; display: flex; justify-content: center; align-items: center; }
 .tapt-card {
-    width: 380px;
-    height: 240px;
+    width: 320px; /* Adjusted slightly for better fit */
+    height: 200px;
     border-radius: 16px;
     position: relative;
     transform-style: preserve-3d;
@@ -128,21 +158,27 @@ nav {
     box-shadow: 0 30px 60px rgba(0,0,0,0.8);
     background: linear-gradient(145deg, #1a1a1a, #050505); /* Default Black */
     transition: background 0.5s ease;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 /* Card Skins */
 .skin-black { background: linear-gradient(145deg, #1a1a1a, #050505); }
 .skin-gold { background: linear-gradient(135deg, #BF953F, #FCF6BA, #AA771C); color: black !important; }
 .skin-white { background: linear-gradient(135deg, #f5f7fa, #c3cfe2); color: black !important; }
+.skin-white .p-title, .skin-white .p-desc, .skin-white i { color: black !important; }
 
-.card-content { padding: 30px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; transform: translateZ(30px); }
-.chip { width: 50px; height: 35px; background: linear-gradient(#d4af37, #f9f295); border-radius: 6px; opacity: 0.9; }
+.card-content { height: 100%; display: flex; flex-direction: column; justify-content: space-between; transform: translateZ(30px); }
+.chip { width: 50px; height: 35px; background: linear-gradient(#d4af37, #f9f295); border-radius: 6px; opacity: 0.9; margin-bottom: 10px; }
 
 /* Responsive */
 @media (max-width: 768px) {
     .builder-layout { flex-direction: column-reverse; }
     .tapt-card { width: 320px; height: 200px; }
 }
+
 /* --- HERO FIXES --- */
 .hero-stage {
     min-height: 100vh;
@@ -151,7 +187,7 @@ nav {
     justify-content: center;
     align-items: center;
     padding-top: 80px;
-    background: var(--glow);
+    background: var(--bg-deep);
 }
 
 .hero-title {
@@ -181,7 +217,7 @@ input[type="file"] {
     border: 1px dashed var(--text-muted);
     border-radius: 8px;
     color: var(--text-muted);
-    cursor: pointer;
+    cursor: none;
     font-size: 0.9rem;
     transition: all 0.3s ease;
     text-transform: uppercase;
@@ -212,7 +248,7 @@ input[type="file"] {
 
 
 /* =========================================
-   CART SYSTEM (ADDED)
+   CART SYSTEM (FIXED)
    ========================================= */
 
 /* --- Cart Trigger (Floating Button) --- */
@@ -228,7 +264,7 @@ input[type="file"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
+    cursor: none;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     z-index: 999;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -269,6 +305,8 @@ input[type="file"] {
     transition: opacity 0.3s ease;
     z-index: 1000;
 }
+/* FIX: Open state applied directly to element */
+.cart-overlay.open { opacity: 1; pointer-events: all; }
 
 .cart-drawer {
     position: fixed;
@@ -288,11 +326,8 @@ input[type="file"] {
     color: white;
     box-shadow: -10px 0 50px rgba(0,0,0,0.8);
 }
-
-/* --- Active State --- */
-body.cart-open .cart-overlay { opacity: 1; pointer-events: all; }
-body.cart-open .cart-drawer { transform: translateX(0); }
-body.cart-open { overflow: hidden; } /* Prevent background scrolling */
+/* FIX: Open state applied directly to element */
+.cart-drawer.open { transform: translateX(0); }
 
 /* --- Cart Content --- */
 .cart-header {
@@ -305,7 +340,7 @@ body.cart-open { overflow: hidden; } /* Prevent background scrolling */
 }
 
 .cart-header h2 { margin: 0; font-family: var(--font-head); font-size: 1.4rem; letter-spacing: 1px; }
-.close-cart { background: none; border: none; color: var(--text-muted); font-size: 30px; cursor: pointer; transition: 0.3s; }
+.close-cart { background: none; border: none; color: var(--text-muted); font-size: 30px; cursor: none; transition: 0.3s; }
 .close-cart:hover { color: var(--tapt-gold); transform: rotate(90deg); }
 
 .cart-items {
@@ -358,7 +393,7 @@ body.cart-open { overflow: hidden; } /* Prevent background scrolling */
 
 .qty-btn {
     background: none; border: none; color: white;
-    cursor: pointer; font-size: 18px; 
+    cursor: none; font-size: 18px; 
     display: flex; justify-content: center; align-items: center;
     transition: 0.2s;
 }
@@ -383,6 +418,7 @@ body.cart-open { overflow: hidden; } /* Prevent background scrolling */
     font-family: var(--font-head);
     font-size: 0.8rem;
     letter-spacing: 1px;
+    cursor: none;
 }
 .coupon-section input:focus { border-color: var(--tapt-gold); }
 
@@ -392,7 +428,7 @@ body.cart-open { overflow: hidden; } /* Prevent background scrolling */
     color: var(--tapt-gold);
     padding: 0 20px;
     border-radius: 8px;
-    cursor: pointer;
+    cursor: none;
     transition: 0.2s;
     font-weight: 700;
     font-family: var(--font-head);
@@ -426,7 +462,7 @@ body.cart-open { overflow: hidden; } /* Prevent background scrolling */
     color: black;
     font-weight: 800;
     font-size: 1rem;
-    cursor: pointer;
+    cursor: none;
     margin-top: 20px;
     transition: all 0.3s ease;
     font-family: var(--font-head);
@@ -440,22 +476,21 @@ body.cart-open { overflow: hidden; } /* Prevent background scrolling */
 }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
 /* =========================================
-   GEN Z TEXTURE & GLOW (Add to style.css)
+   GEN Z TEXTURE & GLOW 
    ========================================= */
 
-/* 1. The Grainy Noise Texture */
 .noise-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none;
     z-index: 9999;
-    opacity: 0.05; /* Adjust for more/less grain */
-    background: url('https://grainy-gradients.vercel.app/noise.svg'); /* Common noise asset */
+    opacity: 0.05;
+    background: url('https://grainy-gradients.vercel.app/noise.svg');
     filter: contrast(120%) brightness(100%);
 }
 
-/* 2. The Ambient Gold Glow */
 .gold-glow-sphere {
     position: fixed;
     top: -20%;
@@ -468,252 +503,3 @@ body.cart-open { overflow: hidden; } /* Prevent background scrolling */
     pointer-events: none;
     filter: blur(80px);
 }
-/* =========================================
-   1. 3D TILT EFFECT & UI LOGIC
-   ========================================= */
-
-// --- 3D TILT EFFECT ---
-// This works on both the shop grid cards and the builder preview
-const tiltStages = document.querySelectorAll('.card-stage');
-
-if(tiltStages.length > 0) {
-    tiltStages.forEach(stage => {
-        stage.addEventListener('mousemove', (e) => {
-            const card = stage.querySelector('.tapt-card');
-            if(!card) return;
-            
-            // Calculate rotation based on mouse position
-            const ax = -(window.innerWidth / 2 - e.pageX) / 25;
-            const ay = (window.innerHeight / 2 - e.pageY) / 25;
-            
-            // Apply the transform
-            card.style.transform = `rotateY(${ax}deg) rotateX(${ay}deg)`;
-        });
-
-        stage.addEventListener('mouseleave', () => {
-            const card = stage.querySelector('.tapt-card');
-            if(!card) return;
-            
-            // Reset position smoothly
-            card.style.transform = `rotateY(0) rotateX(0)`;
-        });
-    });
-}
-
-// --- CUSTOMIZER LOGIC ---
-const nameInput = document.getElementById('c-name');
-const roleInput = document.getElementById('c-role');
-const themeSelect = document.getElementById('c-theme');
-const logoInput = document.getElementById('c-logo-upload');
-
-const previewName = document.getElementById('p-name');
-const previewRole = document.getElementById('p-role');
-const previewCard = document.getElementById('p-card');
-const previewLogo = document.getElementById('p-logo-preview');
-
-if (nameInput) {
-    // Update Name
-    nameInput.addEventListener('input', (e) => { 
-        previewName.innerText = e.target.value || "YOUR NAME"; 
-    });
-    
-    // Update Role
-    roleInput.addEventListener('input', (e) => { 
-        previewRole.innerText = e.target.value || "DESIGNATION"; 
-    });
-    
-    // Update Theme/Material
-    themeSelect.addEventListener('change', (e) => {
-        // Remove old skin classes
-        previewCard.classList.remove('skin-black', 'skin-gold', 'skin-white');
-        // Add new skin class
-        previewCard.classList.add(`skin-${e.target.value}`);
-        
-        // Adjust text color based on background
-        const textColor = (e.target.value === 'black') ? 'white' : 'black';
-        previewName.style.color = textColor;
-        
-        // Adjust Wifi Icon color
-        const wifiIcon = document.querySelector('.wifi-icon');
-        if(wifiIcon) {
-            wifiIcon.style.color = (e.target.value === 'black') ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
-        }
-    });
-
-    // Handle Logo Upload
-    if(logoInput) {
-        logoInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewLogo.src = e.target.result;
-                    previewLogo.style.display = 'block';
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-}
-
-/* =========================================
-   2. CART SYSTEM LOGIC
-   ========================================= */
-
-// --- Cart State ---
-let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
-let activeCoupon = null;
-
-const COUPONS = {
-    'TAPT10': 0.10, // 10% off
-    'GENZ': 0.20,   // 20% off
-    'FREE': 1.00    // 100% off
-};
-
-// --- Functions ---
-
-function toggleCart() {
-    document.body.classList.toggle('cart-open');
-}
-
-function addToCart(id, title, price, image) {
-    const existingItem = cart.find(item => item.id === id);
-    if (existingItem) {
-        existingItem.qty++;
-    } else {
-        cart.push({ id, title, price, image, qty: 1 });
-    }
-    updateCartUI();
-    
-    // Force open cart to show the user what they added
-    if(!document.body.classList.contains('cart-open')) {
-        toggleCart(); 
-    }
-}
-
-function updateQty(id, change) {
-    const item = cart.find(item => item.id === id);
-    if (!item) return;
-    
-    item.qty += change;
-    
-    if (item.qty <= 0) {
-        cart = cart.filter(i => i.id !== id);
-    }
-    updateCartUI();
-}
-
-function applyCoupon() {
-    const input = document.getElementById('coupon-input');
-    if(!input) return;
-    
-    const code = input.value.toUpperCase().trim();
-    const msg = document.getElementById('coupon-msg');
-    
-    if (COUPONS[code]) {
-        activeCoupon = { code: code, discount: COUPONS[code] };
-        msg.textContent = `Code ${code} applied!`;
-        msg.className = 'msg-success';
-        updateCartUI();
-    } else {
-        activeCoupon = null;
-        msg.textContent = 'Invalid code';
-        msg.className = 'msg-error';
-        updateCartUI();
-    }
-}
-
-function updateCartUI() {
-    // Save to Local Storage
-    localStorage.setItem('taptCart', JSON.stringify(cart));
-    
-    // Update Badge Count
-    const totalCount = cart.reduce((acc, item) => acc + item.qty, 0);
-    const badge = document.getElementById('cart-count');
-    if(badge) {
-        badge.innerText = totalCount;
-        badge.style.display = totalCount > 0 ? 'flex' : 'none';
-    }
-
-    // Render Items
-    const container = document.getElementById('cart-items-container');
-    if(!container) return;
-
-    if (cart.length === 0) {
-        container.innerHTML = '<div class="empty-msg">Your cart is empty.</div>';
-    } else {
-        container.innerHTML = cart.map(item => `
-            <div class="cart-item">
-                <div class="item-img-placeholder" style="width:80px; height:80px; background:#222; border-radius:10px; display:flex; align-items:center; justify-content:center;">
-                    <i class="fa-solid fa-credit-card" style="color:white;"></i>
-                </div>
-                <div class="item-details">
-                    <h4>${item.title}</h4>
-                    <p>₹${item.price.toLocaleString('en-IN')}</p>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="updateQty(${item.id}, -1)">−</button>
-                        <span>${item.qty}</span>
-                        <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // Calculate Totals
-    const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-    let discount = 0;
-    
-    const discountRow = document.getElementById('discount-row');
-    const discountAmount = document.getElementById('discount-amount');
-
-    if (activeCoupon) {
-        discount = subtotal * activeCoupon.discount;
-        if(discountRow) discountRow.style.display = 'flex';
-        if(discountAmount) discountAmount.innerText = `-₹${discount.toLocaleString('en-IN')}`;
-    } else {
-        if(discountRow) discountRow.style.display = 'none';
-    }
-
-    const subtotalEl = document.getElementById('subtotal-price');
-    const totalEl = document.getElementById('total-price');
-    
-    if(subtotalEl) subtotalEl.innerText = `₹${subtotal.toLocaleString('en-IN')}`;
-    if(totalEl) totalEl.innerText = `₹${(subtotal - discount).toLocaleString('en-IN')}`;
-}
-
-// --- SMART INITIALIZATION ---
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Load the UI immediately
-    updateCartUI();
-
-    // 2. Attach Click Listeners
-    
-    // Cart Trigger Icon
-    const cartTrigger = document.querySelector('.cart-trigger');
-    if(cartTrigger) {
-        cartTrigger.addEventListener('click', toggleCart);
-    }
-
-    // Close 'X' Button inside cart
-    const closeBtn = document.querySelector('.close-cart');
-    if(closeBtn) {
-        closeBtn.addEventListener('click', toggleCart);
-    }
-
-    // Overlay (Click background to close)
-    const overlay = document.querySelector('.cart-overlay');
-    if(overlay) {
-        overlay.addEventListener('click', toggleCart);
-    }
-    
-    // 3. Connect "Add to Cart" button in Customizer
-    const addToCartBtn = document.querySelector('.builder-controls .filter-btn');
-    if(addToCartBtn) {
-        addToCartBtn.addEventListener('click', () => {
-             // Generate a pseudo-random ID for the custom item
-            const customId = Date.now(); 
-            addToCart(customId, "Custom Card", 1999, "custom-card.png");
-        });
-    }
-});

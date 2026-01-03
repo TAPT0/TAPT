@@ -5,71 +5,162 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop | TAPT.</title>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <div class="noise-overlay"></div>
+    <div class="gold-glow-sphere"></div>
 
     <nav>
         <a href="index.html" class="logo">TAPT<span>.</span></a>
         <div class="nav-links">
-            <a href="shop.html" style="color:var(--tapt-gold)">Shop</a>
+            <a href="shop.html" class="active-link">Shop</a>
             <a href="customize.html">Create</a>
         </div>
     </nav>
 
-    <div class="container">
-        <h1 class="section-title">Select Your Industry</h1>
+    <div class="shop-container">
+        
+        <div class="shop-header">
+            <h1 class="section-title">Select Your <span class="gold-text">Legacy</span></h1>
+            <p class="section-subtitle">Premium NFC Metal Cards tailored to your industry.</p>
+        </div>
         
         <div class="category-filter">
-            <button class="filter-btn active">All</button>
-            <button class="filter-btn">Business</button>
-            <button class="filter-btn">Medical</button>
-            <button class="filter-btn">Hospitality</button>
-            <button class="filter-btn">Gaming</button>
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="business">Business</button>
+            <button class="filter-btn" data-filter="medical">Medical</button>
+            <button class="filter-btn" data-filter="hospitality">Hospitality</button>
+            <button class="filter-btn" data-filter="gaming">Gaming</button>
         </div>
 
         <div class="product-grid">
             
-            <a href="customize.html" class="product-card">
-                <div class="p-image">
-                    <i class="fa-solid fa-briefcase" style="font-size:3rem; color:var(--text-muted)"></i>
+            <a href="customize.html" class="product-card" data-category="business">
+                <div class="card-content">
+                    <div class="card-3d-wrapper">
+                        <div class="p-image-container">
+                            <div class="gold-shimmer"></div>
+                            <i class="fa-solid fa-briefcase icon-3d"></i>
+                        </div>
+                        <div class="card-info">
+                            <div class="p-title">The Executive</div>
+                            <div class="p-desc">Matte Black Finish.</div>
+                            <div class="p-price">₹1,999</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="p-title">The Executive</div>
-                <div class="p-desc">Matte Black. For CEOs, Founders, and Corporate Professionals.</div>
-                <div class="p-price">₹1,999</div>
             </a>
 
-            <a href="customize.html" class="product-card">
-                <div class="p-image">
-                    <i class="fa-solid fa-user-doctor" style="font-size:3rem; color:var(--text-muted)"></i>
+            <a href="customize.html" class="product-card" data-category="medical">
+                <div class="card-content">
+                    <div class="card-3d-wrapper">
+                        <div class="p-image-container">
+                            <div class="gold-shimmer"></div>
+                            <i class="fa-solid fa-user-doctor icon-3d"></i>
+                        </div>
+                        <div class="card-info">
+                            <div class="p-title">Medi-Link</div>
+                            <div class="p-desc">Clean White Ceramic.</div>
+                            <div class="p-price">₹1,499</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="p-title">Medi-Link</div>
-                <div class="p-desc">Clean White. For Doctors, Surgeons, and Healthcare staff.</div>
-                <div class="p-price">₹1,499</div>
             </a>
 
-            <a href="customize.html" class="product-card">
-                <div class="p-image">
-                    <i class="fa-solid fa-mug-hot" style="font-size:3rem; color:var(--text-muted)"></i>
+            <a href="customize.html" class="product-card" data-category="hospitality">
+                <div class="card-content">
+                    <div class="card-3d-wrapper">
+                        <div class="p-image-container">
+                            <div class="gold-shimmer"></div>
+                            <i class="fa-solid fa-mug-hot icon-3d"></i>
+                        </div>
+                        <div class="card-info">
+                            <div class="p-title">Menu Tap</div>
+                            <div class="p-desc">For Tables & Counters.</div>
+                            <div class="p-price">₹999</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="p-title">Menu Tap</div>
-                <div class="p-desc">For Tables & Counters. Instantly open your PDF Menu.</div>
-                <div class="p-price">₹999</div>
             </a>
 
-            <a href="customize.html" class="product-card">
-                <div class="p-image">
-                    <i class="fa-solid fa-gamepad" style="font-size:3rem; color:var(--tapt-blue)"></i>
+            <a href="customize.html" class="product-card" data-category="gaming">
+                <div class="card-content">
+                    <div class="card-3d-wrapper">
+                        <div class="p-image-container">
+                            <div class="gold-shimmer"></div>
+                            <i class="fa-solid fa-gamepad icon-3d"></i>
+                        </div>
+                        <div class="card-info">
+                            <div class="p-title">Streamer Pro</div>
+                            <div class="p-desc">Neon & Gold Accent.</div>
+                            <div class="p-price">₹2,499</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="p-title">Streamer Pro</div>
-                <div class="p-desc">Neon finish. Link your Twitch, YouTube, and Discord instantly.</div>
-                <div class="p-price">₹2,499</div>
             </a>
 
         </div>
     </div>
 
+    <script>
+        const cards = document.querySelectorAll('.product-card');
+
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Calculate rotation based on mouse position
+                const xRotation = -((y - rect.height / 2) / 20); // Rotate X axis
+                const yRotation = (x - rect.width / 2) / 20;   // Rotate Y axis
+
+                // Apply the transform to the inner content
+                const content = card.querySelector('.card-content');
+                content.style.transform = `perspective(1000px) rotateX(${xRotation}deg) rotateY(${yRotation}deg) scale(1.02)`;
+                
+                // Move the icon slightly more for parallax depth
+                const icon = card.querySelector('.icon-3d');
+                if(icon) {
+                    icon.style.transform = `translateZ(50px)`;
+                }
+            });
+
+            card.addEventListener('mouseleave', () => {
+                const content = card.querySelector('.card-content');
+                // Reset position smoothly
+                content.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
+                
+                const icon = card.querySelector('.icon-3d');
+                if(icon) {
+                    icon.style.transform = `translateZ(0)`;
+                }
+            });
+        });
+
+        // Simple Filter Logic
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all
+                filterBtns.forEach(b => b.classList.remove('active'));
+                // Add to clicked
+                btn.classList.add('active');
+                
+                const filterValue = btn.getAttribute('data-filter');
+                cards.forEach(card => {
+                    if(filterValue === 'all' || card.getAttribute('data-category') === filterValue) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
     <script src="script.js"></script>
 </body>
 </html>

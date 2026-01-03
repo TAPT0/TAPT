@@ -27,9 +27,8 @@
                 <div class="input-group">
                     <label>Card Material</label>
                     <select id="c-theme">
-                        <option value="black">Stealth Black (Matte)</option>
-                        <option value="gold">24K Gold (Metal)</option>
                         <option value="white">Polar White (Plastic)</option>
+                        <option value="black">Premium Printed PVC</option>
                     </select>
                 </div>
 
@@ -44,8 +43,16 @@
                 </div>
 
                 <div class="input-group">
-                    <label>Special Instructions (Engraving, Logo URL)</label>
-                    <textarea rows="3" placeholder="Paste a Google Drive link to your logo here..."></textarea>
+                    <label>Upload Logo</label>
+                    <label for="c-logo-upload" class="file-upload-label">
+                        <i class="fa-solid fa-cloud-arrow-up" style="margin-right: 8px;"></i> Choose File
+                    </label>
+                    <input type="file" id="c-logo-upload" accept="image/png, image/jpeg, image/webp">
+                </div>
+
+                <div class="input-group">
+                    <label>Special Instructions</label>
+                    <textarea rows="3" placeholder="Any specific design requests..."></textarea>
                 </div>
 
                 <button class="filter-btn active" style="width:100%; padding: 15px; margin-top: 10px; font-weight:bold;">
@@ -54,11 +61,13 @@
             </div>
 
             <div class="card-stage">
-                <div class="tapt-card skin-black" id="p-card">
+                <div class="tapt-card skin-white" id="p-card">
+                    <img id="p-logo-preview" class="card-logo" src="" style="display: none;" alt="Card Logo">
+                    
                     <div class="card-content">
                         <div style="display:flex; justify-content:space-between;">
                             <div class="chip"></div>
-                            <i class="fa-solid fa-wifi wifi-icon" style="color:rgba(255,255,255,0.5); transform: rotate(90deg); font-size: 1.5rem;"></i>
+                            <i class="fa-solid fa-wifi wifi-icon" style="color:rgba(0,0,0,0.5); transform: rotate(90deg); font-size: 1.5rem;"></i>
                         </div>
                         <div>
                             <div class="p-title" id="p-name" style="font-family: var(--font-head); font-size:1.4rem;">YOUR NAME</div>

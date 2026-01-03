@@ -21,7 +21,7 @@
         </div>
     </nav>
 
-    <div class="shop-container">
+    <div class="container">
         
         <div class="shop-header">
             <h1 class="section-title">Select Your <span class="gold-text">Legacy</span></h1>
@@ -41,9 +41,9 @@
             <a href="customize.html" class="product-card" data-category="business">
                 <div class="card-content">
                     <div class="card-3d-wrapper">
-                        <div class="p-image-container">
+                        <div class="p-image">
                             <div class="gold-shimmer"></div>
-                            <i class="fa-solid fa-briefcase icon-3d"></i>
+                            <i class="fa-solid fa-briefcase icon-3d" style="font-size: 3rem; color: #fff;"></i>
                         </div>
                         <div class="card-info">
                             <div class="p-title">The Executive</div>
@@ -57,9 +57,9 @@
             <a href="customize.html" class="product-card" data-category="medical">
                 <div class="card-content">
                     <div class="card-3d-wrapper">
-                        <div class="p-image-container">
+                        <div class="p-image">
                             <div class="gold-shimmer"></div>
-                            <i class="fa-solid fa-user-doctor icon-3d"></i>
+                            <i class="fa-solid fa-user-doctor icon-3d" style="font-size: 3rem; color: #fff;"></i>
                         </div>
                         <div class="card-info">
                             <div class="p-title">Medi-Link</div>
@@ -73,9 +73,9 @@
             <a href="customize.html" class="product-card" data-category="hospitality">
                 <div class="card-content">
                     <div class="card-3d-wrapper">
-                        <div class="p-image-container">
+                        <div class="p-image">
                             <div class="gold-shimmer"></div>
-                            <i class="fa-solid fa-mug-hot icon-3d"></i>
+                            <i class="fa-solid fa-mug-hot icon-3d" style="font-size: 3rem; color: #fff;"></i>
                         </div>
                         <div class="card-info">
                             <div class="p-title">Menu Tap</div>
@@ -89,9 +89,9 @@
             <a href="customize.html" class="product-card" data-category="gaming">
                 <div class="card-content">
                     <div class="card-3d-wrapper">
-                        <div class="p-image-container">
+                        <div class="p-image">
                             <div class="gold-shimmer"></div>
-                            <i class="fa-solid fa-gamepad icon-3d"></i>
+                            <i class="fa-solid fa-gamepad icon-3d" style="font-size: 3rem; color: #fff;"></i>
                         </div>
                         <div class="card-info">
                             <div class="p-title">Streamer Pro</div>
@@ -116,7 +116,7 @@
                 
                 // Calculate rotation based on mouse position
                 const xRotation = -((y - rect.height / 2) / 20); // Rotate X axis
-                const yRotation = (x - rect.width / 2) / 20;   // Rotate Y axis
+                const yRotation = (x - rect.width / 2) / 20;    // Rotate Y axis
 
                 // Apply the transform to the inner content
                 const content = card.querySelector('.card-content');
@@ -161,6 +161,5 @@
             });
         });
     </script>
-    <script src="script.js"></script>
 </body>
 </html>

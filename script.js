@@ -61,7 +61,6 @@ const COUPONS = {
 // --- Functions ---
 
 function toggleCart() {
-    // console.log("Toggling Cart..."); // Uncomment if testing
     document.body.classList.toggle('cart-open');
 }
 
@@ -160,11 +159,28 @@ function updateCartUI() {
     if(totalEl) totalEl.innerText = `$${(subtotal - discount).toFixed(2)}`;
 }
 
-// --- INITIALIZATION ---
+// --- SMART INITIALIZATION (The Fix) ---
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Load the UI on page refresh
+    // 1. Load the UI
     updateCartUI();
+
+    // 2. Smart Attach: Checks if you forgot 'onclick' in HTML and adds it safely
     
-    // NOTE: We removed the manual event listeners here to avoid 
-    // conflicts with the onclick="" attributes in your HTML.
+    // Cart Trigger Icon
+    const cartTrigger = document.querySelector('.cart-trigger');
+    if(cartTrigger && !cartTrigger.getAttribute('onclick')) {
+        cartTrigger.addEventListener('click', toggleCart);
+    }
+
+    // Close 'X' Button
+    const closeBtn = document.querySelector('.close-cart');
+    if(closeBtn && !closeBtn.getAttribute('onclick')) {
+        closeBtn.addEventListener('click', toggleCart);
+    }
+
+    // Overlay (Click background to close)
+    const overlay = document.querySelector('.cart-overlay');
+    if(overlay && !overlay.getAttribute('onclick')) {
+        overlay.addEventListener('click', toggleCart);
+    }
 });

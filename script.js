@@ -319,3 +319,21 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 });
+/* =========================================
+       7. CONNECT CHECKOUT BUTTON
+       ========================================= */
+    const checkoutButton = document.querySelector('.checkout-btn');
+    
+    if(checkoutButton) {
+        checkoutButton.addEventListener('click', () => {
+            // Check if cart is empty before going
+            const currentCart = JSON.parse(localStorage.getItem('taptCart')) || [];
+            
+            if(currentCart.length > 0) {
+                window.location.href = 'checkout.html';
+            } else {
+                // Optional: Shake the button or show message
+                alert("Your cart is empty.");
+            }
+        });
+    }

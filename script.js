@@ -296,29 +296,52 @@ document.addEventListener('DOMContentLoaded', () => {
         if(subtotalEl) subtotalEl.textContent = `₹${subtotal.toLocaleString()}`;
         if(totalEl) totalEl.textContent = `₹${subtotal.toLocaleString()}`;
 
-        // 4. Handle Payment Submission
-        window.handlePayment = function(e) {
-            e.preventDefault();
-            
-            // Show processing...
-            const btn = document.querySelector('.pay-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> PROCESSING...';
-            btn.style.opacity = '0.7';
+  /* --- ADD THIS TO YOUR script.js inside the handlePayment function --- */
+/* make sure you include firebase scripts in checkout.html too! */
 
-            // Fake delay for realism
-            setTimeout(() => {
-                // Clear Cart
-                localStorage.removeItem('taptCart');
-                
-                // Show Success Screen
-                if(successScreen) {
-                    successScreen.classList.add('active');
-                }
-            }, 2000);
-        };
-    }
-});
+window.handlePayment = function(e) {
+    e.preventDefault();
+    
+    // 1. Get Cart & Form Data
+    const cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+    const email = document.querySelector('input[type="email"]').value;
+    const fName = document.querySelectorAll('.input-grid input')[0].value;
+    const lName = document.querySelectorAll('.input-grid input')[1].value;
+    const address = document.querySelectorAll('.input-row input')[1].value; // Adjust index based on your HTML
+    
+    // Calculate final total (assuming you stored it in a variable or re-calc)
+    let total = 0;
+    cart.forEach(item => total += (item.price * item.qty));
+
+    // 2. Prepare Order Object
+    const orderData = {
+        contactEmail: email,
+        shipping: {
+            firstName: fName,
+            lastName: lName,
+            address: address
+        },
+        items: cart,
+        total: total,
+        date: new Date().toISOString(),
+        status: 'paid'
+    };
+
+    // 3. Send to Firebase (Realtime Database)
+    // IMPORTANT: You need to initialize Firebase in checkout.html similar to admin.html
+    // const db = firebase.database();
+    
+    const newOrderRef = firebase.database().ref('orders').push();
+    newOrderRef.set(orderData, (error) => {
+        if (error) {
+            alert("Order failed. Please try again.");
+        } else {
+            // Success!
+            localStorage.removeItem('taptCart');
+            document.getElementById('success-overlay').classList.add('active');
+        }
+    });
+};
 /* =========================================
        7. CONNECT CHECKOUT BUTTON
        ========================================= */

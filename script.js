@@ -1,269 +1,24 @@
-/* =========================================
-   1. 3D TILT EFFECT & UI LOGIC
-   ========================================= */
-
-// --- 3D TILT EFFECT ---
-// This works on both the shop grid cards and the builder preview
-const tiltStages = document.querySelectorAll('.card-stage');
-
-if(tiltStages.length > 0) {
-    tiltStages.forEach(stage => {
-        stage.addEventListener('mousemove', (e) => {
-            const card = stage.querySelector('.tapt-card');
-            if(!card) return;
-            
-            // Calculate rotation based on mouse position
-            const ax = -(window.innerWidth / 2 - e.pageX) / 25;
-            const ay = (window.innerHeight / 2 - e.pageY) / 25;
-            
-            // Apply the transform
-            card.style.transform = `rotateY(${ax}deg) rotateX(${ay}deg)`;
-        });
-
-        stage.addEventListener('mouseleave', () => {
-            const card = stage.querySelector('.tapt-card');
-            if(!card) return;
-            
-            // Reset position smoothly
-            card.style.transform = `rotateY(0) rotateX(0)`;
-        });
-    });
-}
-
-// --- CUSTOMIZER LOGIC ---
-const nameInput = document.getElementById('c-name');
-const roleInput = document.getElementById('c-role');
-const themeSelect = document.getElementById('c-theme');
-const logoInput = document.getElementById('c-logo-upload');
-
-const previewName = document.getElementById('p-name');
-const previewRole = document.getElementById('p-role');
-const previewCard = document.getElementById('p-card');
-const previewLogo = document.getElementById('p-logo-preview');
-
-if (nameInput) {
-    // Update Name
-    nameInput.addEventListener('input', (e) => { 
-        previewName.innerText = e.target.value || "YOUR NAME"; 
-    });
-    
-    // Update Role
-    roleInput.addEventListener('input', (e) => { 
-        previewRole.innerText = e.target.value || "DESIGNATION"; 
-    });
-    
-    // Update Theme/Material
-    themeSelect.addEventListener('change', (e) => {
-        // Remove old skin classes
-        previewCard.classList.remove('skin-black', 'skin-gold', 'skin-white');
-        // Add new skin class
-        previewCard.classList.add(`skin-${e.target.value}`);
-        
-        // Adjust text color based on background
-        const textColor = (e.target.value === 'black') ? 'white' : 'black';
-        previewName.style.color = textColor;
-        
-        // Adjust Wifi Icon color
-        const wifiIcon = document.querySelector('.wifi-icon');
-        if(wifiIcon) {
-            wifiIcon.style.color = (e.target.value === 'black') ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
-        }
-    });
-
-    // Handle Logo Upload
-    if(logoInput) {
-        logoInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewLogo.src = e.target.result;
-                    previewLogo.style.display = 'block';
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-}
-
-/* =========================================
-   2. CART SYSTEM LOGIC
-   ========================================= */
-
-// --- Cart State ---
-let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
-let activeCoupon = null;
-
-const COUPONS = {
-    'TAPT10': 0.10, // 10% off
-    'GENZ': 0.20,   // 20% off
-    'FREE': 1.00    // 100% off
-};
-
-// --- Functions ---
-
-function toggleCart() {
-    document.body.classList.toggle('cart-open');
-}
-
-function addToCart(id, title, price, image) {
-    const existingItem = cart.find(item => item.id === id);
-    if (existingItem) {
-        existingItem.qty++;
-    } else {
-        cart.push({ id, title, price, image, qty: 1 });
-    }
-    updateCartUI();
-    
-    // Force open cart to show the user what they added
-    if(!document.body.classList.contains('cart-open')) {
-        toggleCart(); 
-    }
-}
-
-function updateQty(id, change) {
-    const item = cart.find(item => item.id === id);
-    if (!item) return;
-    
-    item.qty += change;
-    
-    if (item.qty <= 0) {
-        cart = cart.filter(i => i.id !== id);
-    }
-    updateCartUI();
-}
-
-function applyCoupon() {
-    const input = document.getElementById('coupon-input');
-    if(!input) return;
-    
-    const code = input.value.toUpperCase().trim();
-    const msg = document.getElementById('coupon-msg');
-    
-    if (COUPONS[code]) {
-        activeCoupon = { code: code, discount: COUPONS[code] };
-        msg.textContent = `Code ${code} applied!`;
-        msg.className = 'msg-success';
-        updateCartUI();
-    } else {
-        activeCoupon = null;
-        msg.textContent = 'Invalid code';
-        msg.className = 'msg-error';
-        updateCartUI();
-    }
-}
-
-function updateCartUI() {
-    // Save to Local Storage
-    localStorage.setItem('taptCart', JSON.stringify(cart));
-    
-    // Update Badge Count
-    const totalCount = cart.reduce((acc, item) => acc + item.qty, 0);
-    const badge = document.getElementById('cart-count');
-    if(badge) {
-        badge.innerText = totalCount;
-        badge.style.display = totalCount > 0 ? 'flex' : 'none';
-    }
-
-    // Render Items
-    const container = document.getElementById('cart-items-container');
-    if(!container) return;
-
-    if (cart.length === 0) {
-        container.innerHTML = '<div class="empty-msg">Your cart is empty.</div>';
-    } else {
-        container.innerHTML = cart.map(item => `
-            <div class="cart-item">
-                <div class="item-img-placeholder" style="width:80px; height:80px; background:#222; border-radius:10px; display:flex; align-items:center; justify-content:center;">
-                    <i class="fa-solid fa-credit-card" style="color:white;"></i>
-                </div>
-                <div class="item-details">
-                    <h4>${item.title}</h4>
-                    <p>₹${item.price.toLocaleString('en-IN')}</p>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="updateQty(${item.id}, -1)">−</button>
-                        <span>${item.qty}</span>
-                        <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // Calculate Totals
-    const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-    let discount = 0;
-    
-    const discountRow = document.getElementById('discount-row');
-    const discountAmount = document.getElementById('discount-amount');
-
-    if (activeCoupon) {
-        discount = subtotal * activeCoupon.discount;
-        if(discountRow) discountRow.style.display = 'flex';
-        if(discountAmount) discountAmount.innerText = `-₹${discount.toLocaleString('en-IN')}`;
-    } else {
-        if(discountRow) discountRow.style.display = 'none';
-    }
-
-    const subtotalEl = document.getElementById('subtotal-price');
-    const totalEl = document.getElementById('total-price');
-    
-    if(subtotalEl) subtotalEl.innerText = `₹${subtotal.toLocaleString('en-IN')}`;
-    if(totalEl) totalEl.innerText = `₹${(subtotal - discount).toLocaleString('en-IN')}`;
-}
-
-// --- SMART INITIALIZATION ---
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Load the UI immediately
-    updateCartUI();
-
-    // 2. Attach Click Listeners
-    
-    // Cart Trigger Icon
-    const cartTrigger = document.querySelector('.cart-trigger');
-    if(cartTrigger) {
-        cartTrigger.addEventListener('click', toggleCart);
-    }
-
-    // Close 'X' Button inside cart
-    const closeBtn = document.querySelector('.close-cart');
-    if(closeBtn) {
-        closeBtn.addEventListener('click', toggleCart);
-    }
-
-    // Overlay (Click background to close)
-    const overlay = document.querySelector('.cart-overlay');
-    if(overlay) {
-        overlay.addEventListener('click', toggleCart);
-    }
-    
-    // 3. Connect "Add to Cart" button in Customizer
-    const addToCartBtn = document.querySelector('.builder-controls .filter-btn');
-    if(addToCartBtn) {
-        addToCartBtn.addEventListener('click', () => {
-             // Generate a pseudo-random ID for the custom item
-            const customId = Date.now(); 
-            addToCart(customId, "Custom Card", 1999, "custom-card.png");
-        });
-    }
-});
-/* =========================================
-   3. CINEMATIC INTERACTIONS (Added)
-   ========================================= */
-
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- A. PRELOADER LOGIC ---
+    /* =========================================
+       1. GLOBAL UI (PRELOADER & CURSOR)
+       ========================================= */
+    
+    // --- Preloader ---
     const preloader = document.querySelector('.preloader');
     if(preloader) {
-        // Wait 1.5 seconds then fade out
+        // Force scroll to top on load
+        window.scrollTo(0, 0);
+        
         setTimeout(() => {
             preloader.classList.add('fade-out');
-            document.body.style.overflow = 'auto'; // Unlock scroll
-        }, 1500);
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 500);
+        }, 1500); // 1.5 seconds delay
     }
 
-    // --- B. CUSTOM CURSOR LOGIC ---
+    // --- Custom Cursor ---
     const cursorDot = document.querySelector('[data-cursor-dot]');
     const cursorOutline = document.querySelector('[data-cursor-outline]');
 
@@ -276,40 +31,215 @@ document.addEventListener('DOMContentLoaded', () => {
             cursorDot.style.left = `${posX}px`;
             cursorDot.style.top = `${posY}px`;
 
-            // Outline follows with slight delay (for that "liquid" feel)
+            // Outline follows with slight delay
             cursorOutline.animate({
                 left: `${posX}px`,
                 top: `${posY}px`
             }, { duration: 500, fill: "forwards" });
         });
 
-        // Add Hover Effect for Links & Buttons
-        const clickables = document.querySelectorAll('a, button, select, input, .product-card');
-        clickables.forEach(el => {
-            el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-            el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+        // Hover Effects (Grow cursor on interactive elements)
+        const interactiveElements = document.querySelectorAll('a, button, input, select, .cart-trigger, .product-card');
+        
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursorOutline.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                cursorOutline.style.backgroundColor = 'rgba(212, 175, 55, 0.1)'; // Slight gold tint
+            });
+            el.addEventListener('mouseleave', () => {
+                cursorOutline.style.transform = 'translate(-50%, -50%) scale(1)';
+                cursorOutline.style.backgroundColor = 'transparent';
+            });
         });
     }
 
-    // --- C. LENIS SMOOTH SCROLL ---
-    // Only init if Lenis is loaded
-    if (typeof Lenis !== 'undefined') {
-        const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            direction: 'vertical',
-            gestureDirection: 'vertical',
-            smooth: true,
-            mouseMultiplier: 1,
-            smoothTouch: false,
-            touchMultiplier: 2,
-        });
+    /* =========================================
+       2. CART SYSTEM
+       ========================================= */
+    
+    // Cart Data
+    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+    const cartDrawer = document.querySelector('.cart-drawer');
+    const cartOverlay = document.querySelector('.cart-overlay');
+    const cartCountBadge = document.getElementById('cart-count');
 
-        function raf(time) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
+    // --- Toggle Cart Function ---
+    window.toggleCart = function() {
+        if(cartDrawer && cartOverlay) {
+            cartDrawer.classList.toggle('open');
+            cartOverlay.classList.toggle('open');
+        }
+    };
+
+    // --- Add to Cart Function ---
+    window.addToCart = function(id, title, price, image) {
+        const existingItem = cart.find(item => item.id === id);
+        
+        if (existingItem) {
+            existingItem.qty++;
+        } else {
+            cart.push({ id, title, price, image, qty: 1 });
+        }
+        
+        updateCartUI();
+        toggleCart(); // Open cart to show user
+    };
+
+    // --- Update Quantity ---
+    window.updateQty = function(id, change) {
+        const item = cart.find(item => item.id === id);
+        if (!item) return;
+
+        item.qty += change;
+
+        if (item.qty <= 0) {
+            cart = cart.filter(i => i.id !== id);
+        }
+        updateCartUI();
+    };
+
+    // --- Update UI (Render HTML) ---
+    function updateCartUI() {
+        // Save to local storage
+        localStorage.setItem('taptCart', JSON.stringify(cart));
+
+        // Update Badge
+        const totalCount = cart.reduce((acc, item) => acc + item.qty, 0);
+        if(cartCountBadge) {
+            cartCountBadge.textContent = totalCount;
+            cartCountBadge.style.display = totalCount > 0 ? 'flex' : 'none';
         }
 
-        requestAnimationFrame(raf);
+        // Render Items in Drawer
+        const container = document.getElementById('cart-items-container');
+        if(container) {
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="empty-msg" style="color:black;">Your cart is empty.</div>';
+            } else {
+                container.innerHTML = cart.map(item => `
+                    <div class="cart-item" style="display:flex; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                        <div style="width:60px; height:60px; background:#333; border-radius:8px; margin-right:15px; display:flex; align-items:center; justify-content:center;">
+                            <i class="fa-solid fa-credit-card" style="color:white;"></i>
+                        </div>
+                        <div style="flex:1;">
+                            <h4 style="font-size:0.9rem; margin-bottom:5px; color:black;">${item.title}</h4>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-weight:bold; color:black;">₹${item.price}</span>
+                                <div style="display:flex; gap:10px; align-items:center; background:#eee; padding:2px 8px; border-radius:5px;">
+                                    <button onclick="updateQty(${item.id}, -1)" style="border:none; background:none; cursor:pointer; font-size:1.2rem;">-</button>
+                                    <span style="font-size:0.9rem;">${item.qty}</span>
+                                    <button onclick="updateQty(${item.id}, 1)" style="border:none; background:none; cursor:pointer; font-size:1.2rem;">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Update Totals
+        const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+        const subtotalEl = document.getElementById('subtotal-price');
+        const totalEl = document.getElementById('total-price');
+
+        if(subtotalEl) subtotalEl.textContent = `₹${subtotal.toLocaleString()}`;
+        if(totalEl) totalEl.textContent = `₹${subtotal.toLocaleString()}`;
     }
+
+    // Initialize Cart on Load
+    updateCartUI();
+
+
+    /* =========================================
+       3. CUSTOMIZER LOGIC (Create Page)
+       ========================================= */
+    const themeSelect = document.getElementById('c-theme');
+    const previewCard = document.getElementById('p-card');
+    const nameInput = document.getElementById('c-name');
+    const previewName = document.getElementById('p-name');
+    const roleInput = document.getElementById('c-role');
+    const previewRole = document.getElementById('p-role');
+    const logoInput = document.getElementById('c-logo-upload');
+    const previewLogo = document.getElementById('p-logo-preview');
+    const addToCartBtn = document.querySelector('.builder-controls .filter-btn'); // The Add Button
+
+    if (themeSelect && previewCard) {
+        // Theme Changer
+        themeSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'black') {
+                previewCard.classList.remove('skin-white');
+                previewCard.classList.add('skin-black');
+            } else {
+                previewCard.classList.remove('skin-black');
+                previewCard.classList.add('skin-white');
+            }
+        });
+
+        // Name Live Update
+        nameInput.addEventListener('input', (e) => {
+            previewName.textContent = e.target.value || 'YOUR NAME';
+        });
+
+        // Role Live Update
+        roleInput.addEventListener('input', (e) => {
+            previewRole.textContent = e.target.value || 'DESIGNATION';
+        });
+
+        // Logo Upload
+        logoInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewLogo.src = e.target.result;
+                    previewLogo.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Add Custom Card to Cart
+        if(addToCartBtn) {
+            addToCartBtn.addEventListener('click', () => {
+                const customPrice = 1999; // Or dynamic price
+                const customName = `Custom Card (${themeSelect.value})`;
+                // Use current timestamp as unique ID
+                addToCart(Date.now(), customName, customPrice, null);
+            });
+        }
+    }
+
+
+    /* =========================================
+       4. 3D TILT EFFECT
+       ========================================= */
+    const stages = document.querySelectorAll('.card-stage, .card-3d-wrapper');
+    
+    stages.forEach(stage => {
+        stage.addEventListener('mousemove', (e) => {
+            // Find the actual card element (handle both customize and shop structures)
+            const card = stage.querySelector('.tapt-card') || stage.querySelector('.p-image');
+            if(!card) return;
+
+            const rect = stage.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Calculate rotation
+            const xRotation = -((y - rect.height / 2) / 15);
+            const yRotation = (x - rect.width / 2) / 15;
+
+            // Apply transform
+            card.style.transform = `rotateX(${xRotation}deg) rotateY(${yRotation}deg) scale(1.02)`;
+        });
+
+        stage.addEventListener('mouseleave', () => {
+            const card = stage.querySelector('.tapt-card') || stage.querySelector('.p-image');
+            if(!card) return;
+            
+            // Reset
+            card.style.transform = `rotateX(0) rotateY(0) scale(1)`;
+        });
+    });
+
 });

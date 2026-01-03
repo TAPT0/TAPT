@@ -36,125 +36,21 @@
             <button class="filter-btn" data-filter="gaming">Gaming</button>
         </div>
 
-        <div class="product-grid">
-            
-            <a href="customize.html" class="product-card" data-category="business">
-                <div class="card-content">
-                    <div class="card-3d-wrapper">
-                        <div class="p-image">
-                            <div class="gold-shimmer"></div>
-                            <i class="fa-solid fa-briefcase icon-3d" style="font-size: 3rem; color: #fff;"></i>
-                        </div>
-                        <div class="card-info">
-                            <div class="p-title">The Executive</div>
-                            <div class="p-desc">Premium Matte PVC.</div>
-                            <div class="p-price">₹1,999</div>
-                        </div>
-                    </div>
-                </div>
-            </a>
-
-            <a href="customize.html" class="product-card" data-category="medical">
-                <div class="card-content">
-                    <div class="card-3d-wrapper">
-                        <div class="p-image">
-                            <div class="gold-shimmer"></div>
-                            <i class="fa-solid fa-user-doctor icon-3d" style="font-size: 3rem; color: #fff;"></i>
-                        </div>
-                        <div class="card-info">
-                            <div class="p-title">Medi-Link</div>
-                            <div class="p-desc">Clean White PVC.</div>
-                            <div class="p-price">₹1,499</div>
-                        </div>
-                    </div>
-                </div>
-            </a>
-
-            <a href="customize.html" class="product-card" data-category="hospitality">
-                <div class="card-content">
-                    <div class="card-3d-wrapper">
-                        <div class="p-image">
-                            <div class="gold-shimmer"></div>
-                            <i class="fa-solid fa-mug-hot icon-3d" style="font-size: 3rem; color: #fff;"></i>
-                        </div>
-                        <div class="card-info">
-                            <div class="p-title">Menu Tap</div>
-                            <div class="p-desc">Durable Printed PVC.</div>
-                            <div class="p-price">₹999</div>
-                        </div>
-                    </div>
-                </div>
-            </a>
-
-            <a href="customize.html" class="product-card" data-category="gaming">
-                <div class="card-content">
-                    <div class="card-3d-wrapper">
-                        <div class="p-image">
-                            <div class="gold-shimmer"></div>
-                            <i class="fa-solid fa-gamepad icon-3d" style="font-size: 3rem; color: #fff;"></i>
-                        </div>
-                        <div class="card-info">
-                            <div class="p-title">Streamer Pro</div>
-                            <div class="p-desc">High-Gloss PVC.</div>
-                            <div class="p-price">₹2,499</div>
-                        </div>
-                    </div>
-                </div>
-            </a>
-
+        <div class="search-container" style="text-align: center; margin-bottom: 40px;">
+            <div style="position: relative; display: inline-block; width: 100%; max-width: 400px;">
+                <input type="text" id="shop-search" placeholder="Search products..." 
+                    style="width: 100%; padding: 15px 20px; padding-right: 50px; 
+                    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); 
+                    color: white; border-radius: 50px; outline: none; font-family: 'Inter', sans-serif; cursor:text;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #888;"></i>
+            </div>
         </div>
+
+        <div class="product-grid" id="shop-grid">
+            <p style="text-align: center; color: #666; width: 100%; grid-column: 1 / -1;">Loading products from database...</p>
+        </div>
+
     </div>
-
-    <script>
-        const cards = document.querySelectorAll('.product-card');
-
-        cards.forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const xRotation = -((y - rect.height / 2) / 20); 
-                const yRotation = (x - rect.width / 2) / 20;    
-
-                const content = card.querySelector('.card-content');
-                content.style.transform = `perspective(1000px) rotateX(${xRotation}deg) rotateY(${yRotation}deg) scale(1.02)`;
-                
-                const icon = card.querySelector('.icon-3d');
-                if(icon) {
-                    icon.style.transform = `translateZ(50px)`;
-                }
-            });
-
-            card.addEventListener('mouseleave', () => {
-                const content = card.querySelector('.card-content');
-                content.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
-                
-                const icon = card.querySelector('.icon-3d');
-                if(icon) {
-                    icon.style.transform = `translateZ(0)`;
-                }
-            });
-        });
-
-        // Simple Filter Logic
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                
-                const filterValue = btn.getAttribute('data-filter');
-                cards.forEach(card => {
-                    if(filterValue === 'all' || card.getAttribute('data-category') === filterValue) {
-                        card.style.display = 'block';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
-        });
-    </script>
 
     <div class="cart-trigger" onclick="toggleCart()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
@@ -193,7 +89,7 @@
                 <span id="total-price">₹0.00</span>
             </div>
             
-            <button class="checkout-btn">Proceed to Checkout</button>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">Proceed to Checkout</button>
         </div>
     </div>
 
@@ -203,6 +99,137 @@
 
     <div class="cursor-dot" data-cursor-dot></div>
     <div class="cursor-outline" data-cursor-outline></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
+            authDomain: "tapt-337b8.firebaseapp.com",
+            projectId: "tapt-337b8",
+            storageBucket: "tapt-337b8.firebasestorage.app",
+            messagingSenderId: "887956121124",
+            appId: "1:887956121124:web:6856680bf75aa3bacddab1",
+            measurementId: "G-2CB8QXYNJY"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('shop-grid');
+            const searchInput = document.getElementById('shop-search');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            
+            let allProducts = []; // Store fetched products here
+
+            if (typeof firebase !== 'undefined') {
+                const dbRef = firebase.database().ref('products');
+
+                // 1. Fetch Data
+                dbRef.on('value', (snapshot) => {
+                    grid.innerHTML = "";
+                    allProducts = []; // Reset list
+
+                    if(!snapshot.exists()) {
+                        grid.innerHTML = "<p style='text-align:center; width:100%; color:#888;'>No products found.</p>";
+                        return;
+                    }
+
+                    // Process Data
+                    snapshot.forEach((child) => {
+                        const p = child.val();
+                        p.id = child.key; // Add ID to object
+                        allProducts.push(p);
+                    });
+
+                    // Initial Render
+                    renderProducts(allProducts);
+                });
+            }
+
+            // 2. Render Function
+            function renderProducts(products) {
+                grid.innerHTML = "";
+                
+                if(products.length === 0) {
+                    grid.innerHTML = "<p style='text-align:center; width:100%; color:#888;'>No matches found.</p>";
+                    return;
+                }
+
+                products.forEach(p => {
+                    const img = (p.images && p.images.length > 0) ? p.images[0] : 'https://via.placeholder.com/300x200?text=No+Image';
+
+                    // Create Card
+                    const card = document.createElement('a');
+                    card.href = `product.html?id=${p.id}`;
+                    card.className = "product-card";
+                    
+                    card.innerHTML = `
+                        <div class="card-content">
+                            <div class="card-3d-wrapper">
+                                <div class="p-image" style="background-image: url('${img}'); background-size: cover; background-position: center;">
+                                    <div class="gold-shimmer"></div>
+                                </div>
+                                <div class="card-info">
+                                    <div class="p-title" style="color:white;">${p.title}</div>
+                                    <div class="p-desc" style="text-transform:uppercase; font-size:0.8rem;">${p.category}</div>
+                                    <div class="p-price">₹${p.price}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+
+                    // Attach Tilt Effect (Inline for dynamic elements)
+                    card.addEventListener('mousemove', (e) => {
+                        const content = card.querySelector('.card-content');
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        
+                        const xRotation = -((y - rect.height / 2) / 20);
+                        const yRotation = (x - rect.width / 2) / 20;
+
+                        content.style.transform = `perspective(1000px) rotateX(${xRotation}deg) rotateY(${yRotation}deg) scale(1.02)`;
+                    });
+                    
+                    card.addEventListener('mouseleave', () => {
+                        const content = card.querySelector('.card-content');
+                        content.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
+                    });
+                });
+            }
+
+            // 3. Search Logic
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                const filtered = allProducts.filter(p => 
+                    p.title.toLowerCase().includes(term) || 
+                    p.category.toLowerCase().includes(term)
+                );
+                renderProducts(filtered);
+            });
+
+            // 4. Category Filter Logic
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update Active Class
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const category = btn.getAttribute('data-filter');
+                    
+                    if(category === 'all') {
+                        renderProducts(allProducts);
+                    } else {
+                        const filtered = allProducts.filter(p => p.category.toLowerCase() === category);
+                        renderProducts(filtered);
+                    }
+                });
+            });
+        });
+    </script>
 
     <script src="script.js"></script>
 

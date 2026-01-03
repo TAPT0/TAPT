@@ -247,3 +247,69 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+/* =========================================
+   3. CINEMATIC INTERACTIONS (Added)
+   ========================================= */
+
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // --- A. PRELOADER LOGIC ---
+    const preloader = document.querySelector('.preloader');
+    if(preloader) {
+        // Wait 1.5 seconds then fade out
+        setTimeout(() => {
+            preloader.classList.add('fade-out');
+            document.body.style.overflow = 'auto'; // Unlock scroll
+        }, 1500);
+    }
+
+    // --- B. CUSTOM CURSOR LOGIC ---
+    const cursorDot = document.querySelector('[data-cursor-dot]');
+    const cursorOutline = document.querySelector('[data-cursor-outline]');
+
+    if (cursorDot && cursorOutline) {
+        window.addEventListener('mousemove', (e) => {
+            const posX = e.clientX;
+            const posY = e.clientY;
+
+            // Dot follows instantly
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+
+            // Outline follows with slight delay (for that "liquid" feel)
+            cursorOutline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, { duration: 500, fill: "forwards" });
+        });
+
+        // Add Hover Effect for Links & Buttons
+        const clickables = document.querySelectorAll('a, button, select, input, .product-card');
+        clickables.forEach(el => {
+            el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+        });
+    }
+
+    // --- C. LENIS SMOOTH SCROLL ---
+    // Only init if Lenis is loaded
+    if (typeof Lenis !== 'undefined') {
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+
+        requestAnimationFrame(raf);
+    }
+});

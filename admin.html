@@ -193,12 +193,20 @@
             appId: "..."
         };
 
-        const IMG_BB_API_KEY = "PASTE_YOUR_IMGBB_KEY_HERE"; 
+        const firebaseConfig = {
+  apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
+  authDomain: "tapt-337b8.firebaseapp.com",
+  
+  // --- ADD THIS LINE BELOW ---
+  databaseURL: "https://console.firebase.google.com/u/3/project/tapt-337b8/database/tapt-337b8-default-rtdb/data/~2F", 
+  // ---------------------------
 
-        // Initialize
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
+  projectId: "tapt-337b8",
+  storageBucket: "tapt-337b8.firebasestorage.app",
+  messagingSenderId: "887956121124",
+  appId: "1:887956121124:web:6856680bf75aa3bacddab1",
+  measurementId: "G-2CB8QXYNJY"
+};
         /* --- AUTHENTICATION --- */
         function checkAdmin() {
             const pass = document.getElementById('admin-pass').value;

@@ -12,49 +12,31 @@
     <link rel="stylesheet" href="style.css">
     
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+    <style>
+        .hero-layout {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column; /* This stacks items vertically */
+            justify-content: center;
+            align-items: center;
+            padding-top: 60px;
+            background: radial-gradient(circle at 50% 50%, rgba(229, 195, 101, 0.15), transparent 60%);
+        }
+        
+        /* Ensure the title doesn't overlap */
+        .hero-title {
+            font-size: 3.5rem; 
+            text-align: center; 
+            margin-bottom: 40px; 
+            line-height: 1.1;
+            mix-blend-mode: overlay;
+        }
+
+        /* Mobile adjustment */
+        @media(max-width: 600px) {
+            .hero-title { font-size: 2.5rem; }
+        }
+    </style>
 </head>
 <body>
-
-    <nav>
-        <div class="logo">TAPT<span>.</span></div>
-        
-        <div class="nav-links">
-            <a href="shop.html">Shop</a>
-            <a href="customize.html">Create</a>
-        </div>
-
-        <a href="shop.html" class="btn-primary" style="text-decoration:none;">Get Yours $49</a>
-    </nav>
-
-    <div class="stage card-stage"> <h1 class="section-title" style="font-size: 4vw; text-align: center; mix-blend-mode: overlay;">
-            One Card.<br>Infinite Connections.
-        </h1>
-
-        <div class="card-container">
-            <div class="tapt-card skin-black"> <div class="card-content">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <div class="chip"></div>
-                        <i class="fa-solid fa-wifi" style="color:rgba(255,255,255,0.5); transform: rotate(90deg); font-size: 1.5rem;"></i>
-                    </div>
-
-                    <div class="card-footer" style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto;">
-                        <div>
-                            <div class="p-title" style="font-family: 'Syncopate', sans-serif; font-size:1.2rem;">HASNAIN LORI</div>
-                            <div class="p-desc" style="color:var(--tapt-gold); margin-top: 5px; font-size: 0.8rem;">FOUNDER</div>
-                        </div>
-                        <div class="logo" style="font-size: 0.8rem; color: rgba(255,255,255,0.3);">TAPT.</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="controls" style="margin-top: 50px; border:none; background: transparent;">
-            <a href="customize.html" class="filter-btn active" style="text-decoration: none; padding: 15px 40px; font-size: 1rem;">
-                Customize Your Card <i class="fa-solid fa-arrow-right" style="margin-left: 10px;"></i>
-            </a>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>

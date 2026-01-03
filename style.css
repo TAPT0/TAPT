@@ -143,3 +143,26 @@ nav {
     .builder-layout { flex-direction: column-reverse; }
     .tapt-card { width: 320px; height: 200px; }
 }
+/* --- HERO FIXES (Add to bottom of style.css) --- */
+.hero-stage {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column; /* Stacks items vertically */
+    justify-content: center;
+    align-items: center;
+    padding-top: 80px; /* Pushes content below the Navbar */
+    background: var(--glow);
+}
+
+.hero-title {
+    font-size: 3.5rem; /* Fixed size so it doesn't break */
+    line-height: 1.1;
+    text-align: center;
+    margin-bottom: 50px;
+    z-index: 2; /* Ensures text stays above background */
+}
+
+/* Ensure the card container doesn't get squashed */
+.hero-stage .card-container {
+    margin-bottom: 40px;
+}

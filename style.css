@@ -143,34 +143,32 @@ nav {
     .builder-layout { flex-direction: column-reverse; }
     .tapt-card { width: 320px; height: 200px; }
 }
-/* --- HERO FIXES (Add to bottom of style.css) --- */
+/* --- HERO FIXES --- */
 .hero-stage {
     min-height: 100vh;
     display: flex;
-    flex-direction: column; /* Stacks items vertically */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding-top: 80px; /* Pushes content below the Navbar */
+    padding-top: 80px;
     background: var(--glow);
 }
 
 .hero-title {
-    font-size: 3.5rem; /* Fixed size so it doesn't break */
+    font-size: 3.5rem;
     line-height: 1.1;
     text-align: center;
     margin-bottom: 50px;
-    z-index: 2; /* Ensures text stays above background */
+    z-index: 2;
 }
 
-/* Ensure the card container doesn't get squashed */
 .hero-stage .card-container {
     margin-bottom: 40px;
 }
 
 /* --- ADDED FEATURE: LOGO UPLOAD & POSITIONING --- */
-/* Styles the file input to look like a cool button */
 input[type="file"] {
-    display: none; /* Hide default ugly input */
+    display: none;
 }
 
 .file-upload-label {
@@ -197,14 +195,17 @@ input[type="file"] {
     box-shadow: 0 0 15px rgba(229, 195, 101, 0.1);
 }
 
-/* Positions the uploaded logo on the card */
 .card-logo {
     position: absolute;
     top: 25px;
-    right: 30px; /* Top Right corner opposite the chip usually */
+    right: 30px;
     max-width: 60px;
     max-height: 60px;
     object-fit: contain;
     z-index: 20;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); /* Slight shadow for realism */
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
 }
+
+/* --- UTILITIES ADDED FOR SHOP PAGE --- */
+.gold-text { color: var(--tapt-gold); }
+.shop-header { text-align: center; margin-bottom: 40px; }

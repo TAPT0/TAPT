@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | TAPT.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="noise-overlay"></div>
+    <div class="gold-glow-sphere" style="top: -50%; width: 1000px;"></div>
+
+    <nav style="position: relative; background: transparent; border: none; padding-top: 30px;">
+        <a href="shop.html" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Back to Shop
+        </a>
+        <a href="index.html" class="logo">TAPT<span>.</span></a>
+        <div style="width: 100px;"></div> </nav>
+
+    <div class="container checkout-container">
+        <form id="checkout-form" onsubmit="handlePayment(event)">
+            
+            <div class="checkout-layout">
+                
+                <div class="checkout-left">
+                    
+                    <div class="checkout-section">
+                        <h2 class="c-head">01. Contact Info</h2>
+                        <div class="input-row">
+                            <input type="email" placeholder="Email Address" required>
+                        </div>
+                    </div>
+
+                    <div class="checkout-section">
+                        <h2 class="c-head">02. Shipping Details</h2>
+                        <div class="input-grid">
+                            <input type="text" placeholder="First Name" required>
+                            <input type="text" placeholder="Last Name" required>
+                        </div>
+                        <div class="input-row">
+                            <input type="text" placeholder="Address" required>
+                        </div>
+                        <div class="input-grid">
+                            <input type="text" placeholder="City" required>
+                            <input type="text" placeholder="ZIP / Pin Code" required>
+                        </div>
+                        <div class="input-row">
+                            <input type="text" placeholder="Phone Number" required>
+                        </div>
+                    </div>
+
+                    <div class="checkout-section">
+                        <h2 class="c-head">03. Payment Method</h2>
+                        <div class="payment-options">
+                            <label class="pay-option selected">
+                                <input type="radio" name="payment" value="card" checked>
+                                <div class="pay-box">
+                                    <i class="fa-regular fa-credit-card"></i>
+                                    <span>Card</span>
+                                </div>
+                            </label>
+                            <label class="pay-option">
+                                <input type="radio" name="payment" value="upi">
+                                <div class="pay-box">
+                                    <i class="fa-solid fa-mobile-screen"></i>
+                                    <span>UPI / QR</span>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div class="card-element-mock">
+                            <i class="fa-solid fa-lock" style="margin-right: 10px; color: var(--tapt-gold);"></i>
+                            Secure Payment Gateway (Encrypted)
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="checkout-right">
+                    <div class="summary-card">
+                        <h3 class="c-head" style="font-size: 1.2rem;">Order Summary</h3>
+                        
+                        <div id="checkout-items-list" class="checkout-items">
+                            </div>
+
+                        <div class="checkout-math">
+                            <div class="math-row">
+                                <span>Subtotal</span>
+                                <span id="c-subtotal">₹0</span>
+                            </div>
+                            <div class="math-row">
+                                <span>Shipping</span>
+                                <span>FREE</span>
+                            </div>
+                            <div class="math-row total">
+                                <span>Total</span>
+                                <span id="c-total">₹0</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="pay-btn">
+                            PAY NOW &nbsp; <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+
+                        <p class="secure-text">
+                            <i class="fa-solid fa-shield-halved"></i> 100% Secure Checkout
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <div id="success-overlay" class="success-screen">
+        <div class="success-content">
+            <i class="fa-regular fa-circle-check"></i>
+            <h1>Payment Successful</h1>
+            <p>Welcome to the Future.</p>
+            <a href="index.html" class="hero-btn">Return Home</a>
+        </div>
+    </div>
+
+    <div class="preloader"><div class="loader-text">TAPT.</div></div>
+    <div class="cursor-dot" data-cursor-dot></div>
+    <div class="cursor-outline" data-cursor-outline></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

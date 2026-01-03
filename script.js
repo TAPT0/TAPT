@@ -312,69 +312,101 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================================
-   5. 3D TILT EFFECT (Mouse & Mobile Gyro)
+   5. 3D TILT EFFECT (Desktop Mouse + Mobile Gyro)
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
     const tiltElements = document.querySelectorAll('.card-stage, .product-card');
 
-    // --- A. DESKTOP MOUSE LOGIC ---
+    // --- HELPER: Apply Tilt ---
+    function applyTilt(el, x, y) {
+        const inner = el.querySelector('.tapt-card') || el.querySelector('.card-content');
+        if (!inner) return;
+
+        const rect = el.getBoundingClientRect();
+        
+        // Math for mouse/touch position
+        // If x/y are rotation degrees (mobile), use them directly.
+        // If x/y are coordinates (desktop), calculate rotation.
+        
+        let xRotation, yRotation;
+
+        if(x.type === 'gyro') {
+            // Mobile Gyro Input
+            xRotation = x.val; // Front/Back tilt
+            yRotation = y.val; // Left/Right tilt
+        } else {
+            // Mouse/Touch Input
+            xRotation = -((y - rect.height / 2) / 20);
+            yRotation = (x - rect.width / 2) / 20;
+        }
+
+        inner.style.transform = `perspective(1000px) rotateX(${xRotation}deg) rotateY(${yRotation}deg) scale(1.02)`;
+    }
+
+    // --- HELPER: Reset Tilt ---
+    function resetTilt(el) {
+        const inner = el.querySelector('.tapt-card') || el.querySelector('.card-content');
+        if (inner) {
+            inner.style.transition = 'transform 0.5s ease';
+            inner.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
+            setTimeout(() => { inner.style.transition = ''; }, 500);
+        }
+    }
+
+    // --- A. DESKTOP MOUSE ---
     tiltElements.forEach(el => {
         el.addEventListener('mousemove', (e) => {
-            const inner = el.querySelector('.tapt-card') || el.querySelector('.card-content');
-            if(!inner) return;
-
             const rect = el.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            // Calculate rotation (Divide by 20 for sensitivity)
-            const xRotation = -((y - rect.height / 2) / 20);
-            const yRotation = (x - rect.width / 2) / 20;
-
-            inner.style.transform = `perspective(1000px) rotateX(${xRotation}deg) rotateY(${yRotation}deg) scale(1.02)`;
+            applyTilt(el, e.clientX - rect.left, e.clientY - rect.top);
         });
-
-        el.addEventListener('mouseleave', () => {
-            const inner = el.querySelector('.tapt-card') || el.querySelector('.card-content');
-            if(inner) {
-                // Smooth reset
-                inner.style.transition = 'transform 0.5s ease';
-                inner.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
-                
-                // Remove transition after it finishes so mouse movement is instant again
-                setTimeout(() => { inner.style.transition = ''; }, 500);
-            }
-        });
+        el.addEventListener('mouseleave', () => resetTilt(el));
     });
 
-    // --- B. MOBILE GYRO LOGIC ---
-    // This checks if the device has an orientation sensor
-    if (window.DeviceOrientationEvent && 'ontouchstart' in window) {
-        window.addEventListener('deviceorientation', (e) => {
-            
-            // Get tilt values
-            let tiltX = e.beta;  // Front-to-back tilt (-180 to 180)
-            let tiltY = e.gamma; // Left-to-right tilt (-90 to 90)
+    // --- B. MOBILE GYRO (iOS 13+ requires permission) ---
+    
+    function handleOrientation(e) {
+        let tiltX = e.beta;  // Front-back
+        let tiltY = e.gamma; // Left-right
 
-            // Limit the tilt so card doesn't flip over completely (clamp between -25 and 25)
-            if (tiltX > 25) tiltX = 25;
-            if (tiltX < -25) tiltX = -25;
-            if (tiltY > 25) tiltY = 25;
-            if (tiltY < -25) tiltY = -25;
+        // Constrain tilt to avoid flipping
+        if (tiltX > 25) tiltX = 25;
+        if (tiltX < -25) tiltX = -25;
+        if (tiltY > 25) tiltY = 25;
+        if (tiltY < -25) tiltY = -25;
 
-            // Apply to ALL 3D cards visible on screen
-            const all3DCards = document.querySelectorAll('.tapt-card, .card-content');
-            
-            all3DCards.forEach(card => {
-                // We add a transition on mobile to make the sensor data look smoother
-                card.style.transition = 'transform 0.1s ease-out'; 
-                // Invert X so it feels like looking into a window
-                card.style.transform = `perspective(1000px) rotateX(${-tiltX}deg) rotateY(${tiltY}deg) scale(1.02)`;
-            });
+        // Apply to all cards
+        const allCards = document.querySelectorAll('.tapt-card, .card-content');
+        allCards.forEach(card => {
+             // -tiltX to invert for natural feel
+             card.style.transform = `perspective(1000px) rotateX(${-tiltX}deg) rotateY(${tiltY}deg) scale(1.02)`;
         });
     }
-});
 
+    // Function to request permission (Must be called on click)
+    function requestMotionPermission() {
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            // iOS 13+ Logic
+            DeviceOrientationEvent.requestPermission()
+                .then(response => {
+                    if (response === 'granted') {
+                        window.addEventListener('deviceorientation', handleOrientation);
+                    }
+                })
+                .catch(console.error);
+        } else {
+            // Android / Non-iOS Logic (No permission needed)
+            window.addEventListener('deviceorientation', handleOrientation);
+        }
+        
+        // Remove this listener so we don't keep asking
+        document.body.removeEventListener('click', requestMotionPermission);
+        document.body.removeEventListener('touchstart', requestMotionPermission);
+    }
+
+    // Trigger permission request on the FIRST tap anywhere on the site
+    document.body.addEventListener('click', requestMotionPermission);
+    document.body.addEventListener('touchstart', requestMotionPermission);
+});
 /* =========================================
    6. CHECKOUT PAGE LOGIC
    ========================================= */

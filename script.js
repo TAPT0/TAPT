@@ -1,158 +1,168 @@
-document.addEventListener('DOMContentLoaded', () => {
-    
-    /* =========================================
-       1. GLOBAL UI (PRELOADER & CURSOR)
-       ========================================= */
-    
-    // --- Preloader ---
-    const preloader = document.querySelector('.preloader');
-    if(preloader) {
-        // Force scroll to top on load
+/* =========================================
+   1. GLOBAL HELPERS & PRELOADER
+   ========================================= */
+
+// Wait for the page to fully load
+window.addEventListener("load", () => {
+    const preloader = document.querySelector(".preloader");
+    if (preloader) {
+        // Force scroll to top
         window.scrollTo(0, 0);
         
+        // Fade out animation
+        preloader.style.opacity = "0";
+        preloader.style.visibility = "hidden";
+        preloader.style.transition = "opacity 0.5s ease, visibility 0.5s";
+        
         setTimeout(() => {
-            preloader.classList.add('fade-out');
-            setTimeout(() => {
-                preloader.style.display = 'none';
-            }, 500);
-        }, 1500); // 1.5 seconds delay
+            preloader.style.display = "none";
+        }, 500);
     }
+});
 
-    // --- Custom Cursor ---
-    const cursorDot = document.querySelector('[data-cursor-dot]');
-    const cursorOutline = document.querySelector('[data-cursor-outline]');
+/* =========================================
+   2. CUSTOM CURSOR (Runs on every page)
+   ========================================= */
+document.addEventListener('DOMContentLoaded', () => {
+    const cursorDot = document.querySelector("[data-cursor-dot]");
+    const cursorOutline = document.querySelector("[data-cursor-outline]");
 
+    // Only run if cursor elements exist in HTML
     if (cursorDot && cursorOutline) {
-        window.addEventListener('mousemove', (e) => {
+        window.addEventListener("mousemove", (e) => {
             const posX = e.clientX;
             const posY = e.clientY;
 
-            // Dot follows instantly
+            // Move dot instantly
             cursorDot.style.left = `${posX}px`;
             cursorDot.style.top = `${posY}px`;
 
-            // Outline follows with slight delay
+            // Move outline with smooth animation
             cursorOutline.animate({
                 left: `${posX}px`,
                 top: `${posY}px`
             }, { duration: 500, fill: "forwards" });
         });
 
-        // Hover Effects (Grow cursor on interactive elements)
-        const interactiveElements = document.querySelectorAll('a, button, input, select, .cart-trigger, .product-card');
-        
-        interactiveElements.forEach(el => {
+        // Add hover effect to clickable items
+        const clickables = document.querySelectorAll('a, button, input, select, .cart-trigger, .product-card');
+        clickables.forEach(el => {
             el.addEventListener('mouseenter', () => {
-                cursorOutline.style.transform = 'translate(-50%, -50%) scale(1.5)';
-                cursorOutline.style.backgroundColor = 'rgba(212, 175, 55, 0.1)'; // Slight gold tint
+                cursorOutline.style.transform = "translate(-50%, -50%) scale(1.5)";
+                cursorOutline.style.backgroundColor = "rgba(212, 175, 55, 0.1)";
             });
             el.addEventListener('mouseleave', () => {
-                cursorOutline.style.transform = 'translate(-50%, -50%) scale(1)';
-                cursorOutline.style.backgroundColor = 'transparent';
+                cursorOutline.style.transform = "translate(-50%, -50%) scale(1)";
+                cursorOutline.style.backgroundColor = "transparent";
             });
         });
     }
+});
 
-    /* =========================================
-       2. CART SYSTEM
-       ========================================= */
-    
-    // Cart Data
-    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+/* =========================================
+   3. CART SYSTEM (Safe Logic)
+   ========================================= */
+// We define these on 'window' so your HTML onclick="toggleCart()" works
+window.toggleCart = function() {
     const cartDrawer = document.querySelector('.cart-drawer');
     const cartOverlay = document.querySelector('.cart-overlay');
+    
+    if (cartDrawer && cartOverlay) {
+        cartDrawer.classList.toggle('open');
+        cartOverlay.classList.toggle('open');
+    } else {
+        console.warn("Cart elements not found on this page.");
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Cart State
+    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+    
+    // UI Elements
     const cartCountBadge = document.getElementById('cart-count');
+    const cartItemsContainer = document.getElementById('cart-items-container');
+    const subtotalEl = document.getElementById('subtotal-price');
+    const totalEl = document.getElementById('total-price');
 
-    // --- Toggle Cart Function ---
-    window.toggleCart = function() {
-        if(cartDrawer && cartOverlay) {
-            cartDrawer.classList.toggle('open');
-            cartOverlay.classList.toggle('open');
-        }
-    };
-
-    // --- Add to Cart Function ---
-    window.addToCart = function(id, title, price, image) {
-        const existingItem = cart.find(item => item.id === id);
-        
-        if (existingItem) {
-            existingItem.qty++;
-        } else {
-            cart.push({ id, title, price, image, qty: 1 });
-        }
-        
-        updateCartUI();
-        toggleCart(); // Open cart to show user
-    };
-
-    // --- Update Quantity ---
-    window.updateQty = function(id, change) {
-        const item = cart.find(item => item.id === id);
-        if (!item) return;
-
-        item.qty += change;
-
-        if (item.qty <= 0) {
-            cart = cart.filter(i => i.id !== id);
-        }
-        updateCartUI();
-    };
-
-    // --- Update UI (Render HTML) ---
+    // --- Helper: Update UI ---
     function updateCartUI() {
-        // Save to local storage
+        if (!cartItemsContainer) return; // Stop if no cart on page
+
         localStorage.setItem('taptCart', JSON.stringify(cart));
 
         // Update Badge
         const totalCount = cart.reduce((acc, item) => acc + item.qty, 0);
-        if(cartCountBadge) {
+        if (cartCountBadge) {
             cartCountBadge.textContent = totalCount;
             cartCountBadge.style.display = totalCount > 0 ? 'flex' : 'none';
         }
 
-        // Render Items in Drawer
-        const container = document.getElementById('cart-items-container');
-        if(container) {
-            if (cart.length === 0) {
-                container.innerHTML = '<div class="empty-msg" style="color:black;">Your cart is empty.</div>';
-            } else {
-                container.innerHTML = cart.map(item => `
-                    <div class="cart-item" style="display:flex; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
-                        <div style="width:60px; height:60px; background:#333; border-radius:8px; margin-right:15px; display:flex; align-items:center; justify-content:center;">
-                            <i class="fa-solid fa-credit-card" style="color:white;"></i>
-                        </div>
-                        <div style="flex:1;">
-                            <h4 style="font-size:0.9rem; margin-bottom:5px; color:black;">${item.title}</h4>
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-weight:bold; color:black;">₹${item.price}</span>
-                                <div style="display:flex; gap:10px; align-items:center; background:#eee; padding:2px 8px; border-radius:5px;">
-                                    <button onclick="updateQty(${item.id}, -1)" style="border:none; background:none; cursor:pointer; font-size:1.2rem;">-</button>
-                                    <span style="font-size:0.9rem;">${item.qty}</span>
-                                    <button onclick="updateQty(${item.id}, 1)" style="border:none; background:none; cursor:pointer; font-size:1.2rem;">+</button>
-                                </div>
+        // Render Items
+        if (cart.length === 0) {
+            cartItemsContainer.innerHTML = '<div class="empty-msg" style="color:black; padding:20px; text-align:center;">Your cart is empty.</div>';
+        } else {
+            cartItemsContainer.innerHTML = cart.map(item => `
+                <div class="cart-item" style="display:flex; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                    <div style="width:60px; height:60px; background:#333; border-radius:8px; margin-right:15px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fa-solid fa-credit-card" style="color:white;"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <h4 style="font-size:0.9rem; margin-bottom:5px; color:black;">${item.title}</h4>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:bold; color:black;">₹${item.price}</span>
+                            <div style="display:flex; gap:10px; align-items:center; background:#eee; padding:2px 8px; border-radius:5px;">
+                                <button onclick="updateQty(${item.id}, -1)" style="border:none; background:none; cursor:pointer;">-</button>
+                                <span style="font-size:0.9rem; color:black;">${item.qty}</span>
+                                <button onclick="updateQty(${item.id}, 1)" style="border:none; background:none; cursor:pointer;">+</button>
                             </div>
                         </div>
                     </div>
-                `).join('');
-            }
+                </div>
+            `).join('');
         }
 
         // Update Totals
         const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-        const subtotalEl = document.getElementById('subtotal-price');
-        const totalEl = document.getElementById('total-price');
-
         if(subtotalEl) subtotalEl.textContent = `₹${subtotal.toLocaleString()}`;
         if(totalEl) totalEl.textContent = `₹${subtotal.toLocaleString()}`;
     }
 
-    // Initialize Cart on Load
+    // --- Global: Add to Cart ---
+    window.addToCart = function(title, price) {
+        const id = Date.now(); // Simple unique ID
+        const existingItem = cart.find(i => i.title === title); // Group by name for simplicity
+        
+        if(existingItem) {
+            existingItem.qty++;
+        } else {
+            cart.push({ id, title, price, qty: 1 });
+        }
+        
+        updateCartUI();
+        window.toggleCart(); // Open cart
+    };
+
+    // --- Global: Update Qty ---
+    window.updateQty = function(id, change) {
+        const item = cart.find(i => i.id === id);
+        if (item) {
+            item.qty += change;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.id !== id);
+            }
+            updateCartUI();
+        }
+    };
+
+    // Initialize UI on load
     updateCartUI();
+});
 
-
-    /* =========================================
-       3. CUSTOMIZER LOGIC (Create Page)
-       ========================================= */
+/* =========================================
+   4. CUSTOMIZER PAGE LOGIC
+   ========================================= */
+document.addEventListener('DOMContentLoaded', () => {
     const themeSelect = document.getElementById('c-theme');
     const previewCard = document.getElementById('p-card');
     const nameInput = document.getElementById('c-name');
@@ -161,10 +171,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewRole = document.getElementById('p-role');
     const logoInput = document.getElementById('c-logo-upload');
     const previewLogo = document.getElementById('p-logo-preview');
-    const addToCartBtn = document.querySelector('.builder-controls .filter-btn'); // The Add Button
+    const addBtn = document.querySelector('.builder-controls .filter-btn');
 
+    // Only run if we are on the Customize Page
     if (themeSelect && previewCard) {
-        // Theme Changer
+        
+        // Theme Change
         themeSelect.addEventListener('change', (e) => {
             if (e.target.value === 'black') {
                 previewCard.classList.remove('skin-white');
@@ -175,71 +187,70 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Name Live Update
-        nameInput.addEventListener('input', (e) => {
-            previewName.textContent = e.target.value || 'YOUR NAME';
-        });
-
-        // Role Live Update
-        roleInput.addEventListener('input', (e) => {
-            previewRole.textContent = e.target.value || 'DESIGNATION';
-        });
+        // Live Typing
+        if(nameInput) {
+            nameInput.addEventListener('input', (e) => {
+                previewName.textContent = e.target.value || 'YOUR NAME';
+            });
+        }
+        if(roleInput) {
+            roleInput.addEventListener('input', (e) => {
+                previewRole.textContent = e.target.value || 'DESIGNATION';
+            });
+        }
 
         // Logo Upload
-        logoInput.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewLogo.src = e.target.result;
-                    previewLogo.style.display = 'block';
+        if(logoInput) {
+            logoInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewLogo.src = e.target.result;
+                        previewLogo.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
                 }
-                reader.readAsDataURL(file);
-            }
-        });
+            });
+        }
 
         // Add Custom Card to Cart
-        if(addToCartBtn) {
-            addToCartBtn.addEventListener('click', () => {
-                const customPrice = 1999; // Or dynamic price
-                const customName = `Custom Card (${themeSelect.value})`;
-                // Use current timestamp as unique ID
-                addToCart(Date.now(), customName, customPrice, null);
+        if(addBtn) {
+            addBtn.addEventListener('click', () => {
+                const material = themeSelect.value === 'white' ? 'Polar White' : 'Premium Black';
+                window.addToCart(`Custom Card (${material})`, 1999);
             });
         }
     }
+});
 
+/* =========================================
+   5. 3D TILT EFFECT (Shop & Builder)
+   ========================================= */
+document.addEventListener('DOMContentLoaded', () => {
+    const tiltElements = document.querySelectorAll('.card-stage, .product-card');
 
-    /* =========================================
-       4. 3D TILT EFFECT
-       ========================================= */
-    const stages = document.querySelectorAll('.card-stage, .card-3d-wrapper');
-    
-    stages.forEach(stage => {
-        stage.addEventListener('mousemove', (e) => {
-            // Find the actual card element (handle both customize and shop structures)
-            const card = stage.querySelector('.tapt-card') || stage.querySelector('.p-image');
-            if(!card) return;
+    tiltElements.forEach(el => {
+        el.addEventListener('mousemove', (e) => {
+            // Determine which inner element to rotate
+            const inner = el.querySelector('.tapt-card') || el.querySelector('.card-content');
+            if(!inner) return;
 
-            const rect = stage.getBoundingClientRect();
+            const rect = el.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
-            // Calculate rotation
-            const xRotation = -((y - rect.height / 2) / 15);
-            const yRotation = (x - rect.width / 2) / 15;
+            const xRotation = -((y - rect.height / 2) / 20);
+            const yRotation = (x - rect.width / 2) / 20;
 
-            // Apply transform
-            card.style.transform = `rotateX(${xRotation}deg) rotateY(${yRotation}deg) scale(1.02)`;
+            inner.style.transform = `perspective(1000px) rotateX(${xRotation}deg) rotateY(${yRotation}deg) scale(1.02)`;
         });
 
-        stage.addEventListener('mouseleave', () => {
-            const card = stage.querySelector('.tapt-card') || stage.querySelector('.p-image');
-            if(!card) return;
-            
-            // Reset
-            card.style.transform = `rotateX(0) rotateY(0) scale(1)`;
+        el.addEventListener('mouseleave', () => {
+            const inner = el.querySelector('.tapt-card') || el.querySelector('.card-content');
+            if(inner) {
+                inner.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
+            }
         });
     });
-
 });

@@ -254,3 +254,68 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+/* =========================================
+   6. CHECKOUT PAGE LOGIC
+   ========================================= */
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Check if we are on the checkout page
+    const checkoutList = document.getElementById('checkout-items-list');
+    const successScreen = document.getElementById('success-overlay');
+    
+    if (checkoutList) {
+        // 1. Load Cart Data
+        let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+        
+        // If empty, redirect to shop
+        if (cart.length === 0) {
+            window.location.href = 'shop.html';
+        }
+
+        // 2. Render Items
+        let subtotal = 0;
+        checkoutList.innerHTML = cart.map(item => {
+            subtotal += (item.price * item.qty);
+            return `
+                <div class="c-item">
+                    <div style="width: 60px; height: 60px; background: #222; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1);">
+                        <i class="fa-solid fa-credit-card" style="color: white;"></i>
+                    </div>
+                    <div class="c-info">
+                        <h4>${item.title} <span style="color:#666; font-size:0.8em;">x${item.qty}</span></h4>
+                        <p>₹${(item.price * item.qty).toLocaleString()}</p>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // 3. Update Totals
+        const subtotalEl = document.getElementById('c-subtotal');
+        const totalEl = document.getElementById('c-total');
+        
+        if(subtotalEl) subtotalEl.textContent = `₹${subtotal.toLocaleString()}`;
+        if(totalEl) totalEl.textContent = `₹${subtotal.toLocaleString()}`;
+
+        // 4. Handle Payment Submission
+        window.handlePayment = function(e) {
+            e.preventDefault();
+            
+            // Show processing...
+            const btn = document.querySelector('.pay-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> PROCESSING...';
+            btn.style.opacity = '0.7';
+
+            // Fake delay for realism
+            setTimeout(() => {
+                // Clear Cart
+                localStorage.removeItem('taptCart');
+                
+                // Show Success Screen
+                if(successScreen) {
+                    successScreen.classList.add('active');
+                }
+            }, 2000);
+        };
+    }
+});

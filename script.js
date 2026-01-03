@@ -542,3 +542,90 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+/* =========================================
+   8. PRODUCT DETAILS PAGE LOGIC
+   ========================================= */
+document.addEventListener('DOMContentLoaded', () => {
+    
+    const productDisplay = document.getElementById('product-display');
+    
+    // Only run if we are on product.html
+    if (productDisplay) {
+        
+        // 1. Get Product ID from URL
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get('id');
+
+        if (!productId) {
+            productDisplay.innerHTML = "<h1>Product not found.</h1>";
+            return;
+        }
+
+        // 2. Fetch from Firebase
+        if (typeof firebase !== 'undefined') {
+            const dbRef = firebase.database().ref();
+            dbRef.child("products").child(productId).get().then((snapshot) => {
+                if (snapshot.exists()) {
+                    const p = snapshot.val();
+                    
+                    // 3. Inject HTML
+                    // We use the first image from the array, or a placeholder
+                    const mainImage = p.images ? p.images[0] : '';
+                    
+                    productDisplay.innerHTML = `
+                        <div class="p-left card-stage">
+                            <div class="tapt-card" style="background: url('${mainImage}') center/cover no-repeat; border:1px solid rgba(255,255,255,0.2);">
+                                <div class="card-content">
+                                    <div class="chip"></div>
+                                    </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-right">
+                            <h1 class="p-detail-title">${p.title}</h1>
+                            <p class="p-detail-price">₹${p.price}</p>
+                            <p class="p-detail-desc">
+                                Premium NFC Enabled Card. Category: ${p.category}.<br>
+                                Instantly share your social media, music, payment platforms and contact info with just a tap.
+                            </p>
+                            
+                            <div class="p-actions">
+                                <button class="btn-primary" onclick="addToCart('${p.title}', ${p.price})">
+                                    Add to Cart
+                                </button>
+                                <button class="btn-outline" onclick="window.location.href='customize.html'">
+                                    Customize Design
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Re-initialize Tilt Effect for the new element
+                    // (Since we just injected it, the old listeners missed it)
+                    const newStage = productDisplay.querySelector('.card-stage');
+                    if(newStage) {
+                        newStage.addEventListener('mousemove', (e) => {
+                             const inner = newStage.querySelector('.tapt-card');
+                             const rect = newStage.getBoundingClientRect();
+                             const x = e.clientX - rect.left;
+                             const y = e.clientY - rect.top;
+                             const xRot = -((y - rect.height/2)/20);
+                             const yRot = (x - rect.width/2)/20;
+                             inner.style.transform = `perspective(1000px) rotateX(${xRot}deg) rotateY(${yRot}deg) scale(1.02)`;
+                        });
+                        newStage.addEventListener('mouseleave', () => {
+                             const inner = newStage.querySelector('.tapt-card');
+                             inner.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
+                        });
+                    }
+
+                } else {
+                    productDisplay.innerHTML = "<h1>Product Unavailable</h1>";
+                }
+            }).catch((error) => {
+                console.error(error);
+                productDisplay.innerHTML = "<h1>Error loading product</h1>";
+            });
+        }
+    }
+});

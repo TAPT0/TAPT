@@ -245,6 +245,7 @@ window.updateQty = function(id, change) {
 
 // Initial Load
 document.addEventListener('DOMContentLoaded', updateCartUI);
+
 /* =========================================
    4. CUSTOMIZER PAGE LOGIC
    ========================================= */
@@ -340,6 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
 /* =========================================
    6. CHECKOUT PAGE LOGIC
    ========================================= */
@@ -382,55 +384,61 @@ document.addEventListener('DOMContentLoaded', () => {
         if(subtotalEl) subtotalEl.textContent = `₹${subtotal.toLocaleString()}`;
         if(totalEl) totalEl.textContent = `₹${subtotal.toLocaleString()}`;
 
-  /* --- ADD THIS TO YOUR script.js inside the handlePayment function --- */
-/* make sure you include firebase scripts in checkout.html too! */
+        // 4. Handle Payment Submission
+        window.handlePayment = function(e) {
+            e.preventDefault();
+            
+            // 1. Get Cart & Form Data
+            const cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+            const email = document.querySelector('input[type="email"]').value;
+            const inputs = document.querySelectorAll('input'); // Helper to find inputs generally
+            // Ideally use IDs for better precision, but this works if layout matches:
+            const fName = inputs[1].value; 
+            const lName = inputs[2].value;
+            const address = inputs[3].value; 
+            
+            // Calculate final total (assuming you stored it in a variable or re-calc)
+            let total = 0;
+            cart.forEach(item => total += (item.price * item.qty));
 
-window.handlePayment = function(e) {
-    e.preventDefault();
-    
-    // 1. Get Cart & Form Data
-    const cart = JSON.parse(localStorage.getItem('taptCart')) || [];
-    const email = document.querySelector('input[type="email"]').value;
-    const fName = document.querySelectorAll('.input-grid input')[0].value;
-    const lName = document.querySelectorAll('.input-grid input')[1].value;
-    const address = document.querySelectorAll('.input-row input')[1].value; // Adjust index based on your HTML
-    
-    // Calculate final total (assuming you stored it in a variable or re-calc)
-    let total = 0;
-    cart.forEach(item => total += (item.price * item.qty));
+            // 2. Prepare Order Object
+            const orderData = {
+                contactEmail: email,
+                shipping: {
+                    firstName: fName,
+                    lastName: lName,
+                    address: address
+                },
+                items: cart,
+                total: total,
+                date: new Date().toISOString(),
+                status: 'paid'
+            };
 
-    // 2. Prepare Order Object
-    const orderData = {
-        contactEmail: email,
-        shipping: {
-            firstName: fName,
-            lastName: lName,
-            address: address
-        },
-        items: cart,
-        total: total,
-        date: new Date().toISOString(),
-        status: 'paid'
-    };
+            // 3. Send to Firebase (Realtime Database)
+            if (typeof firebase !== 'undefined') {
+                const newOrderRef = firebase.database().ref('orders').push();
+                newOrderRef.set(orderData, (error) => {
+                    if (error) {
+                        alert("Order failed. Please try again.");
+                    } else {
+                        // Success!
+                        localStorage.removeItem('taptCart');
+                        if(successScreen) successScreen.classList.add('active');
+                    }
+                });
+            } else {
+                console.error("Firebase not loaded on checkout page.");
+                alert("System Error: Database not connected.");
+            }
+        };
+    }
+});
 
-    // 3. Send to Firebase (Realtime Database)
-    // IMPORTANT: You need to initialize Firebase in checkout.html similar to admin.html
-    // const db = firebase.database();
-    
-    const newOrderRef = firebase.database().ref('orders').push();
-    newOrderRef.set(orderData, (error) => {
-        if (error) {
-            alert("Order failed. Please try again.");
-        } else {
-            // Success!
-            localStorage.removeItem('taptCart');
-            document.getElementById('success-overlay').classList.add('active');
-        }
-    });
-};
 /* =========================================
-       7. CONNECT CHECKOUT BUTTON
-       ========================================= */
+   7. CONNECT CHECKOUT BUTTON (Cart Drawer)
+   ========================================= */
+document.addEventListener('DOMContentLoaded', () => {
     const checkoutButton = document.querySelector('.checkout-btn');
     
     if(checkoutButton) {
@@ -441,8 +449,8 @@ window.handlePayment = function(e) {
             if(currentCart.length > 0) {
                 window.location.href = 'checkout.html';
             } else {
-                // Optional: Shake the button or show message
                 alert("Your cart is empty.");
             }
         });
     }
+});

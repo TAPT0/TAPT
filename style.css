@@ -440,3 +440,31 @@ body.cart-open { overflow: hidden; } /* Prevent background scrolling */
 }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+/* =========================================
+   GEN Z TEXTURE & GLOW (Add to style.css)
+   ========================================= */
+
+/* 1. The Grainy Noise Texture */
+.noise-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.05; /* Adjust for more/less grain */
+    background: url('https://grainy-gradients.vercel.app/noise.svg'); /* Common noise asset */
+    filter: contrast(120%) brightness(100%);
+}
+
+/* 2. The Ambient Gold Glow */
+.gold-glow-sphere {
+    position: fixed;
+    top: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(229, 195, 101, 0.15) 0%, rgba(0,0,0,0) 70%);
+    z-index: -1;
+    pointer-events: none;
+    filter: blur(80px);
+}

@@ -60,9 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================================
-   3. CART SYSTEM (Safe Logic)
+   3. CART SYSTEM (With Firebase Coupons)
    ========================================= */
-// We define these on 'window' so your HTML onclick="toggleCart()" works
+
+// Define global variable for coupon
+let activeCoupon = JSON.parse(localStorage.getItem('taptCoupon')) || null;
+
 window.toggleCart = function() {
     const cartDrawer = document.querySelector('.cart-drawer');
     const cartOverlay = document.querySelector('.cart-overlay');
@@ -70,35 +73,87 @@ window.toggleCart = function() {
     if (cartDrawer && cartOverlay) {
         cartDrawer.classList.toggle('open');
         cartOverlay.classList.toggle('open');
-    } else {
-        console.warn("Cart elements not found on this page.");
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Cart State
-    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+// --- Apply Coupon Function ---
+window.applyCoupon = function() {
+    const input = document.getElementById('coupon-input');
+    const msg = document.getElementById('coupon-msg');
     
-    // UI Elements
-    const cartCountBadge = document.getElementById('cart-count');
+    if(!input || !msg) return;
+
+    const code = input.value.toUpperCase().trim();
+    if(!code) {
+        msg.textContent = "Please enter a code";
+        msg.className = 'msg-error';
+        return;
+    }
+
+    msg.textContent = "Checking...";
+    msg.className = '';
+
+    // Check if Firebase is loaded
+    if (typeof firebase === 'undefined') {
+        msg.textContent = "Error: Database not connected";
+        msg.className = 'msg-error';
+        console.error("Firebase missing on this page");
+        return;
+    }
+
+    // Lookup Code in Database
+    firebase.database().ref('coupons/' + code).get().then((snapshot) => {
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            
+            activeCoupon = {
+                code: code,
+                type: data.type, // 'percentage' or 'flat'
+                value: data.value
+            };
+            
+            // Save to storage so it persists
+            localStorage.setItem('taptCoupon', JSON.stringify(activeCoupon));
+            
+            msg.textContent = `Success! ${code} applied.`;
+            msg.className = 'msg-success';
+            
+            // Refresh Cart UI with new prices
+            updateCartUI(); 
+
+        } else {
+            msg.textContent = "Invalid Code";
+            msg.className = 'msg-error';
+            activeCoupon = null;
+            localStorage.removeItem('taptCoupon');
+            updateCartUI();
+        }
+    }).catch((error) => {
+        console.error(error);
+        msg.textContent = "Error checking code";
+        msg.className = 'msg-error';
+    });
+};
+
+// --- Update UI ---
+function updateCartUI() {
+    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
     const cartItemsContainer = document.getElementById('cart-items-container');
+    const cartCountBadge = document.getElementById('cart-count');
     const subtotalEl = document.getElementById('subtotal-price');
+    const discountRow = document.getElementById('discount-row');
+    const discountAmountEl = document.getElementById('discount-amount');
     const totalEl = document.getElementById('total-price');
 
-    // --- Helper: Update UI ---
-    function updateCartUI() {
-        if (!cartItemsContainer) return; // Stop if no cart on page
+    // 1. Update Badge
+    const totalCount = cart.reduce((acc, item) => acc + item.qty, 0);
+    if (cartCountBadge) {
+        cartCountBadge.textContent = totalCount;
+        cartCountBadge.style.display = totalCount > 0 ? 'flex' : 'none';
+    }
 
-        localStorage.setItem('taptCart', JSON.stringify(cart));
-
-        // Update Badge
-        const totalCount = cart.reduce((acc, item) => acc + item.qty, 0);
-        if (cartCountBadge) {
-            cartCountBadge.textContent = totalCount;
-            cartCountBadge.style.display = totalCount > 0 ? 'flex' : 'none';
-        }
-
-        // Render Items
+    // 2. Render Items
+    if (cartItemsContainer) {
         if (cart.length === 0) {
             cartItemsContainer.innerHTML = '<div class="empty-msg" style="color:black; padding:20px; text-align:center;">Your cart is empty.</div>';
         } else {
@@ -121,44 +176,75 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `).join('');
         }
-
-        // Update Totals
-        const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-        if(subtotalEl) subtotalEl.textContent = `₹${subtotal.toLocaleString()}`;
-        if(totalEl) totalEl.textContent = `₹${subtotal.toLocaleString()}`;
     }
 
-    // --- Global: Add to Cart ---
-    window.addToCart = function(title, price) {
-        const id = Date.now(); // Simple unique ID
-        const existingItem = cart.find(i => i.title === title); // Group by name for simplicity
-        
-        if(existingItem) {
-            existingItem.qty++;
+    // 3. Calculate Totals
+    const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+    let discount = 0;
+
+    // Calculate Discount if Coupon Exists
+    if (activeCoupon && subtotal > 0) {
+        if(activeCoupon.type === 'percentage') {
+            discount = subtotal * (activeCoupon.value / 100);
         } else {
-            cart.push({ id, title, price, qty: 1 });
+            discount = activeCoupon.value; // Flat amount
         }
-        
-        updateCartUI();
-        window.toggleCart(); // Open cart
-    };
+        // Prevent negative total
+        if(discount > subtotal) discount = subtotal;
+    }
 
-    // --- Global: Update Qty ---
-    window.updateQty = function(id, change) {
-        const item = cart.find(i => i.id === id);
-        if (item) {
-            item.qty += change;
-            if (item.qty <= 0) {
-                cart = cart.filter(i => i.id !== id);
-            }
-            updateCartUI();
+    const finalTotal = subtotal - discount;
+
+    // 4. Update Price Text
+    if(subtotalEl) subtotalEl.textContent = `₹${subtotal.toLocaleString()}`;
+    
+    if(discountRow && discountAmountEl) {
+        if(discount > 0) {
+            discountRow.style.display = 'flex';
+            discountAmountEl.textContent = `-₹${discount.toLocaleString()}`;
+            // Optional: Show code name in input
+            const input = document.getElementById('coupon-input');
+            if(input && !input.value) input.value = activeCoupon.code;
+        } else {
+            discountRow.style.display = 'none';
         }
-    };
+    }
 
-    // Initialize UI on load
+    if(totalEl) totalEl.textContent = `₹${finalTotal.toLocaleString()}`;
+}
+
+// --- Global Cart Functions ---
+window.addToCart = function(title, price) {
+    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+    const id = Date.now(); 
+    const existingItem = cart.find(i => i.title === title);
+    
+    if(existingItem) {
+        existingItem.qty++;
+    } else {
+        cart.push({ id, title, price, qty: 1 });
+    }
+    
+    localStorage.setItem('taptCart', JSON.stringify(cart));
     updateCartUI();
-});
+    window.toggleCart();
+};
 
+window.updateQty = function(id, change) {
+    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+    const item = cart.find(i => i.id === id);
+    if (item) {
+        item.qty += change;
+        if (item.qty <= 0) {
+            cart = cart.filter(i => i.id !== id);
+        }
+        localStorage.setItem('taptCart', JSON.stringify(cart));
+        updateCartUI();
+    }
+};
+
+// Initial Load
+document.addEventListener('DOMContentLoaded', updateCartUI);
 /* =========================================
    4. CUSTOMIZER PAGE LOGIC
    ========================================= */

@@ -657,3 +657,105 @@ input[type="file"] {
     .checkout-layout { grid-template-columns: 1fr; }
     .checkout-right { order: -1; margin-bottom: 40px; } /* Summary on top for mobile */
 }
+/* =========================================
+   PRODUCT DETAIL PAGE
+   ========================================= */
+
+.product-page-container {
+    padding-top: 120px;
+    min-height: 80vh;
+}
+
+.product-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+}
+
+/* Left Image Side */
+.p-left {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* Right Content Side */
+.p-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.p-detail-title {
+    font-family: var(--font-head);
+    font-size: 3rem;
+    line-height: 1.1;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.p-detail-price {
+    font-size: 2rem;
+    color: var(--tapt-gold);
+    font-weight: 600;
+    margin-bottom: 30px;
+    font-family: var(--font-head);
+}
+
+.p-detail-desc {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    max-width: 90%;
+}
+
+.p-actions {
+    display: flex;
+    gap: 20px;
+}
+
+.btn-primary, .btn-outline {
+    padding: 15px 40px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: none;
+    text-transform: uppercase;
+    font-family: var(--font-head);
+    transition: 0.3s;
+}
+
+.btn-primary {
+    background: var(--tapt-gold);
+    color: black;
+    border: 1px solid var(--tapt-gold);
+}
+.btn-primary:hover {
+    background: white;
+    border-color: white;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(255,255,255,0.2);
+}
+
+.btn-outline {
+    background: transparent;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+.btn-outline:hover {
+    border-color: white;
+    background: rgba(255,255,255,0.05);
+}
+
+/* Mobile Responsive */
+@media (max-width: 900px) {
+    .product-layout {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    .p-detail-title { font-size: 2rem; }
+    .p-actions { flex-direction: column; }
+    .btn-primary, .btn-outline { width: 100%; }
+}

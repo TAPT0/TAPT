@@ -312,14 +312,14 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================================
-   5. 3D TILT EFFECT (Shop & Builder)
+   5. 3D TILT EFFECT (Mouse & Mobile Gyro)
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
     const tiltElements = document.querySelectorAll('.card-stage, .product-card');
 
+    // --- A. DESKTOP MOUSE LOGIC ---
     tiltElements.forEach(el => {
         el.addEventListener('mousemove', (e) => {
-            // Determine which inner element to rotate
             const inner = el.querySelector('.tapt-card') || el.querySelector('.card-content');
             if(!inner) return;
 
@@ -327,6 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
+            // Calculate rotation (Divide by 20 for sensitivity)
             const xRotation = -((y - rect.height / 2) / 20);
             const yRotation = (x - rect.width / 2) / 20;
 
@@ -336,10 +337,42 @@ document.addEventListener('DOMContentLoaded', () => {
         el.addEventListener('mouseleave', () => {
             const inner = el.querySelector('.tapt-card') || el.querySelector('.card-content');
             if(inner) {
+                // Smooth reset
+                inner.style.transition = 'transform 0.5s ease';
                 inner.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
+                
+                // Remove transition after it finishes so mouse movement is instant again
+                setTimeout(() => { inner.style.transition = ''; }, 500);
             }
         });
     });
+
+    // --- B. MOBILE GYRO LOGIC ---
+    // This checks if the device has an orientation sensor
+    if (window.DeviceOrientationEvent && 'ontouchstart' in window) {
+        window.addEventListener('deviceorientation', (e) => {
+            
+            // Get tilt values
+            let tiltX = e.beta;  // Front-to-back tilt (-180 to 180)
+            let tiltY = e.gamma; // Left-to-right tilt (-90 to 90)
+
+            // Limit the tilt so card doesn't flip over completely (clamp between -25 and 25)
+            if (tiltX > 25) tiltX = 25;
+            if (tiltX < -25) tiltX = -25;
+            if (tiltY > 25) tiltY = 25;
+            if (tiltY < -25) tiltY = -25;
+
+            // Apply to ALL 3D cards visible on screen
+            const all3DCards = document.querySelectorAll('.tapt-card, .card-content');
+            
+            all3DCards.forEach(card => {
+                // We add a transition on mobile to make the sensor data look smoother
+                card.style.transition = 'transform 0.1s ease-out'; 
+                // Invert X so it feels like looking into a window
+                card.style.transform = `perspective(1000px) rotateX(${-tiltX}deg) rotateY(${tiltY}deg) scale(1.02)`;
+            });
+        });
+    }
 });
 
 /* =========================================

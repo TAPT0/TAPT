@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <style>
+        /* BASE STYLES */
         body {
             background-color: #050505;
             color: white;
@@ -20,14 +21,27 @@
             margin: 0;
         }
 
-        /* --- LAYOUT FIXES FOR TEXT OVERLAP --- */
+        /* --- NAV BAR FIXES --- */
+        nav {
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(5, 5, 5, 0.8);
+        }
+
+        /* --- HERO LAYOUT --- */
         .hero-layout {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            /* Increased top padding to clear the Navbar */
             padding: 140px 20px 60px 20px; 
             position: relative;
             z-index: 1;
@@ -35,34 +49,71 @@
             overflow: hidden;
         }
 
-        /* --- MOBILE SPECIFIC ADJUSTMENTS --- */
-        @media (max-width: 900px) {
+        /* --- MOBILE SPECIFIC FIXES (THE IMPORTANT PART) --- */
+        @media (max-width: 768px) {
+            /* 1. Fix Navbar Crowding */
+            nav {
+                padding: 15px 20px; /* Smaller padding */
+            }
+            .nav-links {
+                display: none; /* Hide text links on mobile to save space */
+            }
+            .logo {
+                font-size: 1.2rem; /* Slightly smaller logo */
+            }
+            /* Target the Shop All button specifically in nav to not be huge */
+            nav .btn-primary {
+                width: auto !important; /* Stop it from stretching */
+                padding: 10px 20px !important;
+                font-size: 0.8rem !important;
+                margin: 0 !important;
+            }
+
+            /* 2. Fix Text Overlap */
             .hero-layout {
-                /* Even more space on mobile to prevent overlap */
-                padding-top: 160px; 
-                padding-bottom: 80px;
+                padding-top: 120px; /* Push content down */
                 justify-content: flex-start;
             }
             .hero-title {
-                font-size: 2.5rem !important; /* Smaller font on mobile */
+                font-size: 2.2rem !important;
+                margin-top: 20px;
             }
+
+            /* 3. Fix Card Cutoff (Make them fluid) */
             .showcase-grid {
                 grid-template-columns: 1fr;
-                gap: 50px;
+                gap: 40px;
+                width: 100%;
+                padding: 0 10px;
+            }
+            
+            .showcase-panel {
+                padding: 30px 10px;
+                width: 100%;
+            }
+
+            /* Force 3D objects to fit screen width */
+            .home-card {
+                width: 80vw !important; /* 80% of screen width */
+                max-width: 300px;
+                height: auto !important;
+                aspect-ratio: 1.58/1; /* Maintain Credit Card Ratio */
+            }
+            .home-keychain {
+                width: 60vw !important;
+                max-width: 200px;
+                height: auto !important;
+                aspect-ratio: 1/1; /* Circle Ratio */
             }
         }
 
-        /* Animated Background Glow */
+        /* --- REST OF STYLES --- */
         .ambient-glow {
             position: absolute;
-            width: 600px;
-            height: 600px;
+            width: 600px; height: 600px;
             background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(0,0,0,0) 70%);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: -1;
-            pointer-events: none;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: -1; pointer-events: none;
             animation: pulseGlow 5s infinite alternate;
         }
 
@@ -73,52 +124,32 @@
 
         .hero-title {
             color: #ffffff;
-            font-size: 4rem; 
-            margin-bottom: 10px; 
-            line-height: 1;
-            z-index: 10;
-            text-transform: uppercase;
-            letter-spacing: -2px;
+            font-size: 4rem; margin-bottom: 10px; line-height: 1;
+            z-index: 10; text-transform: uppercase; letter-spacing: -2px;
             text-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
 
         .hero-subtitle {
-            color: #888;
-            font-size: 1.1rem;
-            margin-bottom: 80px;
-            max-width: 500px;
-            line-height: 1.6;
-            font-weight: 300;
+            color: #888; font-size: 1.1rem; margin-bottom: 60px;
+            max-width: 500px; line-height: 1.6; font-weight: 300;
         }
 
         .showcase-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            width: 100%;
-            max-width: 1100px;
-            z-index: 5;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+            width: 100%; max-width: 1100px; z-index: 5;
         }
 
         .showcase-panel {
             background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 60px 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: 0.4s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px;
+            padding: 60px 40px; display: flex; flex-direction: column;
+            align-items: center; transition: 0.4s ease; cursor: pointer;
+            position: relative; overflow: hidden;
         }
 
         .showcase-panel:hover {
-            border-color: var(--tapt-gold);
-            background: rgba(212, 175, 55, 0.05);
+            border-color: var(--tapt-gold); background: rgba(212, 175, 55, 0.05);
             transform: translateY(-5px);
         }
 
@@ -145,7 +176,7 @@
         }
         .showcase-panel:hover .hero-btn { background: var(--tapt-gold); color: black; border-color: var(--tapt-gold); }
 
-        /* 3D Styles */
+        /* 3D Styles - DEFAULT (PC) SIZES */
         .home-keychain {
             width: 200px; height: 200px; border-radius: 50%;
             background: #0a0a0a; border: 1px solid rgba(255,255,255,0.15);
@@ -192,7 +223,7 @@
         <div class="showcase-grid">
             
             <div class="showcase-panel" onclick="selectMode('card')">
-                <div class="card-stage float-anim" id="mobile-stage-card">
+                <div class="card-stage float-anim" id="pc-stage-card">
                     <div class="home-card skin-black">
                         <div style="display:flex; justify-content:space-between;">
                             <div class="chip"></div>
@@ -213,7 +244,7 @@
             </div>
 
             <div class="showcase-panel" onclick="selectMode('keychain')">
-                <div class="card-stage float-anim-delay" id="mobile-stage-tag">
+                <div class="card-stage float-anim-delay" id="pc-stage-tag">
                     <div class="home-keychain skin-black">
                         <div style="text-align:center;">
                             <i class="fa-brands fa-spotify" style="font-size:3.5rem; color:#1DB954; margin-bottom:15px; filter: drop-shadow(0 0 10px rgba(29,185,84,0.4));"></i>

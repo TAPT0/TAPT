@@ -9,6 +9,16 @@
     <link rel="stylesheet" href="style.css">
     
     <style>
+        /* --- 0. CURSOR & INTERACTION FIX (Add this to top of CSS) --- */
+        * {
+            cursor: auto !important; /* Force cursor to appear */
+        }
+        
+        .noise-overlay, 
+        .gold-glow-sphere {
+            pointer-events: none; /* ESSENTIAL: Allows clicks to pass through the effects */
+            z-index: -1; /* Pushes effects behind the content */
+        }
         /* --- PREMIUM SHOP STYLES OVERRIDE --- */
         body {
             background-color: #050505;
@@ -207,15 +217,51 @@
             color: black;
         }
 
-        /* Mobile Adjustments */
+       /* --- UPDATED MOBILE ADJUSTMENTS (Make this the last part of your CSS) --- */
         @media (max-width: 768px) {
-            .section-title { font-size: 2.5rem; }
-            .product-grid { 
-                grid-template-columns: 1fr; /* Force 1 column stack */
-                gap: 30px; 
-                padding: 0 20px;
+            /* Fix header spacing */
+            .shop-header { 
+                padding: 100px 15px 40px; 
             }
-            .search-container input { width: 90%; }
+            
+            .section-title { 
+                font-size: 2.2rem; 
+            }
+            
+            /* Pinterest Style Mobile Grid (2 Columns) */
+            .product-grid { 
+                grid-template-columns: repeat(2, 1fr); /* 2 columns instead of 1 */
+                gap: 15px; 
+                padding: 0 15px;
+            }
+
+            /* Adjust card size for mobile */
+            .card-image-wrapper {
+                height: 160px; /* Smaller height for mobile */
+            }
+
+            .card-info {
+                padding: 15px; /* Less padding inside cards */
+            }
+
+            .p-title {
+                font-size: 0.9rem; /* Smaller title text */
+            }
+            
+            .p-price {
+                font-size: 1rem;
+            }
+
+            /* Fix Search Bar */
+            .search-container input { 
+                width: 100%; 
+                font-size: 0.9rem;
+            }
+            
+            .controls-wrapper {
+                gap: 20px;
+                margin-bottom: 40px;
+            }
         }
     </style>
 </head>

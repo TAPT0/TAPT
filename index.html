@@ -17,100 +17,167 @@
             background-color: #050505;
             color: white;
             overflow-x: hidden;
+            margin: 0;
         }
 
+        /* PREMIUM BACKGROUND FX */
         .hero-layout {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding-top: 80px;
-            background: radial-gradient(circle at 50% 50%, #1a1a1a, #000 80%);
+            padding: 100px 20px;
             position: relative;
             z-index: 1;
             text-align: center;
+            overflow: hidden;
         }
 
+        /* Animated Background Glow */
+        .ambient-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(0,0,0,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            pointer-events: none;
+            animation: pulseGlow 5s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        /* TYPOGRAPHY */
         .hero-title {
-            color: #ffffff !important;
-            font-size: 3.5rem; 
-            margin-bottom: 20px; 
-            line-height: 1.1;
+            color: #ffffff;
+            font-size: 4rem; 
+            margin-bottom: 10px; 
+            line-height: 1;
             z-index: 10;
             text-transform: uppercase;
+            letter-spacing: -2px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
 
         .hero-subtitle {
             color: #888;
-            font-size: 1.2rem;
-            margin-bottom: 60px;
-            max-width: 600px;
+            font-size: 1.1rem;
+            margin-bottom: 80px;
+            max-width: 500px;
             line-height: 1.6;
+            font-weight: 300;
         }
 
-        /* SPLIT SHOWCASE */
+        /* GLASS SHOWCASE GRID */
         .showcase-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 50px;
+            gap: 40px;
             width: 100%;
-            max-width: 1000px;
+            max-width: 1100px;
             z-index: 5;
-            padding: 0 20px;
         }
 
-        .showcase-item {
+        /* THE GLASS PANEL CONTAINER */
+        .showcase-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 60px 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: 0.4s ease;
+            cursor: pointer;
             position: relative;
-            perspective: 1000px;
+            overflow: hidden;
+        }
+
+        .showcase-panel:hover {
+            border-color: var(--tapt-gold);
+            background: rgba(212, 175, 55, 0.05);
+            transform: translateY(-5px);
+        }
+
+        .showcase-panel:hover .hero-btn {
+            background: var(--tapt-gold);
+            color: black;
+            border-color: var(--tapt-gold);
+        }
+
+        /* FLOATING ANIMATION FOR PRODUCTS */
+        .float-anim {
+            animation: float 6s ease-in-out infinite;
+        }
+        .float-anim-delay {
+            animation: float 6s ease-in-out infinite 3s; /* Offset timing */
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotateX(0deg); }
+            50% { transform: translateY(-15px) rotateX(2deg); }
+            100% { transform: translateY(0px) rotateX(0deg); }
+        }
+
+        /* LABELS & BUTTONS */
+        .showcase-info {
+            margin-top: 40px;
+            text-align: center;
         }
 
         .showcase-label {
-            margin-top: 30px;
             font-family: 'Syncopate', sans-serif;
-            font-size: 1.2rem;
-            color: var(--tapt-gold);
-            letter-spacing: 2px;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .showcase-sub {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
         }
 
         .hero-btn {
             text-decoration: none;
-            padding: 12px 30px;
-            font-size: 0.9rem;
+            padding: 12px 35px;
+            font-size: 0.85rem;
             background: transparent;
             color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px; /* Sharper edges for premium feel */
             transition: 0.3s;
-            margin-top: 15px;
             text-transform: uppercase;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-        }
-        .hero-btn:hover {
-            background: white;
-            color: black;
-            border-color: white;
+            font-family: 'Syncopate', sans-serif;
+            font-weight: 700;
+            letter-spacing: 1px;
+            display: inline-block;
         }
 
-        /* KEYCHAIN STYLE FOR HOME */
+        /* 3D OBJECTS STYLING */
         .home-keychain {
-            width: 220px;
-            height: 220px;
+            width: 200px;
+            height: 200px;
             border-radius: 50%;
-            background: #111;
-            border: 1px solid rgba(255,255,255,0.1);
+            background: #0a0a0a;
+            border: 1px solid rgba(255,255,255,0.15);
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
             transform-style: preserve-3d;
-            transition: transform 0.1s;
         }
+        /* Keychain Hole */
         .home-keychain::before {
             content: '';
             position: absolute;
@@ -120,80 +187,92 @@
             background: #000;
             border-radius: 50%;
             border: 2px solid #333;
-            box-shadow: inset 0 2px 4px black;
         }
 
-        /* CARD STYLE FOR HOME */
         .home-card {
-            width: 320px; /* Standard Card Aspect Ratio */
-            height: 200px;
-            background: #111;
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
+            width: 300px; 
+            height: 190px;
+            background: #0a0a0a;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
             position: relative;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
             transform-style: preserve-3d;
-            transition: transform 0.1s;
             display: flex;
             flex-direction: column;
             padding: 25px;
             justify-content: space-between;
         }
         
-        @media(max-width: 800px) {
-            .hero-title { font-size: 2.5rem; }
-            .showcase-grid { grid-template-columns: 1fr; gap: 60px; }
-            .hero-layout { padding-bottom: 50px; }
+        /* RESPONSIVE */
+        @media(max-width: 900px) {
+            .hero-title { font-size: 2.8rem; }
+            .showcase-grid { grid-template-columns: 1fr; gap: 20px; }
+            .hero-layout { padding-top: 120px; padding-bottom: 50px; }
+            .showcase-panel { padding: 40px 20px; }
         }
     </style>
 </head>
 <body>
 
-    <nav>
+    <div class="noise-overlay"></div> <nav>
         <div class="logo">TAPT<span>.</span></div>
         <div class="nav-links">
             <a href="shop.html" style="color: white;">Shop</a>
             <a href="customize.html" style="color: white;">Create</a>
         </div>
-        <a href="shop.html" class="btn-primary" style="text-decoration:none;">Shop Now</a>
+        <a href="shop.html" class="btn-primary" style="text-decoration:none;">Shop All</a>
     </nav>
 
     <div class="hero-layout"> 
         
+        <div class="ambient-glow"></div>
+
         <h1 class="hero-title section-title">
-            Tap Your <span class="gold-text">Vibe</span>
+            Define Your <span class="gold-text">Legacy</span>
         </h1>
         <p class="hero-subtitle">
-            The next generation of networking & sharing. <br>
-            Instantly share music, socials, and contact info with a single tap.
+            The ultimate tool for the digital age. Instantly share music, socials, and contact info with a single tap.
         </p>
 
         <div class="showcase-grid">
             
-            <div class="showcase-item card-stage">
-                <div class="home-card skin-black tapt-card">
-                    <div style="display:flex; justify-content:space-between;">
-                        <div class="chip"></div>
-                        <i class="fa-solid fa-wifi" style="color:rgba(255,255,255,0.3); transform: rotate(90deg);"></i>
-                    </div>
-                    <div>
-                        <div style="font-family:'Syncopate'; font-size:1.1rem; color:white;">AAHIL FARASH</div>
-                        <div style="color:var(--tapt-gold); font-size:0.75rem; margin-top:5px;">FOUNDER</div>
+            <div class="showcase-panel" onclick="selectMode('card')">
+                <div class="card-stage float-anim">
+                    <div class="home-card skin-black tapt-card">
+                        <div style="display:flex; justify-content:space-between;">
+                            <div class="chip"></div>
+                            <i class="fa-solid fa-wifi" style="color:rgba(255,255,255,0.3); transform: rotate(90deg);"></i>
+                        </div>
+                        <div>
+                            <div style="font-family:'Syncopate'; font-size:1rem; color:white; letter-spacing:1px;">AAHIL FARASH</div>
+                            <div style="color:var(--tapt-gold); font-size:0.7rem; margin-top:5px; letter-spacing:1px;">FOUNDER</div>
+                        </div>
                     </div>
                 </div>
-                <div class="showcase-label">NFC Card</div>
-                <a href="customize.html" class="hero-btn" onclick="sessionStorage.setItem('defaultMode', 'card')">Create Card</a>
+                
+                <div class="showcase-info">
+                    <div class="showcase-label">The Card</div>
+                    <div class="showcase-sub">Classic. Professional. Timeless.</div>
+                    <a href="customize.html" class="hero-btn">Customize</a>
+                </div>
             </div>
 
-            <div class="showcase-item card-stage">
-                <div class="home-keychain skin-black tapt-card">
-                    <div style="text-align:center;">
-                        <i class="fa-brands fa-spotify" style="font-size:3rem; color:#1DB954; margin-bottom:10px;"></i>
-                        <div style="font-family:'Syncopate'; font-size:0.9rem; color:white;">MY PLAYLIST</div>
+            <div class="showcase-panel" onclick="selectMode('keychain')">
+                <div class="card-stage float-anim-delay">
+                    <div class="home-keychain skin-black tapt-card">
+                        <div style="text-align:center;">
+                            <i class="fa-brands fa-spotify" style="font-size:3.5rem; color:#1DB954; margin-bottom:15px; filter: drop-shadow(0 0 10px rgba(29,185,84,0.4));"></i>
+                            <div style="font-family:'Syncopate'; font-size:0.8rem; color:white; letter-spacing:2px;">PLAYLIST</div>
+                        </div>
                     </div>
                 </div>
-                <div class="showcase-label">NFC Tag</div>
-                <a href="customize.html" class="hero-btn" onclick="sessionStorage.setItem('defaultMode', 'keychain')">Create Tag</a>
+
+                <div class="showcase-info">
+                    <div class="showcase-label">The Tag</div>
+                    <div class="showcase-sub">For Keys. For Cars. For Vibes.</div>
+                    <a href="customize.html" class="hero-btn">Customize</a>
+                </div>
             </div>
 
         </div>
@@ -201,7 +280,7 @@
     </div>
 
     <div class="preloader">
-        <div class="loader-text" style="color: black;">TAPT.</div>
+        <div class="loader-text">TAPT.</div>
     </div>
 
     <div class="cursor-dot" data-cursor-dot></div>
@@ -225,12 +304,11 @@
     <script src="script.js"></script>
     
     <script>
-        // When clicking "Create Tag", we tell the next page to switch to Keychain mode
-        document.querySelectorAll('.hero-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                // The onclick in HTML handles the storage set
-            });
-        });
+        // Function to handle clicks on the panel or button
+        function selectMode(mode) {
+            sessionStorage.setItem('defaultMode', mode);
+            window.location.href = 'customize.html';
+        }
     </script>
 
 </body>

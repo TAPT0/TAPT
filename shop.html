@@ -2,11 +2,222 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Shop | TAPT.</title>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* --- PREMIUM SHOP STYLES OVERRIDE --- */
+        body {
+            background-color: #050505;
+            color: white;
+            min-height: 100vh;
+        }
+
+        /* 1. Header Section */
+        .shop-header {
+            text-align: center;
+            padding: 120px 20px 60px;
+            position: relative;
+        }
+        
+        .section-title {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+        }
+
+        .section-subtitle {
+            color: #888;
+            font-size: 1.1rem;
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 2. Search & Filter Bar */
+        .controls-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 60px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-container input {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px 25px;
+            padding-right: 50px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .search-container input:focus {
+            border-color: var(--tapt-gold);
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+            outline: none;
+        }
+
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.7);
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--tapt-gold);
+            color: black;
+            border-color: var(--tapt-gold);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            transform: translateY(-2px);
+            font-weight: 700;
+        }
+
+        /* 3. Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 40px;
+            padding: 0 5%;
+            max-width: 1400px;
+            margin: 0 auto 100px;
+        }
+
+        /* 4. Sexy Product Card */
+        .product-card {
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            text-decoration: none;
+            display: block;
+            backdrop-filter: blur(10px);
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--tapt-gold);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        .card-image-wrapper {
+            height: 250px;
+            width: 100%;
+            background: #111;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .product-card:hover .card-image-wrapper img {
+            transform: scale(1.1);
+        }
+
+        .card-info {
+            padding: 25px;
+            text-align: left;
+        }
+
+        .p-category {
+            color: var(--tapt-gold);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .p-title {
+            color: white;
+            font-family: 'Syncopate', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .p-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .p-price {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .add-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: 0.3s;
+        }
+
+        .product-card:hover .add-btn {
+            background: var(--tapt-gold);
+            color: black;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .section-title { font-size: 2.5rem; }
+            .product-grid { 
+                grid-template-columns: 1fr; /* Force 1 column stack */
+                gap: 30px; 
+                padding: 0 20px;
+            }
+            .search-container input { width: 90%; }
+        }
+    </style>
 </head>
 <body>
 
@@ -14,40 +225,40 @@
     <div class="gold-glow-sphere"></div>
 
     <nav>
-        <a href="index.html" class="logo">TAPT<span>.</span></a>
+        <div class="logo">TAPT<span>.</span></div>
         <div class="nav-links">
-            <a href="shop.html" class="active-link">Shop</a>
+            <a href="shop.html" style="color:var(--tapt-gold);">Shop</a>
             <a href="customize.html">Create</a>
         </div>
+        <a href="shop.html" class="btn-primary" style="text-decoration:none;">Shop All</a>
     </nav>
+
+    <div class="shop-header">
+        <h1 class="section-title">Select Your <span class="gold-text">Legacy</span></h1>
+        <p class="section-subtitle">Tap Your Vibe. Premium NFC Keychains & Cards.</p>
+    </div>
 
     <div class="container">
         
-        <div class="shop-header">
-            <h1 class="section-title">Select Your <span class="gold-text">Legacy</span></h1>
-            <p class="section-subtitle">Tap Your Vibe. Premium NFC Keychains for Music, Safety & Socials</p>
-        </div>
-        
-        <div class="category-filter">
-    <button class="filter-btn active" data-filter="all">All</button>
-    <button class="filter-btn" data-filter="music">Music</button>
-    <button class="filter-btn" data-filter="review">Reviews</button>
-    <button class="filter-btn" data-filter="privacy">Car Privacy</button>
-    <button class="filter-btn" data-filter="pet">Pet Safety</button>
-</div>
+        <div class="controls-wrapper">
+            <div class="search-container" style="width: 100%; text-align: center;">
+                <div style="position: relative; display: inline-block; width: 100%; max-width: 500px;">
+                    <input type="text" id="shop-search" placeholder="Search for Music, Cards, Tags...">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #888;"></i>
+                </div>
+            </div>
 
-        <div class="search-container" style="text-align: center; margin-bottom: 40px;">
-            <div style="position: relative; display: inline-block; width: 100%; max-width: 400px;">
-                <input type="text" id="shop-search" placeholder="Search products..." 
-                    style="width: 100%; padding: 15px 20px; padding-right: 50px; 
-                    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); 
-                    color: white; border-radius: 50px; outline: none; font-family: 'Inter', sans-serif; cursor:text;">
-                <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #888;"></i>
+            <div class="category-filter">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="card">Cards</button>
+                <button class="filter-btn" data-filter="tag">Tags</button>
+                <button class="filter-btn" data-filter="music">Music</button>
+                <button class="filter-btn" data-filter="privacy">Privacy</button>
             </div>
         </div>
 
         <div class="product-grid" id="shop-grid">
-            <p style="text-align: center; color: #666; width: 100%; grid-column: 1 / -1;">Loading products from database...</p>
+            <p style="text-align: center; color: #666; width: 100%; margin-top: 50px;">Loading exclusive collection...</p>
         </div>
 
     </div>
@@ -64,41 +275,17 @@
             <h2>Your Bag</h2>
             <button class="close-cart" onclick="toggleCart()">×</button>
         </div>
-
         <div class="cart-items" id="cart-items-container">
             <div class="empty-msg">Your cart is empty.</div>
         </div>
-
         <div class="cart-footer">
-            <div class="coupon-section">
-                <input type="text" id="coupon-input" placeholder="Promo Code">
-                <button onclick="applyCoupon()">Apply</button>
-            </div>
-            <div id="coupon-msg"></div>
-
-            <div class="summary-row">
-                <span>Subtotal</span>
-                <span id="subtotal-price">₹0.00</span>
-            </div>
-            <div class="summary-row discount-row" id="discount-row" style="display:none;">
-                <span>Discount</span>
-                <span id="discount-amount">-₹0.00</span>
-            </div>
             <div class="summary-row total">
                 <span>Total</span>
                 <span id="total-price">₹0.00</span>
             </div>
-            
             <button class="checkout-btn" onclick="window.location.href='checkout.html'">Proceed to Checkout</button>
         </div>
     </div>
-
-    <div class="preloader">
-        <div class="loader-text">TAPT.</div>
-    </div>
-
-    <div class="cursor-dot" data-cursor-dot></div>
-    <div class="cursor-outline" data-cursor-outline></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
@@ -107,11 +294,7 @@
         const firebaseConfig = {
             apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
             authDomain: "tapt-337b8.firebaseapp.com",
-            
-            // --- FIXED: No trailing slash to prevent "child path" error ---
-            databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
-            // -------------------------------------------------------------
-
+            databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com", 
             projectId: "tapt-337b8",
             storageBucket: "tapt-337b8.firebasestorage.app",
             messagingSenderId: "887956121124",
@@ -152,7 +335,7 @@
                 });
             }
 
-            // 2. Render Function
+            // 2. Render Function (Updated for New Design)
             function renderProducts(products) {
                 grid.innerHTML = "";
                 
@@ -161,47 +344,32 @@
                     return;
                 }
 
-                products.forEach(p => {
-                    // Check if it's a URL or Base64 (works for both!)
-                    const img = (p.images && p.images.length > 0) ? p.images[0] : 'https://via.placeholder.com/300x200?text=No+Image';
+                products.forEach((p, index) => {
+                    const img = (p.images && p.images.length > 0) ? p.images[0] : 'https://via.placeholder.com/300x300/111/333?text=TAPT';
+                    // Fallback for undefined type
+                    const typeLabel = p.type === 'tag' ? 'NFC TAG' : 'NFC CARD'; 
 
                     const card = document.createElement('a');
                     card.href = `product.html?id=${p.id}`;
                     card.className = "product-card";
+                    // Add staggered animation
+                    card.style.animation = `fadeIn 0.5s ease forwards ${index * 0.1}s`;
+                    card.style.opacity = "0"; // Start hidden for animation
                     
                     card.innerHTML = `
-                        <div class="card-content">
-                            <div class="card-3d-wrapper">
-                                <div class="p-image" style="background-image: url('${img}'); background-size: cover; background-position: center;">
-                                    <div class="gold-shimmer"></div>
-                                </div>
-                                <div class="card-info">
-                                    <div class="p-title" style="color:white;">${p.title}</div>
-                                    <div class="p-desc" style="text-transform:uppercase; font-size:0.8rem;">${p.category}</div>
-                                    <div class="p-price">₹${p.price}</div>
-                                </div>
+                        <div class="card-image-wrapper">
+                            <img src="${img}" alt="${p.title}">
+                        </div>
+                        <div class="card-info">
+                            <div class="p-category">${typeLabel} • ${p.category}</div>
+                            <div class="p-title">${p.title}</div>
+                            <div class="p-footer">
+                                <div class="p-price">₹${p.price}</div>
+                                <div class="add-btn"><i class="fa-solid fa-arrow-right"></i></div>
                             </div>
                         </div>
                     `;
                     grid.appendChild(card);
-
-                    // 3D Tilt Logic
-                    card.addEventListener('mousemove', (e) => {
-                        const content = card.querySelector('.card-content');
-                        const rect = card.getBoundingClientRect();
-                        const x = e.clientX - rect.left;
-                        const y = e.clientY - rect.top;
-                        
-                        const xRotation = -((y - rect.height / 2) / 20);
-                        const yRotation = (x - rect.width / 2) / 20;
-
-                        content.style.transform = `perspective(1000px) rotateX(${xRotation}deg) rotateY(${yRotation}deg) scale(1.02)`;
-                    });
-                    
-                    card.addEventListener('mouseleave', () => {
-                        const content = card.querySelector('.card-content');
-                        content.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
-                    });
                 });
             }
 
@@ -210,7 +378,8 @@
                 const term = e.target.value.toLowerCase();
                 const filtered = allProducts.filter(p => 
                     p.title.toLowerCase().includes(term) || 
-                    p.category.toLowerCase().includes(term)
+                    p.category.toLowerCase().includes(term) ||
+                    (p.type && p.type.toLowerCase().includes(term))
                 );
                 renderProducts(filtered);
             });
@@ -221,12 +390,17 @@
                     filterBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
 
-                    const category = btn.getAttribute('data-filter');
+                    const filter = btn.getAttribute('data-filter');
                     
-                    if(category === 'all') {
+                    if(filter === 'all') {
                         renderProducts(allProducts);
+                    } else if (filter === 'card' || filter === 'tag') {
+                        // Filter by Type
+                        const filtered = allProducts.filter(p => p.type === filter);
+                        renderProducts(filtered);
                     } else {
-                        const filtered = allProducts.filter(p => p.category.toLowerCase() === category);
+                        // Filter by Category
+                        const filtered = allProducts.filter(p => p.category.toLowerCase() === filter);
                         renderProducts(filtered);
                     }
                 });
@@ -235,6 +409,13 @@
     </script>
 
     <script src="script.js"></script>
+
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 
 </body>
 </html>

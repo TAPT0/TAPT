@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <style>
-        /* CSS PATCHES FOR MOBILE ISSUES */
         body {
             background-color: #050505;
             color: white;
@@ -21,13 +20,14 @@
             margin: 0;
         }
 
+        /* --- LAYOUT FIXES FOR TEXT OVERLAP --- */
         .hero-layout {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            /* PC Padding */
+            /* Increased top padding to clear the Navbar */
             padding: 140px 20px 60px 20px; 
             position: relative;
             z-index: 1;
@@ -35,49 +35,133 @@
             overflow: hidden;
         }
 
-        /* --- MOBILE SPECIFIC FIXES --- */
+        /* --- MOBILE SPECIFIC ADJUSTMENTS --- */
         @media (max-width: 900px) {
             .hero-layout {
-                /* INCREASED PADDING TO PREVENT OVERLAP */
-                padding-top: 180px; 
-                padding-bottom: 100px;
-                justify-content: flex-start; /* Aligns content to top so it doesn't get squished */
+                /* Even more space on mobile to prevent overlap */
+                padding-top: 160px; 
+                padding-bottom: 80px;
+                justify-content: flex-start;
             }
-
             .hero-title {
-                /* Smaller font for mobile to fit screen */
-                font-size: 2.2rem !important; 
-                margin-bottom: 20px;
+                font-size: 2.5rem !important; /* Smaller font on mobile */
             }
-
-            .hero-subtitle {
-                font-size: 0.9rem !important;
-                padding: 0 20px;
-                margin-bottom: 50px;
-            }
-
             .showcase-grid {
                 grid-template-columns: 1fr;
                 gap: 50px;
-                width: 100%;
-                max-width: 400px; /* Limits width so it looks good */
             }
-            
-            /* Center the nav links on mobile if they wrap */
-            nav {
-                flex-wrap: wrap;
-                gap: 15px;
-                justify-content: center;
-                padding: 15px;
-            }
-            
-            .nav-links {
-                order: 3; /* Push text links to bottom line if needed */
-                width: 100%;
-                text-align: center;
-                margin-top: 10px;
-                display: none; /* Optional: Hide text links on very small screens to clean up */
-            }
+        }
+
+        /* Animated Background Glow */
+        .ambient-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(0,0,0,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            pointer-events: none;
+            animation: pulseGlow 5s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        .hero-title {
+            color: #ffffff;
+            font-size: 4rem; 
+            margin-bottom: 10px; 
+            line-height: 1;
+            z-index: 10;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+
+        .hero-subtitle {
+            color: #888;
+            font-size: 1.1rem;
+            margin-bottom: 80px;
+            max-width: 500px;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            width: 100%;
+            max-width: 1100px;
+            z-index: 5;
+        }
+
+        .showcase-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .showcase-panel:hover {
+            border-color: var(--tapt-gold);
+            background: rgba(212, 175, 55, 0.05);
+            transform: translateY(-5px);
+        }
+
+        .float-anim { animation: float 6s ease-in-out infinite; }
+        .float-anim-delay { animation: float 6s ease-in-out infinite 3s; }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotateX(0deg); }
+            50% { transform: translateY(-15px) rotateX(2deg); }
+            100% { transform: translateY(0px) rotateX(0deg); }
+        }
+
+        .showcase-info { margin-top: 40px; text-align: center; }
+        .showcase-label { font-family: 'Syncopate', sans-serif; font-size: 1.5rem; color: white; font-weight: 700; margin-bottom: 5px; }
+        .showcase-sub { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+
+        .hero-btn {
+            text-decoration: none; padding: 12px 35px; font-size: 0.85rem;
+            background: transparent; color: white;
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;
+            transition: 0.3s; text-transform: uppercase;
+            font-family: 'Syncopate', sans-serif; font-weight: 700;
+            letter-spacing: 1px; display: inline-block;
+        }
+        .showcase-panel:hover .hero-btn { background: var(--tapt-gold); color: black; border-color: var(--tapt-gold); }
+
+        /* 3D Styles */
+        .home-keychain {
+            width: 200px; height: 200px; border-radius: 50%;
+            background: #0a0a0a; border: 1px solid rgba(255,255,255,0.15);
+            position: relative; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8); transform-style: preserve-3d;
+        }
+        .home-keychain::before {
+            content: ''; position: absolute; top: 15px; width: 15px; height: 15px;
+            background: #000; border-radius: 50%; border: 2px solid #333;
+        }
+
+        .home-card {
+            width: 300px; height: 190px; background: #0a0a0a; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15); position: relative;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8); transform-style: preserve-3d;
+            display: flex; flex-direction: column; padding: 25px; justify-content: space-between;
         }
     </style>
 </head>
@@ -108,7 +192,7 @@
         <div class="showcase-grid">
             
             <div class="showcase-panel" onclick="selectMode('card')">
-                <div class="card-stage float-anim" id="card-stage-mobile">
+                <div class="card-stage float-anim" id="mobile-stage-card">
                     <div class="home-card skin-black">
                         <div style="display:flex; justify-content:space-between;">
                             <div class="chip"></div>
@@ -129,7 +213,7 @@
             </div>
 
             <div class="showcase-panel" onclick="selectMode('keychain')">
-                <div class="card-stage float-anim-delay" id="tag-stage-mobile">
+                <div class="card-stage float-anim-delay" id="mobile-stage-tag">
                     <div class="home-keychain skin-black">
                         <div style="text-align:center;">
                             <i class="fa-brands fa-spotify" style="font-size:3.5rem; color:#1DB954; margin-bottom:15px; filter: drop-shadow(0 0 10px rgba(29,185,84,0.4));"></i>
@@ -179,39 +263,64 @@
             window.location.href = 'customize.html';
         }
 
-        /* =========================================
-           MOBILE TOUCH & TILT LOGIC
-           ========================================= */
-        function addMobileTilt(stageId, elementClass) {
-            const stage = document.getElementById(stageId);
-            if(!stage) return;
-            
-            const element = stage.querySelector(elementClass);
-
-            // Handle Touch Move
-            stage.addEventListener('touchmove', (e) => {
-                e.preventDefault(); // Stop scrolling while tilting
-                const touch = e.touches[0];
-                const rect = stage.getBoundingClientRect();
-                const x = touch.clientX - rect.left;
-                const y = touch.clientY - rect.top;
-
-                const xRotation = -((y - rect.height / 2) / 10); // Faster tilt for mobile
-                const yRotation = (x - rect.width / 2) / 10;
-
-                element.style.transform = `perspective(1000px) rotateX(${xRotation}deg) rotateY(${yRotation}deg) scale(1.05)`;
-            }, { passive: false });
-
-            // Reset on Touch End
-            stage.addEventListener('touchend', () => {
-                element.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
-            });
-        }
-
-        // Initialize for both Card and Tag
+        /* ==============================================
+           DUAL TILT LOGIC (MOBILE + DESKTOP)
+           ============================================== */
         document.addEventListener('DOMContentLoaded', () => {
-            addMobileTilt('card-stage-mobile', '.home-card');
-            addMobileTilt('tag-stage-mobile', '.home-keychain');
+            
+            // Function to handle both Mobile (Touch) and PC (Mouse)
+            function addTiltEffect(panelSelector, objectSelector) {
+                const panels = document.querySelectorAll(panelSelector);
+
+                panels.forEach(panel => {
+                    const object3D = panel.querySelector(objectSelector);
+                    if(!object3D) return;
+
+                    // --- 1. PC MOUSE TILT ---
+                    panel.addEventListener('mousemove', (e) => {
+                        const rect = panel.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        
+                        // Calculate PC rotation (25 is damping factor)
+                        const xRot = -((y - rect.height / 2) / 25);
+                        const yRot = (x - rect.width / 2) / 25;
+
+                        object3D.style.transform = `perspective(1000px) rotateX(${xRot}deg) rotateY(${yRot}deg) scale(1.05)`;
+                    });
+
+                    // Reset PC
+                    panel.addEventListener('mouseleave', () => {
+                        object3D.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
+                    });
+
+                    // --- 2. MOBILE TOUCH TILT ---
+                    panel.addEventListener('touchmove', (e) => {
+                        // Prevent page scrolling while interacting with 3D object
+                        // e.preventDefault(); 
+                        
+                        const touch = e.touches[0];
+                        const rect = panel.getBoundingClientRect();
+                        const x = touch.clientX - rect.left;
+                        const y = touch.clientY - rect.top;
+
+                        // Mobile rotation is often more sensitive
+                        const xRot = -((y - rect.height / 2) / 10);
+                        const yRot = (x - rect.width / 2) / 10;
+
+                        object3D.style.transform = `perspective(1000px) rotateX(${xRot}deg) rotateY(${yRot}deg) scale(1.05)`;
+                    }, { passive: true });
+
+                    // Reset Mobile
+                    panel.addEventListener('touchend', () => {
+                        object3D.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
+                    });
+                });
+            }
+
+            // Apply logic to both
+            addTiltEffect('.showcase-panel', '.home-card');
+            addTiltEffect('.showcase-panel', '.home-keychain');
         });
     </script>
 

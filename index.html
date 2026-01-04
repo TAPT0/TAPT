@@ -21,7 +21,7 @@
             margin: 0;
         }
 
-        /* --- NAV BAR FIXES --- */
+        /* --- NAV BAR --- */
         nav {
             padding: 1.5rem 5%;
             display: flex;
@@ -49,65 +49,74 @@
             overflow: hidden;
         }
 
-        /* --- MOBILE SPECIFIC FIXES (THE IMPORTANT PART) --- */
-        @media (max-width: 768px) {
-            /* 1. Fix Navbar Crowding */
+        /* --- 3D SHOWCASE GRID --- */
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Default: 2 Columns */
+            gap: 40px;
+            width: 100%;
+            max-width: 1100px;
+            z-index: 5;
+        }
+
+        /* =========================================
+           MOBILE "FORCE STACK" FIXES
+           Triggered on any screen smaller than 950px
+           ========================================= */
+        @media (max-width: 950px) {
+            
+            /* 1. FORCE 1 COLUMN LAYOUT */
+            .showcase-grid {
+                display: flex !important;        /* Disable Grid */
+                flex-direction: column !important; /* Force Vertical Stack */
+                gap: 60px !important;            /* Space between items */
+                padding-bottom: 50px;
+            }
+
+            /* 2. NAV BAR CLEANUP */
             nav {
-                padding: 15px 20px; /* Smaller padding */
+                padding: 15px 20px !important;
             }
             .nav-links {
-                display: none; /* Hide text links on mobile to save space */
+                display: none !important; /* Hide text links */
             }
             .logo {
-                font-size: 1.2rem; /* Slightly smaller logo */
+                font-size: 1.2rem !important;
             }
-            /* Target the Shop All button specifically in nav to not be huge */
+            /* Fix the button size */
             nav .btn-primary {
-                width: auto !important; /* Stop it from stretching */
+                width: auto !important;
                 padding: 10px 20px !important;
-                font-size: 0.8rem !important;
+                font-size: 0.75rem !important;
                 margin: 0 !important;
             }
 
-            /* 2. Fix Text Overlap */
+            /* 3. HERO TEXT SPACING */
             .hero-layout {
-                padding-top: 120px; /* Push content down */
-                justify-content: flex-start;
+                padding-top: 130px !important; 
+                justify-content: flex-start !important;
             }
             .hero-title {
                 font-size: 2.2rem !important;
-                margin-top: 20px;
+                margin-top: 10px !important;
             }
 
-            /* 3. Fix Card Cutoff (Make them fluid) */
-            .showcase-grid {
-                grid-template-columns: 1fr;
-                gap: 40px;
-                width: 100%;
-                padding: 0 10px;
-            }
-            
-            .showcase-panel {
-                padding: 30px 10px;
-                width: 100%;
-            }
-
-            /* Force 3D objects to fit screen width */
+            /* 4. FLUID CARD SIZING */
             .home-card {
-                width: 80vw !important; /* 80% of screen width */
-                max-width: 300px;
+                width: 80vw !important;
+                max-width: 320px !important;
                 height: auto !important;
-                aspect-ratio: 1.58/1; /* Maintain Credit Card Ratio */
+                aspect-ratio: 1.58/1 !important;
             }
             .home-keychain {
                 width: 60vw !important;
-                max-width: 200px;
+                max-width: 220px !important;
                 height: auto !important;
-                aspect-ratio: 1/1; /* Circle Ratio */
+                aspect-ratio: 1/1 !important;
             }
         }
 
-        /* --- REST OF STYLES --- */
+        /* --- REST OF PREMIUM STYLES --- */
         .ambient-glow {
             position: absolute;
             width: 600px; height: 600px;
@@ -132,11 +141,6 @@
         .hero-subtitle {
             color: #888; font-size: 1.1rem; margin-bottom: 60px;
             max-width: 500px; line-height: 1.6; font-weight: 300;
-        }
-
-        .showcase-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
-            width: 100%; max-width: 1100px; z-index: 5;
         }
 
         .showcase-panel {
@@ -294,62 +298,41 @@
             window.location.href = 'customize.html';
         }
 
-        /* ==============================================
-           DUAL TILT LOGIC (MOBILE + DESKTOP)
-           ============================================== */
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // Function to handle both Mobile (Touch) and PC (Mouse)
             function addTiltEffect(panelSelector, objectSelector) {
                 const panels = document.querySelectorAll(panelSelector);
-
                 panels.forEach(panel => {
                     const object3D = panel.querySelector(objectSelector);
                     if(!object3D) return;
 
-                    // --- 1. PC MOUSE TILT ---
+                    // PC
                     panel.addEventListener('mousemove', (e) => {
                         const rect = panel.getBoundingClientRect();
                         const x = e.clientX - rect.left;
                         const y = e.clientY - rect.top;
-                        
-                        // Calculate PC rotation (25 is damping factor)
                         const xRot = -((y - rect.height / 2) / 25);
                         const yRot = (x - rect.width / 2) / 25;
-
                         object3D.style.transform = `perspective(1000px) rotateX(${xRot}deg) rotateY(${yRot}deg) scale(1.05)`;
                     });
-
-                    // Reset PC
                     panel.addEventListener('mouseleave', () => {
                         object3D.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
                     });
 
-                    // --- 2. MOBILE TOUCH TILT ---
+                    // Mobile
                     panel.addEventListener('touchmove', (e) => {
-                        // Prevent page scrolling while interacting with 3D object
-                        // e.preventDefault(); 
-                        
                         const touch = e.touches[0];
                         const rect = panel.getBoundingClientRect();
                         const x = touch.clientX - rect.left;
                         const y = touch.clientY - rect.top;
-
-                        // Mobile rotation is often more sensitive
                         const xRot = -((y - rect.height / 2) / 10);
                         const yRot = (x - rect.width / 2) / 10;
-
                         object3D.style.transform = `perspective(1000px) rotateX(${xRot}deg) rotateY(${yRot}deg) scale(1.05)`;
                     }, { passive: true });
-
-                    // Reset Mobile
                     panel.addEventListener('touchend', () => {
                         object3D.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
                     });
                 });
             }
-
-            // Apply logic to both
             addTiltEffect('.showcase-panel', '.home-card');
             addTiltEffect('.showcase-panel', '.home-keychain');
         });

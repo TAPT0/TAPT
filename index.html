@@ -14,7 +14,9 @@
 </head>
 <body>
 
-    <div class="noise-overlay"></div> <nav>
+    <div class="noise-overlay"></div>
+
+    <nav>
         <div class="logo">TAPT<span>.</span></div>
         <div class="nav-links">
             <a href="shop.html" style="color: white;">Shop</a>
@@ -38,7 +40,7 @@
             
             <div class="showcase-panel" onclick="selectMode('card')">
                 <div class="card-stage float-anim">
-                    <div class="home-card skin-black tapt-card">
+                    <div class="home-card skin-black">
                         <div style="display:flex; justify-content:space-between;">
                             <div class="chip"></div>
                             <i class="fa-solid fa-wifi" style="color:rgba(255,255,255,0.3); transform: rotate(90deg);"></i>
@@ -59,7 +61,7 @@
 
             <div class="showcase-panel" onclick="selectMode('keychain')">
                 <div class="card-stage float-anim-delay">
-                    <div class="home-keychain skin-black tapt-card">
+                    <div class="home-keychain skin-black">
                         <div style="text-align:center;">
                             <i class="fa-brands fa-spotify" style="font-size:3.5rem; color:#1DB954; margin-bottom:15px; filter: drop-shadow(0 0 10px rgba(29,185,84,0.4));"></i>
                             <div style="font-family:'Syncopate'; font-size:0.8rem; color:white; letter-spacing:2px;">PLAYLIST</div>
@@ -103,7 +105,6 @@
     <script src="script.js"></script>
     
     <script>
-        // Function to handle clicks on the panel or button
         function selectMode(mode) {
             sessionStorage.setItem('defaultMode', mode);
             window.location.href = 'customize.html';

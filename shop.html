@@ -14,7 +14,8 @@
     <div class="gold-glow-sphere"></div>
 
     <nav>
-        <div class="logo">TAPT<span>.</span></div>
+        <a href="index.html" class="logo">TAPT<span>.</span></a>
+        
         <div class="nav-right">
             <a href="customize.html" class="premium-btn">Create</a>
             <div class="nav-icon" onclick="toggleAccount()">
@@ -22,7 +23,7 @@
             </div>
             <div class="nav-icon" style="position: relative;" onclick="toggleCart()">
                 <i class="fa-solid fa-bag-shopping"></i>
-                <span id="cart-count" style="position: absolute; top: -5px; right: -5px; background: var(--tapt-gold); color: black; font-size: 10px; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">0</span>
+                <span id="cart-count" class="cart-badge">0</span>
             </div>
         </div>
     </nav>
@@ -46,7 +47,7 @@
         </div>
 
         <div class="product-grid" id="shop-grid">
-            <p style="text-align: center; color: #444; width: 100%;">Loading...</p>
+            <p style="text-align: center; color: #444; width: 100%;">Loading products...</p>
         </div>
     </div>
 
@@ -55,15 +56,26 @@
     <div class="cart-drawer" id="cart-drawer">
         <div class="drawer-header">
             <h2>Your Bag</h2>
-            <button style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;" onclick="toggleCart()">×</button>
+            <button class="close-drawer" onclick="toggleCart()">×</button>
         </div>
-        <div style="padding:20px; color:#888;">Cart functionality here...</div>
+        
+        <div class="cart-items" id="cart-items-container">
+            <p class="empty-msg">Your bag is empty.</p>
+        </div>
+
+        <div class="cart-footer">
+            <div class="summary-row">
+                <span>Total</span>
+                <span class="total" id="cart-total">₹0</span>
+            </div>
+            <button class="checkout-btn">Checkout</button>
+        </div>
     </div>
 
     <div class="account-drawer" id="account-drawer">
         <div class="drawer-header">
             <h2>My Legacy</h2>
-            <button style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;" onclick="toggleAccount()">×</button>
+            <button class="close-drawer" onclick="toggleAccount()">×</button>
         </div>
         <div class="drawer-content">
             
@@ -91,115 +103,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
-    <script>
-        // Firebase Config (Keep your existing config)
-        const firebaseConfig = {
-            apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
-            authDomain: "tapt-337b8.firebaseapp.com",
-            databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
-            projectId: "tapt-337b8",
-            storageBucket: "tapt-337b8.firebasestorage.app",
-            messagingSenderId: "887956121124",
-            appId: "1:887956121124:web:6856680bf75aa3bacddab1",
-            measurementId: "G-2CB8QXYNJY"
-        };
-        firebase.initializeApp(firebaseConfig);
-
-        /* --- UI LOGIC --- */
-        const overlay = document.getElementById('overlay');
-        const cartDrawer = document.getElementById('cart-drawer');
-        const accountDrawer = document.getElementById('account-drawer');
-
-        function toggleCart() {
-            cartDrawer.classList.toggle('open');
-            accountDrawer.classList.remove('open'); // Close account if open
-            overlay.classList.toggle('active', cartDrawer.classList.contains('open'));
-        }
-
-        function toggleAccount() {
-            accountDrawer.classList.toggle('open');
-            cartDrawer.classList.remove('open'); // Close cart if open
-            overlay.classList.toggle('active', accountDrawer.classList.contains('open'));
-            
-            // Populate Dummy Data for "Real" Feel
-            populateAccountData();
-        }
-
-        function closeAllDrawers() {
-            cartDrawer.classList.remove('open');
-            accountDrawer.classList.remove('open');
-            overlay.classList.remove('active');
-        }
-
-        /* --- FAKE DATA POPULATION (To make account look real immediately) --- */
-        function populateAccountData() {
-            const orderList = document.getElementById('order-list');
-            const designGrid = document.getElementById('design-grid');
-
-            // 1. Mock Orders
-            orderList.innerHTML = `
-                <div class="order-item">
-                    <div class="order-left">
-                        <h4>#TAPT-9921</h4>
-                        <p>Matte Black Card • 2 Items</p>
-                    </div>
-                    <div class="status-badge">Delivered</div>
-                </div>
-                <div class="order-item">
-                    <div class="order-left">
-                        <h4>#TAPT-8842</h4>
-                        <p>Gold PVC Tag • 1 Item</p>
-                    </div>
-                    <div class="status-badge" style="color:orange; background:rgba(255,165,0,0.1); border-color:rgba(255,165,0,0.2);">Shipped</div>
-                </div>
-            `;
-
-            // 2. Mock Designs (Placeholders for now)
-            designGrid.innerHTML = `
-                <div class="design-thumb"><img src="https://via.placeholder.com/150/000/333?text=Design1" alt="Design"></div>
-                <div class="design-thumb"><img src="https://via.placeholder.com/150/111/333?text=Design2" alt="Design"></div>
-                <div class="design-thumb" style="border:1px dashed #444; display:flex; align-items:center; justify-content:center; color:#444;"><i class="fa-solid fa-plus"></i></div>
-            `;
-        }
-
-        /* --- PRODUCT LOADING --- */
-        document.addEventListener('DOMContentLoaded', () => {
-            const grid = document.getElementById('shop-grid');
-            const dbRef = firebase.database().ref('products');
-
-            dbRef.on('value', (snapshot) => {
-                grid.innerHTML = "";
-                if(!snapshot.exists()) {
-                    grid.innerHTML = "<p>No products found.</p>";
-                    return;
-                }
-
-                snapshot.forEach((child) => {
-                    const p = child.val();
-                    const img = (p.images && p.images[0]) ? p.images[0] : 'https://via.placeholder.com/300x300/111/333?text=TAPT';
-                    const typeLabel = p.type === 'tag' ? 'NFC TAG' : 'NFC CARD';
-                    
-                    const card = document.createElement('a');
-                    card.href = `product.html?id=${child.key}`;
-                    card.className = "product-card";
-                    card.innerHTML = `
-                        <div class="card-image-wrapper">
-                            <img src="${img}" alt="${p.title}">
-                        </div>
-                        <div class="card-info">
-                            <div class="p-category">${typeLabel}</div>
-                            <div class="p-title">${p.title}</div>
-                            <div class="p-footer">
-                                <div class="p-price">₹${p.price}</div>
-                                <div class="add-icon"><i class="fa-solid fa-plus"></i></div>
-                            </div>
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                });
-            });
-        });
-    </script>
+    
+    <script src="script.js"></script>
 </body>
 </html>

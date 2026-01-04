@@ -2,11 +2,224 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Product Details | TAPT.</title>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* --- PREMIUM PRODUCT PAGE STYLES --- */
+        
+        .product-page-container {
+            padding-top: 120px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 80px;
+        }
+
+        .product-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr; /* Image wider than text */
+            gap: 60px;
+            align-items: start;
+        }
+
+        /* 1. GALLERY SYSTEM */
+        .gallery-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .main-image-frame {
+            width: 100%;
+            height: 500px;
+            background: #111;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-image-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .main-image-frame:hover img {
+            transform: scale(1.05);
+        }
+
+        .thumbnail-strip {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .thumb {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            opacity: 0.6;
+            transition: 0.3s;
+            object-fit: cover;
+        }
+
+        .thumb:hover, .thumb.active {
+            opacity: 1;
+            border-color: var(--tapt-gold);
+            transform: translateY(-2px);
+        }
+
+        /* 2. PRODUCT INFO */
+        .p-right {
+            padding-top: 20px;
+        }
+
+        .p-badge {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--tapt-gold);
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 15px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .p-detail-title {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            line-height: 1.1;
+        }
+
+        .p-detail-price {
+            font-size: 2rem;
+            margin-bottom: 25px;
+            color: white;
+            font-weight: 300;
+        }
+
+        .p-detail-desc {
+            color: #aaa;
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 40px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+        }
+
+        /* 3. ACTION BUTTONS */
+        .p-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-bag, .btn-buy {
+            flex: 1;
+            padding: 18px;
+            border-radius: 8px;
+            font-family: 'Syncopate', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .btn-bag {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+        }
+        .btn-bag:hover { border-color: white; background: rgba(255,255,255,0.05); }
+
+        .btn-buy {
+            background: var(--tapt-gold);
+            border: 1px solid var(--tapt-gold);
+            color: black;
+        }
+        .btn-buy:hover { background: white; border-color: white; transform: translateY(-3px); }
+
+        .btn-customize {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(45deg, #111, #222);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--tapt-gold);
+            border-radius: 8px;
+            font-family: 'Syncopate', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-customize:hover {
+            border-color: var(--tapt-gold);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+        }
+
+        /* 4. REVIEWS SECTION */
+        .reviews-section {
+            margin-top: 100px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 60px;
+        }
+
+        .reviews-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .review-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .r-stars { color: var(--tapt-gold); margin-bottom: 10px; font-size: 0.9rem; }
+        .r-text { color: #ccc; font-style: italic; margin-bottom: 15px; line-height: 1.5; }
+        .r-author { font-weight: bold; color: white; font-size: 0.9rem; }
+
+        /* Mobile */
+        @media(max-width: 900px) {
+            .product-layout { grid-template-columns: 1fr; gap: 40px; }
+            .main-image-frame { height: 350px; }
+            .p-detail-title { font-size: 2rem; }
+            .btn-row { flex-direction: column; }
+        }
+    </style>
 </head>
 <body>
 
@@ -14,7 +227,7 @@
     <div class="gold-glow-sphere" style="left: 20%;"></div>
 
     <nav>
-        <a href="shop.html" class="logo">TAPT<span>.</span></a>
+        <a href="index.html" class="logo">TAPT<span>.</span></a>
         <div class="nav-links">
             <a href="shop.html">Shop</a>
             <a href="customize.html">Create</a>
@@ -28,27 +241,63 @@
 
     <div class="container product-page-container">
         
-        <a href="shop.html" class="back-link" style="margin-bottom: 40px; display:inline-block;">
-            <i class="fa-solid fa-arrow-left"></i> Back to Shop
+        <a href="shop.html" class="back-link" style="margin-bottom: 30px; display:inline-block; color:#888;">
+            <i class="fa-solid fa-arrow-left"></i> Back to Collection
         </a>
 
-        <div class="product-layout" id="product-display">
-            <div class="p-left card-stage">
-                <div class="tapt-card skin-black">
-                    <div class="card-content">
-                        <div class="p-title">LOADING...</div>
-                    </div>
+        <div class="product-layout">
+            
+            <div class="gallery-container">
+                <div class="main-image-frame" id="main-img-container">
+                    <img id="main-image" src="" alt="Product Image">
                 </div>
+                <div class="thumbnail-strip" id="thumb-strip">
+                    </div>
             </div>
             
             <div class="p-right">
-                <h1 class="p-detail-title">Loading Product...</h1>
-                <p class="p-detail-price">--</p>
-                <p class="p-detail-desc">Please wait while we fetch the details from the server.</p>
+                <div class="p-badge" id="p-cat-badge">PREMIUM</div>
+                <h1 class="p-detail-title" id="p-title">Loading...</h1>
+                <div class="p-detail-price" id="p-price">--</div>
+                
+                <div class="p-detail-desc" id="p-desc">
+                    Experience the future of networking. This premium NFC-enabled product allows you to share your digital identity, music, or business details with a single tap. Waterproof, durable, and designed to leave a lasting impression.
+                </div>
                 
                 <div class="p-actions">
-                    <button class="btn-primary" disabled>Add to Cart</button>
-                    <button class="btn-outline" disabled>Customize</button>
+                    <button class="btn-customize" onclick="goToCustomize()">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Customize Design
+                    </button>
+                    <div class="btn-row">
+                        <button class="btn-bag" onclick="addToBag()">Add to Bag</button>
+                        <button class="btn-buy" onclick="buyNow()">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="reviews-section">
+            <div class="reviews-header">
+                <h2 style="font-family: 'Syncopate'; margin:0;">Verified Reviews</h2>
+                <div style="color:var(--tapt-gold);">
+                    <i class="fa-solid fa-star"></i> 4.9 (128 Reviews)
+                </div>
+            </div>
+            <div class="reviews-grid">
+                <div class="review-card">
+                    <div class="r-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    <div class="r-text">"Absolutely insane quality. The black matte finish looks so professional. Everyone asks me about it."</div>
+                    <div class="r-author">- Rahul M.</div>
+                </div>
+                <div class="review-card">
+                    <div class="r-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    <div class="r-text">"Works perfectly with my iPhone and Android. Setting up the link was super easy. 10/10."</div>
+                    <div class="r-author">- Sarah J.</div>
+                </div>
+                <div class="review-card">
+                    <div class="r-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    <div class="r-text">"Got the keychain for my car keys. It's so convenient for sharing my playlist at parties."</div>
+                    <div class="r-author">- Armaan K.</div>
                 </div>
             </div>
         </div>
@@ -57,10 +306,7 @@
 
     <div class="cart-overlay" onclick="toggleCart()"></div>
     <div class="cart-drawer">
-        <div class="cart-header">
-            <h2>Your Bag</h2>
-            <button class="close-cart" onclick="toggleCart()">×</button>
-        </div>
+        <div class="cart-header"><h2>Your Bag</h2><button class="close-cart" onclick="toggleCart()">×</button></div>
         <div class="cart-items" id="cart-items-container"><div class="empty-msg">Empty</div></div>
         <div class="cart-footer">
             <div class="summary-row total"><span>Total</span><span id="total-price">₹0</span></div>
@@ -75,24 +321,104 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script>
-      // PASTE YOUR FIREBASE CONFIG HERE
+      // CORRECT FIREBASE CONFIG
       const firebaseConfig = {
-  apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
-  authDomain: "tapt-337b8.firebaseapp.com",
-  
-  // --- ADD THIS LINE HERE (Make sure it matches your actual URL) ---
-  databaseURL: "https://console.firebase.google.com/u/3/project/tapt-337b8/database/tapt-337b8-default-rtdb/data/~2F/", 
-  // ----------------------------------------------------------------
-
-  projectId: "tapt-337b8",
-  storageBucket: "tapt-337b8.firebasestorage.app",
-  messagingSenderId: "887956121124",
-  appId: "1:887956121124:web:6856680bf75aa3bacddab1",
-  measurementId: "G-2CB8QXYNJY"
-};
-firebase.initializeApp(firebaseConfig);
+        apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
+        authDomain: "tapt-337b8.firebaseapp.com",
+        databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com/", // Fixed URL
+        projectId: "tapt-337b8",
+        storageBucket: "tapt-337b8.firebasestorage.app",
+        messagingSenderId: "887956121124",
+        appId: "1:887956121124:web:6856680bf75aa3bacddab1",
+        measurementId: "G-2CB8QXYNJY"
+      };
+      firebase.initializeApp(firebaseConfig);
     </script>
 
     <script src="script.js"></script>
+
+    <script>
+        let currentProduct = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+
+            if (!productId) {
+                window.location.href = 'shop.html';
+                return;
+            }
+
+            const db = firebase.database();
+            db.ref('products/' + productId).once('value').then((snapshot) => {
+                if (snapshot.exists()) {
+                    currentProduct = snapshot.val();
+                    currentProduct.id = productId;
+                    renderProductPage(currentProduct);
+                } else {
+                    document.querySelector('.p-detail-title').textContent = "Product Not Found";
+                }
+            });
+        });
+
+        function renderProductPage(p) {
+            document.title = `${p.title} | TAPT.`;
+            document.getElementById('p-title').textContent = p.title;
+            document.getElementById('p-price').textContent = `₹${p.price}`;
+            document.getElementById('p-cat-badge').textContent = (p.type === 'tag' ? 'NFC TAG' : 'NFC CARD') + ' • ' + p.category;
+
+            // Handle Images
+            const mainImg = document.getElementById('main-image');
+            const thumbStrip = document.getElementById('thumb-strip');
+            
+            // Set Main Image (First one or placeholder)
+            const images = p.images || [];
+            if(images.length > 0) {
+                mainImg.src = images[0];
+                
+                // Create Thumbnails
+                images.forEach((imgSrc, index) => {
+                    const thumb = document.createElement('img');
+                    thumb.src = imgSrc;
+                    thumb.className = index === 0 ? 'thumb active' : 'thumb';
+                    thumb.onclick = () => {
+                        mainImg.src = imgSrc;
+                        document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+                        thumb.classList.add('active');
+                    };
+                    thumbStrip.appendChild(thumb);
+                });
+            } else {
+                mainImg.src = 'https://via.placeholder.com/500x500/111/333?text=TAPT';
+            }
+        }
+
+        // --- BUTTON ACTIONS ---
+
+        function addToBag() {
+            if(!currentProduct) return;
+            window.addToCart(currentProduct.title, currentProduct.price, currentProduct.images ? currentProduct.images[0] : null);
+            toggleCart(); // Open cart to show success
+        }
+
+        function buyNow() {
+            if(!currentProduct) return;
+            window.addToCart(currentProduct.title, currentProduct.price, currentProduct.images ? currentProduct.images[0] : null);
+            window.location.href = 'checkout.html';
+        }
+
+        function goToCustomize() {
+            if(!currentProduct) return;
+            
+            // Determine type for the customize page
+            const type = (currentProduct.type === 'tag') ? 'keychain' : 'card';
+            
+            // Save logic to session so customize page knows what to load
+            sessionStorage.setItem('defaultMode', type);
+            
+            // Redirect
+            window.location.href = 'customize.html';
+        }
+    </script>
 </body>
 </html>

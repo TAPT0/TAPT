@@ -106,16 +106,24 @@
                         <label>Price (₹)</label>
                         <input type="number" id="p-price" placeholder="1999">
                     </div>
+                    
+                    <div class="form-group">
+                        <label>Product Type</label>
+                        <select id="p-type">
+                            <option value="card">NFC Card (Rectangle)</option>
+                            <option value="tag">NFC Tag / Keychain (Circle)</option>
+                        </select>
+                    </div>
+
                     <div class="form-group">
                         <label>Category</label>
                         <select id="p-category">
-    <option value="music">Music / Spotify</option>
-    <option value="review">Google Reviews</option>
-    <option value="privacy">Car Privacy</option>
-    <option value="pet">Pet Safety</option>
-    <option value="custom">Custom</option>
-</select>
-                        
+                            <option value="music">Music / Spotify</option>
+                            <option value="review">Google Reviews</option>
+                            <option value="privacy">Car Privacy</option>
+                            <option value="pet">Pet Safety</option>
+                            <option value="custom">Custom</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Product Images (Select Multiple)</label>
@@ -248,6 +256,7 @@
             const title = document.getElementById('p-title').value;
             const price = document.getElementById('p-price').value;
             const category = document.getElementById('p-category').value;
+            const type = document.getElementById('p-type').value; // GET THE CARD TYPE
             const files = document.getElementById('p-images').files;
             const statusText = document.getElementById('upload-status');
 
@@ -279,6 +288,7 @@
                 title: title,
                 price: parseFloat(price),
                 category: category,
+                type: type, // SAVE THE TYPE TO DATABASE
                 images: imageUrls,
                 createdAt: new Date().toISOString()
             }, (error) => {
@@ -311,7 +321,8 @@
                     const key = childSnapshot.key;
                     // Use the Base64 string directly as the image source
                     const img = (p.images && p.images.length > 0) ? p.images[0] : '';
-                    
+                    const typeLabel = p.type ? (p.type === 'card' ? 'Card' : 'Tag') : 'Card'; // Default to Card if undefined
+
                     const div = document.createElement('div');
                     div.style.cssText = "display:flex; justify-content:space-between; align-items:center; background:#222; padding:15px; margin-bottom:10px; border-radius:5px;";
                     div.innerHTML = `
@@ -319,7 +330,7 @@
                             <img src="${img}" style="width:50px; height:50px; border-radius:5px; object-fit:cover; background:#333;">
                             <div>
                                 <strong>${p.title}</strong><br>
-                                <span style="color:#888;">₹${p.price} | ${p.category}</span>
+                                <span style="color:#888;">₹${p.price} | ${typeLabel} | ${p.category}</span>
                             </div>
                         </div>
                         <button onclick="deleteProduct('${key}')" style="background:#ff5555; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer;">Delete</button>

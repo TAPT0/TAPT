@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (grid) {
         let allProducts = [];
 
-        // 1. Show Skeleton immediately for perceived speed
+        // 1. Show Skeleton immediately
         grid.innerHTML = `
             <div class="loading-skeleton">
                 <div class="skeleton-card"></div>
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        // 2. Fetch Products via Firestore
+        // 2. Fetch Products
         const db = firebase.firestore();
         db.collection("products").orderBy("createdAt", "desc").get().then((querySnapshot) => {
             grid.innerHTML = ""; // Clear loader
@@ -43,8 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             products.forEach(p => {
+                // Image fallback
                 const img = (p.images && p.images[0]) ? p.images[0] : 'https://via.placeholder.com/300x300/111/333?text=TAPT';
-                const typeLabel = p.type ? p.type.toUpperCase() : 'ITEM';
+                // Display Category or Type
+                const typeLabel = p.category ? p.category.toUpperCase() : (p.type ? p.type.toUpperCase() : 'ITEM');
 
                 const card = document.createElement('div');
                 card.className = "product-card";
@@ -72,13 +74,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // 4. Filter Logic
+        // 4. Enhanced Filter Logic
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
+                // UI Toggle
                 filterBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                const filterValue = btn.textContent.toLowerCase().includes('card') ? 'card' : 
-                                    btn.textContent.toLowerCase().includes('tag') ? 'tag' : 'all';
+                
+                // Get filter value
+                const filterValue = btn.getAttribute('data-filter');
                 filterGrid(filterValue, searchInput ? searchInput.value : '');
             });
         });
@@ -86,11 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(searchInput) {
             searchInput.addEventListener('input', (e) => {
                 const activeBtn = document.querySelector('.filter-btn.active');
-                let filterType = 'all';
-                if(activeBtn) {
-                     filterType = activeBtn.textContent.toLowerCase().includes('card') ? 'card' : 
-                                  activeBtn.textContent.toLowerCase().includes('tag') ? 'tag' : 'all';
-                }
+                const filterType = activeBtn ? activeBtn.getAttribute('data-filter') : 'all';
                 filterGrid(filterType, e.target.value);
             });
         }
@@ -98,9 +98,15 @@ document.addEventListener('DOMContentLoaded', () => {
         function filterGrid(type, searchTerm) {
             const term = searchTerm.toLowerCase();
             const filtered = allProducts.filter(p => {
-                const pType = p.type ? p.type.toLowerCase() : 'other';
-                const matchesType = (type === 'all') || (pType.includes(type));
+                // Get data fields safely
+                const pType = p.type ? p.type.toLowerCase() : '';
+                const pCat = p.category ? p.category.toLowerCase() : '';
+                
+                // Match Logic: Check if Type OR Category includes the filter word
+                // This allows 'review' button to match 'review' category, and 'card' button to match 'card' type
+                const matchesType = (type === 'all') || (pType.includes(type)) || (pCat.includes(type));
                 const matchesSearch = p.title.toLowerCase().includes(term);
+                
                 return matchesType && matchesSearch;
             });
             renderShopProducts(filtered);

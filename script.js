@@ -12,13 +12,13 @@ const firebaseConfig = {
     measurementId: "G-2CB8QXYNJY"
 };
 
-// Initialize Firebase only if not already initialized
+// Initialize Firebase if not already done
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
 /* =========================================
-   2. GLOBAL HELPERS & PRELOADER
+   2. GLOBAL HELPERS (Preloader & Cursor)
    ========================================= */
 window.addEventListener("load", () => {
     const preloader = document.querySelector(".preloader");
@@ -26,14 +26,11 @@ window.addEventListener("load", () => {
         window.scrollTo(0, 0);
         preloader.style.opacity = "0";
         preloader.style.visibility = "hidden";
-        preloader.style.transition = "opacity 0.5s ease, visibility 0.5s";
         setTimeout(() => { preloader.style.display = "none"; }, 500);
     }
 });
 
-/* =========================================
-   3. CUSTOM CURSOR
-   ========================================= */
+// Custom Cursor Logic
 document.addEventListener('DOMContentLoaded', () => {
     const cursorDot = document.querySelector("[data-cursor-dot]");
     const cursorOutline = document.querySelector("[data-cursor-outline]");
@@ -47,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cursorOutline.animate({ left: `${posX}px`, top: `${posY}px` }, { duration: 500, fill: "forwards" });
         });
 
-        const clickables = document.querySelectorAll('a, button, input, select, .cart-trigger, .product-card, .nav-icon');
+        const clickables = document.querySelectorAll('a, button, input, select, .cart-trigger, .product-card, .nav-icon, .thumb');
         clickables.forEach(el => {
             el.addEventListener('mouseenter', () => {
                 cursorOutline.style.transform = "translate(-50%, -50%) scale(1.5)";
@@ -62,126 +59,26 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================================
-   4. SHOP PAGE LOGIC (FETCH & FILTER)
+   3. DRAWER SYSTEM (Cart & Account)
    ========================================= */
-document.addEventListener('DOMContentLoaded', () => {
-    const grid = document.getElementById('shop-grid');
-    const searchInput = document.getElementById('shop-search');
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    
-    // Only run on Shop Page
-    if (grid) {
-        let allProducts = [];
-
-        // 1. Fetch Products
-        if (typeof firebase !== 'undefined') {
-            const db = firebase.database();
-            db.ref('products').on('value', (snapshot) => {
-                grid.innerHTML = "";
-                allProducts = [];
-                
-                if (!snapshot.exists()) {
-                    grid.innerHTML = "<p style='text-align:center; width:100%; color:#666;'>No products found.</p>";
-                    return;
-                }
-
-                snapshot.forEach((child) => {
-                    const p = child.val();
-                    allProducts.push({ ...p, id: child.key });
-                });
-
-                renderShopProducts(allProducts);
-            });
-        }
-
-        // 2. Render Function
-        function renderShopProducts(products) {
-            grid.innerHTML = "";
-            if (products.length === 0) {
-                grid.innerHTML = "<p style='text-align:center; width:100%; color:#666;'>No matches found.</p>";
-                return;
-            }
-
-            products.forEach(p => {
-                const img = (p.images && p.images[0]) ? p.images[0] : 'https://via.placeholder.com/300x300/111/333?text=TAPT';
-                const typeLabel = p.type ? p.type.toUpperCase() : 'ITEM';
-
-                const card = document.createElement('div');
-                card.className = "product-card";
-                card.onclick = (e) => {
-                    if(e.target.closest('.add-icon')) return;
-                    window.location.href = `product.html?id=${p.id}`;
-                };
-
-                card.innerHTML = `
-                    <div class="card-image-wrapper">
-                        <img src="${img}" alt="${p.title}">
-                    </div>
-                    <div class="card-info">
-                        <div class="p-category">${typeLabel}</div>
-                        <div class="p-title">${p.title}</div>
-                        <div class="p-footer">
-                            <div class="p-price">₹${p.price}</div>
-                            <div class="add-icon" onclick="addToCart('${p.title}', ${p.price}, '${img}', '${p.id}')">
-                                <i class="fa-solid fa-plus"></i>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        // 3. Filter Logic
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                filterGrid(btn.getAttribute('data-filter'), searchInput.value);
-            });
-        });
-
-        if(searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                const activeBtn = document.querySelector('.filter-btn.active');
-                const filterType = activeBtn ? activeBtn.getAttribute('data-filter') : 'all';
-                filterGrid(filterType, e.target.value);
-            });
-        }
-
-        function filterGrid(type, searchTerm) {
-            const term = searchTerm.toLowerCase();
-            const filtered = allProducts.filter(p => {
-                const pType = p.type ? p.type.toLowerCase() : 'other';
-                const matchesType = (type === 'all') || (pType.includes(type));
-                const matchesSearch = p.title.toLowerCase().includes(term);
-                return matchesType && matchesSearch;
-            });
-            renderShopProducts(filtered);
-        }
-    }
-});
-
-/* =========================================
-   5. CART SYSTEM (MERGED & UPDATED)
-   ========================================= */
-let activeCoupon = JSON.parse(localStorage.getItem('taptCoupon')) || null;
-
 window.toggleCart = function() {
     const cartDrawer = document.getElementById('cart-drawer');
-    const overlay = document.getElementById('overlay');
+    const overlay = document.querySelector('.cart-overlay'); // Changed ID selection to Class for safety
     const accountDrawer = document.getElementById('account-drawer');
     
     if (cartDrawer) {
         cartDrawer.classList.toggle('open');
         if(overlay) overlay.classList.toggle('active', cartDrawer.classList.contains('open'));
         if(accountDrawer) accountDrawer.classList.remove('open');
+        
+        // Refresh UI when opening
+        if(cartDrawer.classList.contains('open')) updateCartUI();
     }
 };
 
 window.toggleAccount = function() {
     const accountDrawer = document.getElementById('account-drawer');
-    const overlay = document.getElementById('overlay');
+    const overlay = document.querySelector('.cart-overlay');
     const cartDrawer = document.getElementById('cart-drawer');
 
     if(accountDrawer) {
@@ -195,19 +92,20 @@ window.toggleAccount = function() {
 window.closeAllDrawers = function() {
     const cartDrawer = document.getElementById('cart-drawer');
     const accountDrawer = document.getElementById('account-drawer');
-    const overlay = document.getElementById('overlay');
+    const overlay = document.querySelector('.cart-overlay');
     
     if(cartDrawer) cartDrawer.classList.remove('open');
     if(accountDrawer) accountDrawer.classList.remove('open');
     if(overlay) overlay.classList.remove('active');
 };
 
-// --- Add to Cart (Unified) ---
+/* =========================================
+   4. CART LOGIC (Add, Update, Remove)
+   ========================================= */
 window.addToCart = function(title, price, image = '', id = null) {
     let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
-    const itemId = id || Date.now(); // Use ID if provided, else timestamp
+    const itemId = id || title.replace(/\s+/g, '-').toLowerCase(); // Fallback ID generation
     
-    // Check duplication by ID or Title
     const existingItem = cart.find(i => (id && i.id === id) || i.title === title);
     
     if(existingItem) {
@@ -218,7 +116,8 @@ window.addToCart = function(title, price, image = '', id = null) {
     
     localStorage.setItem('taptCart', JSON.stringify(cart));
     updateCartUI();
-    // Force open cart
+    
+    // Open cart to show success
     const cartDrawer = document.getElementById('cart-drawer');
     if(cartDrawer && !cartDrawer.classList.contains('open')) {
         window.toggleCart();
@@ -227,7 +126,6 @@ window.addToCart = function(title, price, image = '', id = null) {
 
 window.updateQty = function(id, change) {
     let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
-    // Convert id to string for comparison safety if needed, but loose equality works
     const item = cart.find(i => i.id == id); 
     
     if (item) {
@@ -247,21 +145,21 @@ window.removeFromCart = function(id) {
     updateCartUI();
 };
 
-// --- Update UI (Handles Drawer & Badge) ---
 function updateCartUI() {
     let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
     const cartItemsContainer = document.getElementById('cart-items-container');
     const cartCountBadge = document.getElementById('cart-count');
-    const cartTotalEl = document.getElementById('cart-total');
+    const cartTotalEl = document.getElementById('cart-total'); // For customize page drawer
+    const totalElGlobal = document.getElementById('total-price'); // For global drawer
 
-    // 1. Update Badge
+    // 1. Badge
     const totalCount = cart.reduce((acc, item) => acc + item.qty, 0);
     if (cartCountBadge) {
         cartCountBadge.textContent = totalCount;
         cartCountBadge.style.display = totalCount > 0 ? 'flex' : 'none';
     }
 
-    // 2. Render Items (Drawer)
+    // 2. Drawer Items
     if (cartItemsContainer) {
         if (cart.length === 0) {
             cartItemsContainer.innerHTML = '<p class="empty-msg">Your bag is empty.</p>';
@@ -274,13 +172,13 @@ function updateCartUI() {
                     <div class="item-details" style="flex:1;">
                         <h4>${item.title}</h4>
                         <p>₹${item.price}</p>
-                        <div class="qty-controls">
-                            <button class="qty-btn" onclick="updateQty('${item.id}', -1)">-</button>
+                        <div class="qty-controls" style="margin-top:5px;">
+                            <button onclick="updateQty('${item.id}', -1)" style="padding:2px 8px;">-</button>
                             <span style="font-size:0.9rem; margin:0 10px;">${item.qty}</span>
-                            <button class="qty-btn" onclick="updateQty('${item.id}', 1)">+</button>
+                            <button onclick="updateQty('${item.id}', 1)" style="padding:2px 8px;">+</button>
                         </div>
                     </div>
-                    <button onclick="removeFromCart('${item.id}')" style="background:none; border:none; color:#555; cursor:pointer;">
+                    <button onclick="removeFromCart('${item.id}')" class="remove-btn">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
@@ -288,22 +186,24 @@ function updateCartUI() {
         }
     }
 
-    // 3. Update Total
+    // 3. Totals
     let subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-    if(cartTotalEl) cartTotalEl.textContent = `₹${subtotal.toLocaleString()}`;
+    const formattedTotal = `₹${subtotal.toLocaleString()}`;
+    if(cartTotalEl) cartTotalEl.textContent = formattedTotal;
+    if(totalElGlobal) totalElGlobal.textContent = formattedTotal;
 }
 
 // Initial Load
 document.addEventListener('DOMContentLoaded', updateCartUI);
 
 /* =========================================
-   6. ACCOUNT DATA (DUMMY)
+   5. ACCOUNT DATA
    ========================================= */
 function populateAccountData() {
-    const orderList = document.getElementById('order-list');
-    const designGrid = document.getElementById('design-grid');
-    if(!orderList || !designGrid) return;
+    const orderList = document.getElementById('order-list'); // Ensure this ID exists in HTML
+    if(!orderList) return;
 
+    // Dummy Data
     orderList.innerHTML = `
         <div class="order-item">
             <div class="order-left">
@@ -313,86 +213,31 @@ function populateAccountData() {
             <div class="status-badge">Delivered</div>
         </div>
     `;
-    designGrid.innerHTML = `
-        <div class="design-thumb"><img src="https://via.placeholder.com/150/000/333?text=Design1"></div>
-        <div class="design-thumb" style="border:1px dashed #444; display:flex; align-items:center; justify-content:center; color:#444;"><i class="fa-solid fa-plus"></i></div>
-    `;
 }
 
 /* =========================================
-   7. CHECKOUT PAGE LOGIC
+   6. 3D TILT EFFECT (Global Utility)
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
-    const checkoutList = document.getElementById('checkout-items-list');
-    
-    if (checkoutList) {
-        let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
-        if (cart.length === 0) window.location.href = 'shop.html';
+    const tiltElements = document.querySelectorAll('.card-stage, .product-card, .home-card, .home-keychain');
 
-        let subtotal = 0;
-        checkoutList.innerHTML = cart.map(item => {
-            subtotal += (item.price * item.qty);
-            return `
-                <div class="c-item">
-                     <div style="width: 60px; height: 60px; background: #222; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1);">
-                        <i class="fa-solid fa-credit-card" style="color: white;"></i>
-                    </div>
-                    <div class="c-info">
-                        <h4>${item.title} <span style="color:#666; font-size:0.8em;">x${item.qty}</span></h4>
-                        <p>₹${(item.price * item.qty).toLocaleString()}</p>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        const subtotalEl = document.getElementById('c-subtotal');
-        const totalEl = document.getElementById('c-total');
-        if(subtotalEl) subtotalEl.textContent = `₹${subtotal.toLocaleString()}`;
-        if(totalEl) totalEl.textContent = `₹${subtotal.toLocaleString()}`;
-    }
-
-    // Checkout Button Link
-    const checkoutButton = document.querySelector('.checkout-btn');
-    if(checkoutButton) {
-        checkoutButton.addEventListener('click', () => {
-            const currentCart = JSON.parse(localStorage.getItem('taptCart')) || [];
-            if(currentCart.length > 0) {
-                window.location.href = 'checkout.html';
-            } else {
-                alert("Your cart is empty.");
-            }
-        });
-    }
-});
-
-/* =========================================
-   8. 3D TILT EFFECT (Mouse + Touch + Gyro)
-   ========================================= */
-document.addEventListener('DOMContentLoaded', () => {
-    const tiltElements = document.querySelectorAll('.card-stage, .product-card');
-
-    function applyTilt(el, x, y, isGyro = false) {
-        const inner = el.querySelector('.tapt-card') || el.querySelector('.card-content') || el.querySelector('.card-image-wrapper');
+    function applyTilt(el, x, y) {
+        const inner = el.querySelector('.tapt-card') || el.querySelector('.card-content') || el.querySelector('.card-image-wrapper') || el;
         if (!inner) return;
 
-        let xRotation, yRotation;
-        if (isGyro) {
-            xRotation = x; 
-            yRotation = y; 
-        } else {
-            const rect = el.getBoundingClientRect();
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const mouseX = x - centerX;
-            const mouseY = y - centerY;
-            xRotation = -((mouseY) / 15);
-            yRotation = (mouseX) / 15;
-        }
+        const rect = el.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        // Calculate rotation based on mouse position
+        const xRotation = -((y - centerY) / 20); 
+        const yRotation = (x - centerX) / 20;
+
         inner.style.transform = `perspective(1000px) rotateX(${xRotation}deg) rotateY(${yRotation}deg) scale(1.02)`;
     }
 
     function resetTilt(el) {
-        const inner = el.querySelector('.tapt-card') || el.querySelector('.card-content') || el.querySelector('.card-image-wrapper');
+        const inner = el.querySelector('.tapt-card') || el.querySelector('.card-content') || el.querySelector('.card-image-wrapper') || el;
         if (inner) {
             inner.style.transition = 'transform 0.5s ease';
             inner.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
@@ -406,14 +251,5 @@ document.addEventListener('DOMContentLoaded', () => {
             applyTilt(el, e.clientX - rect.left, e.clientY - rect.top);
         });
         el.addEventListener('mouseleave', () => resetTilt(el));
-        
-        // Touch events
-        el.addEventListener('touchmove', (e) => {
-            if(e.cancelable) e.preventDefault(); 
-            const touch = e.touches[0];
-            const rect = el.getBoundingClientRect();
-            applyTilt(el, touch.clientX - rect.left, touch.clientY - rect.top);
-        }, { passive: false });
-        el.addEventListener('touchend', () => resetTilt(el));
     });
 });

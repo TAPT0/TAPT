@@ -108,3 +108,56 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+document.addEventListener('DOMContentLoaded', () => {
+    const grid = document.getElementById('shop-grid');
+    
+    // 1. Show Skeleton Loader immediately
+    grid.innerHTML = `
+        <div class="loading-skeleton">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+    `;
+
+    // 2. Fetch Data
+    const db = firebase.database();
+    db.ref('products').once('value').then((snapshot) => {
+        grid.innerHTML = ""; // Clear loader
+        
+        if (!snapshot.exists()) {
+            grid.innerHTML = "<p style='color:#666; text-align:center;'>No products found.</p>";
+            return;
+        }
+
+        snapshot.forEach((child) => {
+            const p = child.val();
+            // Use placeholder if image is missing to prevent broken layout
+            const img = (p.images && p.images[0]) ? p.images[0] : 'https://via.placeholder.com/400x400/111/333?text=TAPT';
+            const typeLabel = p.type ? p.type.toUpperCase() : 'ITEM';
+
+            const card = document.createElement('div');
+            card.className = "product-card";
+            card.onclick = (e) => {
+                if(e.target.closest('.add-icon')) return;
+                window.location.href = `product.html?id=${child.key}`;
+            };
+
+            card.innerHTML = `
+                <div class="card-image-wrapper">
+                    <img src="${img}" alt="${p.title}" loading="lazy"> </div>
+                <div class="card-info">
+                    <div class="p-category">${typeLabel}</div>
+                    <div class="p-title">${p.title}</div>
+                    <div class="p-footer">
+                        <div class="p-price">₹${p.price}</div>
+                        <div class="add-icon" onclick="addToCart('${p.title}', ${p.price}, '${img}', '${child.key}')">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    });
+});

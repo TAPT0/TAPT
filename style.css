@@ -342,3 +342,100 @@ nav {
     
     .cart-drawer, .account-drawer { max-width: 85%; }
 }
+/* style.css - Updated */
+
+/* ... (Keep your existing Variables & Reset) ... */
+:root { 
+    --bg-deep: #050505;
+    --tapt-gold: #D4AF37;
+    --text-muted: #888;
+    --font-head: 'Syncopate', sans-serif;
+    --font-body: 'Inter', sans-serif;
+}
+
+body { background-color: var(--bg-deep); color: white; font-family: var(--font-body); overflow-x: hidden; margin: 0; }
+a { text-decoration: none; color: white; transition: 0.3s; cursor: pointer; }
+
+/* --- 1. NAVIGATION (Fixed Alignment) --- */
+nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 5%; position: fixed; top: 0; width: 100%; z-index: 100;
+    background: rgba(5,5,5,0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.logo { font-family: var(--font-head); font-weight: 700; font-size: 1.5rem; letter-spacing: 2px; }
+.logo span { color: var(--tapt-gold); }
+
+.nav-right { display: flex; align-items: center; gap: 25px; }
+.nav-links a { font-size: 0.85rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+.nav-links a:hover { color: var(--tapt-gold); }
+
+.nav-icon { font-size: 1.2rem; color: white; cursor: pointer; display: flex; align-items: center; }
+.nav-icon:hover { color: var(--tapt-gold); }
+
+/* --- 2. DRAWERS (Fixed "Out of Frame" Bug) --- */
+.cart-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+    z-index: 150; opacity: 0; visibility: hidden; transition: 0.3s;
+}
+.cart-overlay.active { opacity: 1; visibility: visible; }
+
+/* The fix: ensuring right is -100% initially */
+.cart-drawer, .account-drawer {
+    position: fixed; top: 0; right: -100%; /* Hidden */
+    width: 100%; max-width: 450px; height: 100vh;
+    background: #0a0a0a; border-left: 1px solid rgba(255,255,255,0.1);
+    z-index: 200; transition: right 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+    display: flex; flex-direction: column;
+}
+.cart-drawer.open, .account-drawer.open { right: 0; }
+
+.drawer-header { padding: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
+.drawer-content { padding: 25px; overflow-y: auto; flex: 1; }
+
+/* --- 3. LOGIN MODAL (New) --- */
+.auth-modal {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 90%; max-width: 400px;
+    background: #111; border: 1px solid var(--tapt-gold);
+    border-radius: 20px; padding: 40px;
+    z-index: 300; display: none; text-align: center;
+    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+}
+.auth-modal.active { display: block; }
+
+.auth-btn-google {
+    width: 100%; padding: 12px; background: white; color: black;
+    border: none; border-radius: 30px; font-weight: bold;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    cursor: pointer; margin-bottom: 20px; font-family: var(--font-body);
+}
+.auth-divider { color: #555; margin: 20px 0; font-size: 0.8rem; }
+.auth-input {
+    width: 100%; background: #222; border: 1px solid #333;
+    padding: 12px; margin-bottom: 10px; color: white; border-radius: 8px; outline: none;
+}
+.auth-input:focus { border-color: var(--tapt-gold); }
+.auth-btn-submit {
+    width: 100%; padding: 12px; background: var(--tapt-gold);
+    color: black; border: none; border-radius: 8px; font-weight: bold;
+    cursor: pointer; text-transform: uppercase;
+}
+
+/* --- 4. ACCOUNT DRAWER STYLES --- */
+.user-profile-header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
+.user-avatar { width: 60px; height: 60px; border-radius: 50%; background: #222; object-fit: cover; border: 2px solid var(--tapt-gold); }
+.user-info h3 { margin: 0; font-size: 1.1rem; color: white; }
+.user-info p { margin: 0; font-size: 0.8rem; color: #888; }
+
+.drawer-section-title { color: var(--tapt-gold); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
+.design-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.saved-design-card { background: #222; border-radius: 10px; padding: 10px; border: 1px solid #333; text-align: center; }
+.saved-design-card img { width: 100%; height: auto; margin-bottom: 5px; }
+
+/* Keep existing Cart & Product Card styles from previous version... */
+.cart-item { display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px dashed #333; padding-bottom: 15px; }
+.cart-item img { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; }
+.remove-btn { color: #ff5555; background: none; border: none; cursor: pointer; }
+.checkout-btn { width: 100%; padding: 15px; background: var(--tapt-gold); color: black; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; }

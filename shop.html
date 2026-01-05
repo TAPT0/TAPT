@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Shop Collection | TAPT.</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    
-    <link rel="stylesheet" href="style.css"> <link rel="stylesheet" href="shop.css">  </head>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="shop.css">
+</head>
 <body>
 
     <div class="noise-overlay"></div>
@@ -16,14 +16,9 @@
 
     <nav>
         <a href="index.html" class="logo">TAPT<span>.</span></a>
-        
-        <div class="nav-right" style="display:flex; align-items:center; gap:20px;">
-            <a href="customize.html" style="color:#888; font-size:0.9rem; margin-right:10px;">Create</a>
-            
-            <div class="nav-icon" onclick="toggleAccount()">
-                <i class="fa-regular fa-user"></i>
-            </div>
-            
+        <div class="nav-right">
+            <a href="customize.html">Create</a>
+            <div class="nav-icon" onclick="toggleAccount()"><i class="fa-regular fa-user"></i></div>
             <div class="cart-trigger" onclick="toggleCart()">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <span id="cart-count">0</span>
@@ -33,42 +28,27 @@
 
     <div class="shop-header">
         <h1 class="section-title">Select Your <span class="gold-text">Legacy</span></h1>
-        <p class="section-subtitle">Premium NFC Hardware.</p>
     </div>
 
     <div class="controls-wrapper">
         <div class="search-container">
             <input type="text" id="shop-search" placeholder="Search Collection...">
         </div>
-        
-        <div class="category-filter">
-            <button class="filter-btn active" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="card">Cards</button>
-            <button class="filter-btn" data-filter="tag">Tags</button>
-            <button class="filter-btn" data-filter="music">Music</button>
-        </div>
     </div>
 
-    <div class="product-grid" id="shop-grid">
-        <p style="color:#666; width:100%; text-align:center;">Loading products...</p>
-    </div>
+    <div class="product-grid" id="shop-grid"></div>
 
-    <div class="cart-overlay" onclick="closeAllDrawers()"></div>
-    
-    <div class="cart-drawer" id="cart-drawer">
-        <div class="drawer-header">
-            <h2>Your Bag</h2>
-            <button class="close-cart" onclick="toggleCart()">×</button>
-        </div>
-        <div class="cart-items" id="cart-items-container">
-            <p class="empty-msg">Your bag is empty.</p>
-        </div>
-        <div class="cart-footer">
-            <div class="summary-row total">
-                <span>Total</span><span id="total-price">₹0</span>
-            </div>
-            <button class="checkout-btn" onclick="window.location.href='checkout.html'">Checkout</button>
-        </div>
+    <div class="auth-modal" id="auth-modal">
+        <h2 style="color:white; font-family:'Syncopate'; margin-bottom:20px;">Access Legacy</h2>
+        <button class="auth-btn-google" onclick="loginWithGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Continue with Google
+        </button>
+        <div class="auth-divider">OR CREATE ACCOUNT</div>
+        <input type="email" id="auth-email" class="auth-input" placeholder="Email Address">
+        <input type="tel" id="auth-phone" class="auth-input" placeholder="Phone Number (Optional)">
+        <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
+        <button class="auth-btn-submit" onclick="signupEmail()">Create Account</button>
+        <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Close</button>
     </div>
 
     <div class="account-drawer" id="account-drawer">
@@ -76,20 +56,24 @@
             <h2>My Legacy</h2>
             <button class="close-cart" onclick="toggleAccount()">×</button>
         </div>
-        <div class="drawer-content" style="padding:25px;">
-            <div class="account-section">
-                <h4 style="color:#D4AF37; margin-bottom:15px; text-transform:uppercase; font-size:0.8rem;">Track Order</h4>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" placeholder="#TAPT-XXXX" style="background:#111; border:1px solid #333; padding:10px; color:white; width:100%;">
-                    <button style="background:#D4AF37; border:none; padding:0 15px; cursor:pointer;">&rarr;</button>
-                </div>
+        <div class="drawer-content" id="account-content">
             </div>
-            <div id="order-list"></div>
-        </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <div class="cart-drawer" id="cart-drawer">
+        <div class="drawer-header"><h2>Your Bag</h2><button class="close-cart" onclick="toggleCart()">×</button></div>
+        <div class="cart-items" id="cart-items-container"></div>
+        <div class="cart-footer">
+            <div class="summary-row"><span>Total</span><span id="total-price">₹0</span></div>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">Checkout</button>
+        </div>
+    </div>
     
-    <script src="script.js"></script> <script src="shop.js"></script>   </body>
+    <div class="cart-overlay" onclick="closeAllDrawers()"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="script.js"></script>
+    <script src="shop.js"></script>
+</body>
 </html>

@@ -1,40 +1,44 @@
-document.addEventListener('DOMContentLoaded', () => { 
-    const grid = document.getElementById('shop-grid'); // Ensure your shop.html uses id="shop-grid" for the container
-    const productGridClass = document.querySelector('.product-grid'); // Fallback if you used class
-    const targetGrid = grid || productGridClass;
-
-    const searchInput = document.querySelector('.search-container input'); // Updated selector based on HTML structure
+document.addEventListener('DOMContentLoaded', () => {
+    const grid = document.getElementById('shop-grid');
+    const searchInput = document.querySelector('.search-container input');
     const filterBtns = document.querySelectorAll('.filter-btn');
     
-    if (targetGrid) {
+    if (grid) {
         let allProducts = [];
 
-        // 1. Fetch Products
-        if (typeof firebase !== 'undefined') {
-            const db = firebase.database();
-            db.ref('products').on('value', (snapshot) => {
-                targetGrid.innerHTML = "";
-                allProducts = [];
-                
-                if (!snapshot.exists()) {
-                    targetGrid.innerHTML = "<p style='text-align:center; width:100%; color:#666;'>No products found.</p>";
-                    return;
-                }
+        // 1. Show Skeleton immediately for perceived speed
+        grid.innerHTML = `
+            <div class="loading-skeleton">
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </div>
+        `;
 
-                snapshot.forEach((child) => {
-                    const p = child.val();
-                    allProducts.push({ ...p, id: child.key });
-                });
+        // 2. Fetch Products via Firestore
+        const db = firebase.firestore();
+        db.collection("products").orderBy("createdAt", "desc").get().then((querySnapshot) => {
+            grid.innerHTML = ""; // Clear loader
+            allProducts = [];
+            
+            if (querySnapshot.empty) {
+                grid.innerHTML = "<p style='text-align:center; width:100%; color:#666;'>No products found.</p>";
+                return;
+            }
 
-                renderShopProducts(allProducts);
+            querySnapshot.forEach((doc) => {
+                const p = doc.data();
+                allProducts.push({ ...p, id: doc.id });
             });
-        }
 
-        // 2. Render Function
+            renderShopProducts(allProducts);
+        });
+
+        // 3. Render Function
         function renderShopProducts(products) {
-            targetGrid.innerHTML = "";
+            grid.innerHTML = "";
             if (products.length === 0) {
-                targetGrid.innerHTML = "<p style='text-align:center; width:100%; color:#666;'>No matches found.</p>";
+                grid.innerHTML = "<p style='text-align:center; width:100%; color:#666;'>No matches found.</p>";
                 return;
             }
 
@@ -44,17 +48,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const card = document.createElement('div');
                 card.className = "product-card";
-                
-                // Clicking card goes to product page
                 card.onclick = (e) => {
-                    // Prevent redirect if clicking the add button
                     if(e.target.closest('.add-icon')) return;
                     window.location.href = `product.html?id=${p.id}`;
                 };
 
                 card.innerHTML = `
                     <div class="card-image-wrapper">
-                        <img src="${img}" alt="${p.title}">
+                        <img src="${img}" alt="${p.title}" loading="lazy">
                     </div>
                     <div class="card-info">
                         <div class="p-category">${typeLabel}</div>
@@ -67,16 +68,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 `;
-                targetGrid.appendChild(card);
+                grid.appendChild(card);
             });
         }
 
-        // 3. Filter Logic
+        // 4. Filter Logic
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 filterBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                // Assume buttons have data-filter="card", "tag", or "all"
                 const filterValue = btn.textContent.toLowerCase().includes('card') ? 'card' : 
                                     btn.textContent.toLowerCase().includes('tag') ? 'tag' : 'all';
                 filterGrid(filterValue, searchInput ? searchInput.value : '');
@@ -99,7 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const term = searchTerm.toLowerCase();
             const filtered = allProducts.filter(p => {
                 const pType = p.type ? p.type.toLowerCase() : 'other';
-                // Loose matching for types
                 const matchesType = (type === 'all') || (pType.includes(type));
                 const matchesSearch = p.title.toLowerCase().includes(term);
                 return matchesType && matchesSearch;
@@ -107,57 +106,4 @@ document.addEventListener('DOMContentLoaded', () => {
             renderShopProducts(filtered);
         }
     }
-});
-document.addEventListener('DOMContentLoaded', () => {
-    const grid = document.getElementById('shop-grid');
-    
-    // 1. Show Skeleton Loader immediately
-    grid.innerHTML = `
-        <div class="loading-skeleton">
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-        </div>
-    `;
-
-    // 2. Fetch Data
-    const db = firebase.database();
-    db.ref('products').once('value').then((snapshot) => {
-        grid.innerHTML = ""; // Clear loader
-        
-        if (!snapshot.exists()) {
-            grid.innerHTML = "<p style='color:#666; text-align:center;'>No products found.</p>";
-            return;
-        }
-
-        snapshot.forEach((child) => {
-            const p = child.val();
-            // Use placeholder if image is missing to prevent broken layout
-            const img = (p.images && p.images[0]) ? p.images[0] : 'https://via.placeholder.com/400x400/111/333?text=TAPT';
-            const typeLabel = p.type ? p.type.toUpperCase() : 'ITEM';
-
-            const card = document.createElement('div');
-            card.className = "product-card";
-            card.onclick = (e) => {
-                if(e.target.closest('.add-icon')) return;
-                window.location.href = `product.html?id=${child.key}`;
-            };
-
-            card.innerHTML = `
-                <div class="card-image-wrapper">
-                    <img src="${img}" alt="${p.title}" loading="lazy"> </div>
-                <div class="card-info">
-                    <div class="p-category">${typeLabel}</div>
-                    <div class="p-title">${p.title}</div>
-                    <div class="p-footer">
-                        <div class="p-price">₹${p.price}</div>
-                        <div class="add-icon" onclick="addToCart('${p.title}', ${p.price}, '${img}', '${child.key}')">
-                            <i class="fa-solid fa-plus"></i>
-                        </div>
-                    </div>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
-    });
 });

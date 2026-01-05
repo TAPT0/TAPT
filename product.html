@@ -7,100 +7,99 @@
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
-   <link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="product.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="product.css">
 </head>
 <body>
 
     <div class="noise-overlay"></div>
-    <div class="gold-glow-sphere" style="left: 20%;"></div>
+    <div class="gold-glow-sphere"></div>
 
     <nav>
         <a href="index.html" class="logo">TAPT<span>.</span></a>
-        <div class="nav-links">
-            <a href="shop.html">Shop</a>
-            <a href="customize.html">Create</a>
-        </div>
-        <div class="cart-trigger" onclick="toggleCart()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-            <span id="cart-count">0</span>
+        <div class="nav-right">
+            <a href="shop.html" style="font-size:0.9rem; color:#888; margin-right:15px;">Back to Shop</a>
+            <div class="nav-icon" onclick="toggleAccount()"><i class="fa-regular fa-user"></i></div>
+            <div class="cart-trigger" onclick="toggleCart()">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span id="cart-count">0</span>
+            </div>
         </div>
     </nav>
 
-    <div class="container product-page-container">
+    <div class="product-container">
         
-        <a href="shop.html" class="back-link">
-            <i class="fa-solid fa-arrow-left"></i> Back to Collection
-        </a>
-
-        <div class="product-layout">
-            
-            <div class="gallery-container">
-                <div class="main-image-frame" id="main-img-container">
-                    <img id="main-image" src="" alt="Product Image">
-                    <div class="loading-spinner"></div>
-                </div>
-                <div class="thumbnail-strip" id="thumb-strip"></div>
+        <div class="product-gallery">
+            <div class="main-image-frame">
+                <img id="main-image" src="" alt="Product Image">
+                <div class="loading-spinner"></div>
             </div>
-            
-            <div class="p-right">
-                <div class="p-badge" id="p-cat-badge">PREMIUM COLLECTION</div>
-                <h1 class="p-detail-title" id="p-title">Loading...</h1>
-                <div class="p-detail-price" id="p-price">--</div>
-                
-                <div class="p-detail-desc" id="p-desc"></div>
-                
-                <div class="p-actions">
-                    <button class="btn-customize" onclick="goToCustomize()">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> Customize Design
-                    </button>
-                    
-                    <div class="btn-row">
-                        <div id="add-btn-container" style="flex:1;">
-                            <button class="btn-bag" id="btn-add-bag" onclick="startAddToCart()">Add to Bag</button>
-                        </div>
-                        <button class="btn-buy" onclick="buyNow()">Buy Now</button>
-                    </div>
+            <div class="thumb-strip" id="thumb-strip">
                 </div>
-
-                <div class="trust-row">
-                    <span><i class="fa-solid fa-check"></i> Lifetime Warranty</span>
-                    <span><i class="fa-solid fa-bolt"></i> Instant Setup</span>
-                    <span><i class="fa-solid fa-droplet"></i> Waterproof</span>
-                </div>
-            </div>
         </div>
 
-        <div class="reviews-section">
-            <div class="reviews-header">
-                <h2 style="font-family: 'Syncopate'; margin:0;">Verified Reviews</h2>
-                <div class="rating-summary">
-                    <i class="fa-solid fa-star"></i> 4.9 <span style="color:#888; font-size:0.9rem; font-family:'Inter';">(128 Reviews)</span>
-                </div>
-            </div>
-            <div class="reviews-grid" id="reviews-container"></div>
-        </div>
+        <div class="product-info">
+            <h1 id="p-title" class="p-detail-title">Loading...</h1>
+            <div class="p-detail-price" id="p-price">...</div>
+            
+            <div class="divider"></div>
 
+            <div class="p-desc-box">
+                <p id="p-desc">Fetching product details...</p>
+            </div>
+
+            <div class="action-area">
+                <div id="add-btn-container" style="flex:1;">
+                    <button class="btn-bag" onclick="startAddToCart()">Add to Bag</button>
+                </div>
+                <button class="btn-buy" onclick="buyNow()">Buy Now</button>
+            </div>
+            
+            <button class="btn-customize" onclick="goToCustomize()">
+                <i class="fa-solid fa-pen-nib"></i> Customize this design
+            </button>
+
+            <div class="reviews-section">
+                <h3>Reviews (3)</h3>
+                <div id="reviews-container"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="cart-overlay" onclick="toggleCart()"></div>
-    <div class="cart-drawer">
-        <div class="cart-header"><h2>Your Bag</h2><button class="close-cart" onclick="toggleCart()">×</button></div>
-        <div class="cart-items" id="cart-items-container"><div class="empty-msg">Your bag is empty.</div></div>
+    <div class="account-drawer" id="account-drawer">
+        <div class="drawer-header"><h2>My Legacy</h2><button class="close-cart" onclick="toggleAccount()">×</button></div>
+        <div class="drawer-content" id="account-content"></div>
+    </div>
+
+    <div class="cart-drawer" id="cart-drawer">
+        <div class="drawer-header"><h2>Your Bag</h2><button class="close-cart" onclick="toggleCart()">×</button></div>
+        <div class="cart-items" id="cart-items-container"></div>
         <div class="cart-footer">
-            <div class="summary-row total"><span>Total</span><span id="total-price">₹0</span></div>
+            <div class="summary-row"><span>Total</span><span id="total-price">₹0</span></div>
             <button class="checkout-btn" onclick="window.location.href='checkout.html'">Checkout</button>
         </div>
     </div>
 
+    <div class="auth-modal" id="auth-modal">
+        <h2 style="color:white; font-family:'Syncopate'; margin-bottom:20px;">Access Legacy</h2>
+        <button class="auth-btn-google" onclick="loginWithGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Continue with Google
+        </button>
+        <div class="auth-divider">OR CREATE ACCOUNT</div>
+        <input type="email" id="auth-email" class="auth-input" placeholder="Email Address">
+        <input type="tel" id="auth-phone" class="auth-input" placeholder="Phone Number">
+        <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
+        <button class="auth-btn-submit" onclick="signupEmail()">Create Account</button>
+        <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Close</button>
+    </div>
+
+    <div class="cart-overlay" onclick="closeAllDrawers()"></div>
     <div class="cursor-dot" data-cursor-dot></div>
     <div class="cursor-outline" data-cursor-outline></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>      <script src="script.js"></script>
+    <script src="product.js"></script>
 
-<script src="script.js"></script>
-
-<script src="product.js"></script>
 </body>
 </html>

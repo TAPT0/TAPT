@@ -34,11 +34,14 @@
         <div class="search-container">
             <input type="text" id="shop-search" placeholder="Search Collection...">
         </div>
+        
         <div class="category-filter">
             <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="review">Restaurants</button> <button class="filter-btn" data-filter="social">Social Media</button>
+            <button class="filter-btn" data-filter="custom">Custom</button>
+            <button class="filter-btn" data-filter="music">Music</button>
             <button class="filter-btn" data-filter="card">Cards</button>
             <button class="filter-btn" data-filter="tag">Tags</button>
-            <button class="filter-btn" data-filter="music">Music</button>
         </div>
     </div>
 
@@ -74,8 +77,11 @@
     <div class="cart-overlay" onclick="closeAllDrawers()"></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script> <script src="script.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script> 
+    
+    <script src="script.js"></script>
     <script src="shop.js"></script>
 </body>
 </html>

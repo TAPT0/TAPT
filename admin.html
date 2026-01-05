@@ -32,7 +32,7 @@
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; color: #aaa; font-size: 0.9rem; }
         input, textarea, select { width: 100%; background: #1a1a1a; border: 1px solid var(--border); padding: 12px; color: white; border-radius: 5px; outline: none; }
-        input:focus { border-color: var(--gold); }
+        input:focus, textarea:focus { border-color: var(--gold); }
         .btn-gold { background: var(--gold); color: black; border: none; padding: 12px 24px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; }
         
         /* DATA TABLES */
@@ -44,7 +44,7 @@
         .status-new { background: rgba(0, 255, 0, 0.1); color: #0f0; }
 
         /* IMAGE PREVIEW GRID */
-        .img-preview-grid { display: flex; gap: 10px; margin-top: 10px; }
+        .img-preview-grid { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
         .img-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; border: 1px solid #444; }
 
         /* TOAST NOTIFICATION */
@@ -102,6 +102,12 @@
                         <label>Product Title</label>
                         <input type="text" id="p-title" placeholder="e.g. The Executive Black">
                     </div>
+                    
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="p-desc" rows="4" placeholder="Enter full product description here..."></textarea>
+                    </div>
+
                     <div class="form-group">
                         <label>Price (₹)</label>
                         <input type="number" id="p-price" placeholder="1999">
@@ -184,9 +190,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     
     <script>
-        /* PASTE YOUR FIREBASE CONFIG HERE 
-           (I included the one you shared in the screenshots)
-        */
+        /* PASTE YOUR FIREBASE CONFIG HERE */
         const firebaseConfig = {
             apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
             authDomain: "tapt-337b8.firebaseapp.com",
@@ -254,9 +258,10 @@
 
         async function uploadProduct() {
             const title = document.getElementById('p-title').value;
+            const desc = document.getElementById('p-desc').value; // NEW: Get Description
             const price = document.getElementById('p-price').value;
             const category = document.getElementById('p-category').value;
-            const type = document.getElementById('p-type').value; // GET THE CARD TYPE
+            const type = document.getElementById('p-type').value; 
             const files = document.getElementById('p-images').files;
             const statusText = document.getElementById('upload-status');
 
@@ -286,9 +291,10 @@
             const newProductRef = db.ref('products').push();
             newProductRef.set({
                 title: title,
+                description: desc, // NEW: Save Description
                 price: parseFloat(price),
                 category: category,
-                type: type, // SAVE THE TYPE TO DATABASE
+                type: type, 
                 images: imageUrls,
                 createdAt: new Date().toISOString()
             }, (error) => {
@@ -299,6 +305,7 @@
                     showToast("Product Added!");
                     // Clear inputs
                     document.getElementById('p-title').value = "";
+                    document.getElementById('p-desc').value = ""; // NEW: Clear Description
                     document.getElementById('p-price').value = "";
                     document.getElementById('p-images').value = "";
                     loadProducts(); 
@@ -321,7 +328,7 @@
                     const key = childSnapshot.key;
                     // Use the Base64 string directly as the image source
                     const img = (p.images && p.images.length > 0) ? p.images[0] : '';
-                    const typeLabel = p.type ? (p.type === 'card' ? 'Card' : 'Tag') : 'Card'; // Default to Card if undefined
+                    const typeLabel = p.type ? (p.type === 'card' ? 'Card' : 'Tag') : 'Card'; 
 
                     const div = document.createElement('div');
                     div.style.cssText = "display:flex; justify-content:space-between; align-items:center; background:#222; padding:15px; margin-bottom:10px; border-radius:5px;";

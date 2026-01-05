@@ -44,19 +44,6 @@
 
     <div class="product-grid" id="shop-grid"></div>
 
-    <div class="auth-modal" id="auth-modal">
-        <h2 style="color:white; font-family:'Syncopate'; margin-bottom:20px;">Access Legacy</h2>
-        <button class="auth-btn-google" onclick="loginWithGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Continue with Google
-        </button>
-        <div class="auth-divider">OR CREATE ACCOUNT</div>
-        <input type="email" id="auth-email" class="auth-input" placeholder="Email Address">
-        <input type="tel" id="auth-phone" class="auth-input" placeholder="Phone Number">
-        <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
-        <button class="auth-btn-submit" onclick="signupEmail()">Create Account</button>
-        <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Close</button>
-    </div>
-
     <div class="account-drawer" id="account-drawer">
         <div class="drawer-header"><h2>My Legacy</h2><button class="close-cart" onclick="toggleAccount()">×</button></div>
         <div class="drawer-content" id="account-content"></div>
@@ -71,10 +58,24 @@
         </div>
     </div>
     
+    <div class="auth-modal" id="auth-modal">
+        <h2 style="color:white; font-family:'Syncopate'; margin-bottom:20px;">Access Legacy</h2>
+        <button class="auth-btn-google" onclick="loginWithGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Continue with Google
+        </button>
+        <div class="auth-divider">OR CREATE ACCOUNT</div>
+        <input type="email" id="auth-email" class="auth-input" placeholder="Email Address">
+        <input type="tel" id="auth-phone" class="auth-input" placeholder="Phone Number">
+        <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
+        <button class="auth-btn-submit" onclick="signupEmail()">Create Account</button>
+        <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Close</button>
+    </div>
+
     <div class="cart-overlay" onclick="closeAllDrawers()"></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>     <script src="script.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script> <script src="script.js"></script>
     <script src="shop.js"></script>
 </body>
 </html>

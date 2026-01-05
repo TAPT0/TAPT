@@ -1,4 +1,4 @@
-/* shop.css - Fixed & Polished */
+/* shop.css - Fixed, Polished & Fast Loading */
 
 /* --- HEADER SECTION --- */
 .shop-header {
@@ -10,7 +10,7 @@
 
 .section-title {
     font-family: 'Syncopate', sans-serif;
-    font-size: clamp(2.5rem, 5vw, 4rem); /* Responsive text size */
+    font-size: clamp(2.5rem, 5vw, 4rem); 
     margin-bottom: 10px;
     text-transform: uppercase;
     letter-spacing: -2px;
@@ -99,11 +99,34 @@
     box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
 }
 
+/* --- LOADING SKELETON (New Feature for Speed Perception) --- */
+.loading-skeleton {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 40px;
+    width: 100%;
+    padding: 0 5%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.skeleton-card {
+    height: 450px;
+    background: #111;
+    border-radius: 20px;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.5; }
+}
+
 /* --- PRODUCT GRID --- */
 .product-grid {
     display: grid;
-    /* This ensures cards stay a good size but fill the row */
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 40px;
     padding: 0 5%;
     max-width: 1400px;
@@ -121,6 +144,9 @@
     transition: all 0.4s ease;
     cursor: pointer;
     position: relative;
+    height: 100%; /* Ensures uniform height */
+    display: flex;
+    flex-direction: column;
 }
 
 .product-card:hover {
@@ -131,7 +157,7 @@
 
 /* Image Area */
 .card-image-wrapper {
-    height: 320px; /* Taller image area for premium look */
+    height: 300px;
     width: 100%;
     background: #111;
     overflow: hidden;
@@ -155,6 +181,9 @@
 /* Info Area */
 .card-info {
     padding: 25px;
+    flex: 1; /* Pushes footer to bottom */
+    display: flex;
+    flex-direction: column;
 }
 
 .p-category {
@@ -169,11 +198,17 @@
 .p-title {
     color: white;
     font-family: 'Syncopate', sans-serif;
-    font-size: 1.2rem; /* Adjusted to fit better */
+    font-size: 1.1rem;
     font-weight: 700;
-    margin-bottom: 20px;
-    line-height: 1.3;
+    margin-bottom: 15px;
+    line-height: 1.4;
     text-transform: uppercase;
+    /* Prevent wrapping overflow */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 46px; /* Fixed height for alignment */
 }
 
 .p-footer {
@@ -182,11 +217,12 @@
     align-items: center;
     border-top: 1px solid rgba(255,255,255,0.1);
     padding-top: 20px;
+    margin-top: auto; /* Align to bottom */
 }
 
 .p-price {
     color: #D4AF37;
-    font-family: 'Inter', sans-serif; /* Cleaner font for numbers */
+    font-family: 'Inter', sans-serif;
     font-size: 1.1rem;
     font-weight: 600;
 }
@@ -213,14 +249,14 @@
 
 /* Mobile Fix */
 @media (max-width: 768px) {
-    .product-grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile */
+    .product-grid, .loading-skeleton {
+        grid-template-columns: repeat(2, 1fr);
         gap: 15px;
         padding: 0 15px;
     }
     .card-image-wrapper { height: 180px; }
     .card-info { padding: 15px; }
-    .p-title { font-size: 0.8rem; margin-bottom: 10px; }
+    .p-title { font-size: 0.8rem; margin-bottom: 10px; height: 36px; }
     .p-price { font-size: 0.9rem; }
     .add-icon { width: 30px; height: 30px; font-size: 0.8rem; }
     .section-title { font-size: 2rem; }

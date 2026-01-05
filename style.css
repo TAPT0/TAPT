@@ -70,18 +70,38 @@ nav {
 .logo { font-family: var(--font-head); font-weight: 700; font-size: 1.5rem; letter-spacing: 2px; }
 .logo span { color: var(--tapt-gold); }
 
+/* FIXED: Flex container for right-side nav items */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
 .nav-links a { margin-left: 20px; font-size: 0.9rem; color: var(--text-muted); }
 .nav-links a:hover { color: var(--tapt-gold); }
+
+.nav-icon {
+    font-size: 1.2rem;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+}
+.nav-icon:hover { color: var(--tapt-gold); }
 
 .cart-trigger {
     cursor: pointer;
     position: relative;
     color: white;
     transition: 0.3s;
+    display: flex;
+    align-items: center;
 }
 .cart-trigger:hover { color: var(--tapt-gold); }
+
 #cart-count {
-    position: absolute; top: -5px; right: -8px;
+    position: absolute; top: -8px; right: -8px;
     background: var(--tapt-gold); color: black;
     font-size: 0.7rem; font-weight: bold;
     padding: 2px 5px; border-radius: 50%;
@@ -205,7 +225,7 @@ nav {
 .showcase-panel:hover .hero-btn { background: var(--tapt-gold); color: black; border-color: var(--tapt-gold); }
 
 /* =========================================
-   5. CART DRAWER (Required for Nav)
+   5. DRAWERS (Cart & Account)
    ========================================= */
 .cart-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -214,16 +234,24 @@ nav {
 }
 .cart-overlay.active, .cart-overlay.open { opacity: 1; visibility: visible; pointer-events: all; }
 
-.cart-drawer {
-    position: fixed; top: 0; right: -450px;
-    width: 100%; max-width: 400px; height: 100vh;
+/* Shared Drawer Styles */
+.cart-drawer, .account-drawer {
+    position: fixed; 
+    top: 0; 
+    right: -450px; /* Hides it off-screen to the right */
+    width: 100%; 
+    max-width: 400px; 
+    height: 100vh;
     background: #0a0a0a;
     border-left: 1px solid rgba(255,255,255,0.1);
     z-index: 200;
     transition: right 0.4s cubic-bezier(0.77, 0, 0.175, 1);
-    display: flex; flex-direction: column;
+    display: flex; 
+    flex-direction: column;
 }
-.cart-drawer.open { right: 0; }
+
+/* This class brings it into view */
+.cart-drawer.open, .account-drawer.open { right: 0; }
 
 .drawer-header {
     padding: 25px;
@@ -231,11 +259,13 @@ nav {
     display: flex; justify-content: space-between; align-items: center;
 }
 .drawer-header h2 { font-family: var(--font-head); font-size: 1.2rem; margin: 0; }
-.close-cart { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+.close-cart, .close-drawer { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
 
-.cart-items { padding: 25px; overflow-y: auto; flex: 1; }
+/* Content Areas */
+.cart-items, .drawer-content { padding: 25px; overflow-y: auto; flex: 1; }
 .empty-msg { color: #666; text-align: center; margin-top: 20px; }
 
+/* Cart Specifics */
 .cart-footer { padding: 25px; border-top: 1px solid rgba(255,255,255,0.1); }
 .summary-row { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; }
 
@@ -248,7 +278,6 @@ nav {
 }
 .checkout-btn:hover { background: white; transform: translateY(-3px); }
 
-/* Cart Item Style */
 .cart-item {
     display: flex; gap: 15px; margin-bottom: 20px; padding-bottom: 20px;
     border-bottom: 1px dashed var(--border);
@@ -262,6 +291,18 @@ nav {
     background: none; border: none; color: #555; font-size: 1.2rem; cursor: pointer; 
 }
 .remove-btn:hover { color: #ff5555; }
+
+/* Account Drawer Specifics */
+.account-section { margin-bottom: 30px; }
+.order-item {
+    background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px;
+    margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05);
+}
+.status-badge { 
+    display: inline-block; padding: 4px 8px; border-radius: 4px; 
+    font-size: 0.7rem; background: rgba(0, 255, 0, 0.1); color: #4ade80; 
+    border: 1px solid rgba(0, 255, 0, 0.2); margin-top: 8px;
+}
 
 /* =========================================
    6. CUSTOM CURSOR
@@ -299,25 +340,5 @@ nav {
     .home-keychain { width: 170px; height: 170px; }
     .hero-btn { width: 100%; text-align: center; }
     
-    .cart-drawer { max-width: 85%; }
-}
-/* Make sure this is in style.css */
-.account-drawer {
-    position: fixed; 
-    top: 0; 
-    right: -450px; /* Hides it off-screen to the right */
-    width: 100%; 
-    max-width: 400px; 
-    height: 100vh;
-    background: #0a0a0a;
-    border-left: 1px solid rgba(255,255,255,0.1);
-    z-index: 200;
-    transition: right 0.4s cubic-bezier(0.77, 0, 0.175, 1);
-    display: flex; 
-    flex-direction: column;
-}
-
-/* This class brings it into view */
-.account-drawer.open { 
-    right: 0; 
+    .cart-drawer, .account-drawer { max-width: 85%; }
 }

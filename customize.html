@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Create Your Legacy | TAPT.</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <link rel="stylesheet" href="style.css">     <link rel="stylesheet" href="customize.css"> </head>
@@ -97,7 +99,7 @@
     </div>
 
     <div class="cart-overlay" onclick="toggleCart()"></div>
-    <div class="cart-drawer">
+    <div class="cart-drawer" id="cart-drawer">
         <div class="cart-header"><h2>Your Bag</h2><button class="close-cart" onclick="toggleCart()">×</button></div>
         <div class="cart-items" id="cart-items-container"><div class="empty-msg">Your bag is empty.</div></div>
         <div class="cart-footer">
@@ -113,123 +115,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     
     <script src="script.js"></script>
+    
+    <script src="customize.js"></script>
 
-    <script>
-        /* --- CUSTOMIZE PAGE LOGIC --- */
-        
-        let currentMode = 'card';
-        const prices = { card: 1999, keychain: 899 };
-
-        // 1. Initialize Page
-        document.addEventListener('DOMContentLoaded', () => {
-            // Check if came from a product page
-            const defaultMode = sessionStorage.getItem('defaultMode');
-            if(defaultMode && (defaultMode === 'card' || defaultMode === 'keychain')) {
-                setProductMode(defaultMode);
-                sessionStorage.removeItem('defaultMode'); // Clear it
-            } else {
-                setProductMode('card'); // Default
-            }
-        });
-
-        // 2. Switch Mode (Card vs Tag)
-        function setProductMode(mode) {
-            currentMode = mode;
-            const preview = document.getElementById('preview-obj');
-            const btnCard = document.getElementById('btn-card');
-            const btnTag = document.getElementById('btn-tag');
-            const addBtn = document.getElementById('add-btn');
-            
-            // Toggle Button Styles
-            if(mode === 'card') {
-                btnCard.classList.add('active');
-                btnTag.classList.remove('active');
-                addBtn.textContent = `Add Card — ₹${prices.card}`;
-                
-                // Switch Preview CSS Class
-                preview.classList.remove('tapt-keychain');
-                preview.classList.add('tapt-card');
-                
-                // Show Card Elements
-                document.getElementById('card-chip').style.display = 'block';
-                document.getElementById('wifi-icon').style.display = 'block';
-            } else {
-                btnTag.classList.add('active');
-                btnCard.classList.remove('active');
-                addBtn.textContent = `Add Tag — ₹${prices.keychain}`;
-                
-                // Switch Preview CSS Class
-                preview.classList.remove('tapt-card');
-                preview.classList.add('tapt-keychain');
-                
-                // Hide Card Elements
-                document.getElementById('card-chip').style.display = 'none';
-                document.getElementById('wifi-icon').style.display = 'none';
-            }
-        }
-
-        // 3. Theme Switcher (Color)
-        document.getElementById('c-theme').addEventListener('change', (e) => {
-            const val = e.target.value;
-            const preview = document.getElementById('preview-obj');
-            const roleText = document.getElementById('p-role');
-
-            preview.classList.remove('skin-black', 'skin-white', 'skin-gold');
-            preview.classList.add('skin-' + val);
-
-            if(val === 'white' || val === 'gold') {
-                preview.style.color = 'black';
-                roleText.style.color = '#333';
-            } else {
-                preview.style.color = 'white';
-                roleText.style.color = 'var(--tapt-gold)';
-            }
-        });
-
-        // 4. Live Text Updating
-        document.getElementById('c-name').addEventListener('input', (e) => {
-            document.getElementById('p-name').textContent = e.target.value || 'YOUR NAME';
-        });
-        document.getElementById('c-role').addEventListener('input', (e) => {
-            document.getElementById('p-role').textContent = e.target.value || 'ROLE';
-        });
-
-        // 5. Logo Upload Preview
-        document.getElementById('c-logo-upload').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.getElementById('p-logo-preview');
-                    img.src = e.target.result;
-                    img.style.display = 'block';
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // 6. Add Custom Product to Cart
-        document.getElementById('add-btn').addEventListener('click', () => {
-            const name = document.getElementById('c-name').value || 'Custom';
-            const role = document.getElementById('c-role').value;
-            const type = currentMode === 'card' ? 'Custom Card' : 'Custom Tag';
-            const price = prices[currentMode];
-            const theme = document.getElementById('c-theme').value;
-            
-            // Generate a descriptive title
-            const fullTitle = `${type} (${theme}) - ${name}`;
-            
-            // Get the logo if uploaded
-            const logoSrc = document.getElementById('p-logo-preview').src;
-            const hasLogo = document.getElementById('p-logo-preview').style.display === 'block';
-
-            // Add to cart using global function
-            // We pass a placeholder image if no logo, or the logo itself
-            const displayImage = hasLogo ? logoSrc : (currentMode === 'card' ? 'https://via.placeholder.com/150/000000/FFFFFF/?text=CARD' : 'https://via.placeholder.com/150/000000/FFFFFF/?text=TAG');
-
-            window.addToCart(fullTitle, price, displayImage);
-            toggleCart(); // Open cart to confirm
-        });
-    </script>
 </body>
 </html>

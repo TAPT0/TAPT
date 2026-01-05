@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => { 
     const grid = document.getElementById('shop-grid'); // Ensure your shop.html uses id="shop-grid" for the container
     const productGridClass = document.querySelector('.product-grid'); // Fallback if you used class
     const targetGrid = grid || productGridClass;

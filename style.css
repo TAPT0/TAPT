@@ -301,3 +301,23 @@ nav {
     
     .cart-drawer { max-width: 85%; }
 }
+/* Make sure this is in style.css */
+.account-drawer {
+    position: fixed; 
+    top: 0; 
+    right: -450px; /* Hides it off-screen to the right */
+    width: 100%; 
+    max-width: 400px; 
+    height: 100vh;
+    background: #0a0a0a;
+    border-left: 1px solid rgba(255,255,255,0.1);
+    z-index: 200;
+    transition: right 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+    display: flex; 
+    flex-direction: column;
+}
+
+/* This class brings it into view */
+.account-drawer.open { 
+    right: 0; 
+}

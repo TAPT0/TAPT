@@ -34,6 +34,12 @@
         <div class="search-container">
             <input type="text" id="shop-search" placeholder="Search Collection...">
         </div>
+        <div class="category-filter">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="card">Cards</button>
+            <button class="filter-btn" data-filter="tag">Tags</button>
+            <button class="filter-btn" data-filter="music">Music</button>
+        </div>
     </div>
 
     <div class="product-grid" id="shop-grid"></div>
@@ -45,19 +51,15 @@
         </button>
         <div class="auth-divider">OR CREATE ACCOUNT</div>
         <input type="email" id="auth-email" class="auth-input" placeholder="Email Address">
-        <input type="tel" id="auth-phone" class="auth-input" placeholder="Phone Number (Optional)">
+        <input type="tel" id="auth-phone" class="auth-input" placeholder="Phone Number">
         <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
         <button class="auth-btn-submit" onclick="signupEmail()">Create Account</button>
         <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Close</button>
     </div>
 
     <div class="account-drawer" id="account-drawer">
-        <div class="drawer-header">
-            <h2>My Legacy</h2>
-            <button class="close-cart" onclick="toggleAccount()">×</button>
-        </div>
-        <div class="drawer-content" id="account-content">
-            </div>
+        <div class="drawer-header"><h2>My Legacy</h2><button class="close-cart" onclick="toggleAccount()">×</button></div>
+        <div class="drawer-content" id="account-content"></div>
     </div>
 
     <div class="cart-drawer" id="cart-drawer">
@@ -72,9 +74,7 @@
     <div class="cart-overlay" onclick="closeAllDrawers()"></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-
-<script src="script.js"></script>
-<script src="shop.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>     <script src="script.js"></script>
+    <script src="shop.js"></script>
 </body>
 </html>

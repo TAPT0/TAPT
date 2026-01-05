@@ -17,6 +17,11 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
+// Global Firebase References
+const auth = firebase.auth();
+const db = firebase.database();
+const provider = new firebase.auth.GoogleAuthProvider();
+
 /* =========================================
    2. GLOBAL HELPERS (Preloader & Cursor)
    ========================================= */
@@ -63,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
    ========================================= */
 window.toggleCart = function() {
     const cartDrawer = document.getElementById('cart-drawer');
-    const overlay = document.querySelector('.cart-overlay'); // Changed ID selection to Class for safety
+    const overlay = document.querySelector('.cart-overlay'); 
     const accountDrawer = document.getElementById('account-drawer');
     
     if (cartDrawer) {
@@ -85,6 +90,8 @@ window.toggleAccount = function() {
         accountDrawer.classList.toggle('open');
         if(overlay) overlay.classList.toggle('active', accountDrawer.classList.contains('open'));
         if(cartDrawer) cartDrawer.classList.remove('open');
+        
+        // Load Real Data when opening
         populateAccountData();
     }
 };
@@ -93,14 +100,145 @@ window.closeAllDrawers = function() {
     const cartDrawer = document.getElementById('cart-drawer');
     const accountDrawer = document.getElementById('account-drawer');
     const overlay = document.querySelector('.cart-overlay');
+    const authModal = document.getElementById('auth-modal');
     
     if(cartDrawer) cartDrawer.classList.remove('open');
     if(accountDrawer) accountDrawer.classList.remove('open');
     if(overlay) overlay.classList.remove('active');
+    if(authModal) authModal.style.display = 'none';
 };
 
 /* =========================================
-   4. CART LOGIC (Add, Update, Remove)
+   4. AUTHENTICATION (Google & Email)
+   ========================================= */
+
+// Toggle Login Modal
+window.toggleLoginModal = function() {
+    const modal = document.getElementById('auth-modal');
+    const overlay = document.querySelector('.cart-overlay');
+    
+    if(modal.style.display === 'block') {
+        modal.style.display = 'none';
+        overlay.classList.remove('active');
+    } else {
+        window.closeAllDrawers(); // Close sidebars first
+        modal.style.display = 'block';
+        overlay.classList.add('active'); // Reuse cart overlay background
+    }
+}
+
+// Login with Google
+window.loginWithGoogle = function() {
+    auth.signInWithPopup(provider).then((result) => {
+        const user = result.user;
+        // Save user to DB if new
+        db.ref('users/' + user.uid).update({
+            email: user.email,
+            name: user.displayName,
+            lastLogin: new Date().toISOString()
+        });
+        window.toggleLoginModal(); // Close modal
+        window.toggleAccount(); // Open drawer to show profile
+    }).catch((error) => {
+        alert(error.message);
+    });
+}
+
+// Sign Up with Email/Pass
+window.signupEmail = function() {
+    const email = document.getElementById('auth-email').value;
+    const pass = document.getElementById('auth-pass').value;
+    const phone = document.getElementById('auth-phone').value;
+
+    if(!email || !pass) return alert("Please enter email and password.");
+
+    auth.createUserWithEmailAndPassword(email, pass).then((userCredential) => {
+        const user = userCredential.user;
+        // Save extra data
+        db.ref('users/' + user.uid).set({
+            email: email,
+            phone: phone,
+            name: email.split('@')[0], // Default name from email
+            createdAt: new Date().toISOString()
+        });
+        window.toggleLoginModal();
+        window.toggleAccount();
+    }).catch((error) => {
+        alert(error.message);
+    });
+}
+
+// Logout
+window.logout = function() {
+    auth.signOut().then(() => {
+        window.toggleAccount(); // Close drawer to refresh view
+        alert("Logged out.");
+    });
+}
+
+/* =========================================
+   5. ACCOUNT DATA (REAL TIME)
+   ========================================= */
+window.populateAccountData = function() {
+    const container = document.getElementById('account-content');
+    if(!container) return;
+
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            // --- LOGGED IN STATE ---
+            container.innerHTML = `
+                <div class="user-profile-header">
+                    <img src="${user.photoURL || 'https://via.placeholder.com/60/111/333?text=USER'}" class="user-avatar" style="width:60px; height:60px; border-radius:50%; border:2px solid #D4AF37;">
+                    <div class="user-info" style="margin-left:15px;">
+                        <h3 style="color:white; margin:0;">${user.displayName || 'User'}</h3>
+                        <p style="color:#888; margin:0; font-size:0.8rem;">${user.email}</p>
+                        <button onclick="logout()" style="color:#ff5555; background:none; border:none; padding:0; cursor:pointer; font-size:0.8rem; margin-top:5px; text-decoration:underline;">Logout</button>
+                    </div>
+                </div>
+
+                <div class="account-section">
+                    <div style="color:#D4AF37; font-size:0.8rem; text-transform:uppercase; margin-bottom:15px; letter-spacing:1px;">My Orders</div>
+                    <div id="real-orders-list"><p style="color:#666; font-size:0.8rem;">Loading...</p></div>
+                </div>
+            `;
+
+            // Fetch Orders from Firebase
+            db.ref('orders').orderByChild('userId').equalTo(user.uid).once('value', snapshot => {
+                const list = document.getElementById('real-orders-list');
+                if(!snapshot.exists()) {
+                    list.innerHTML = "<p style='color:#666; font-size:0.8rem;'>No active orders.</p>";
+                    return;
+                }
+                list.innerHTML = "";
+                snapshot.forEach(child => {
+                    const o = child.val();
+                    list.innerHTML += `
+                        <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:10px; border:1px solid #333;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                <span style="color:white; font-size:0.9rem;">#${child.key.substring(0,6)}</span>
+                                <span style="color:#D4AF37;">₹${o.total}</span>
+                            </div>
+                            <div style="font-size:0.7rem; color:#888;">${o.items ? o.items.length : 0} Items • ${o.status || 'Processing'}</div>
+                        </div>
+                    `;
+                });
+            });
+
+        } else {
+            // --- GUEST STATE ---
+            container.innerHTML = `
+                <div style="text-align:center; padding:40px 0;">
+                    <h3 style="color:white; margin-bottom:10px; font-family:'Syncopate';">My Legacy</h3>
+                    <p style="color:#888; font-size:0.9rem; margin-bottom:30px;">Log in to view your orders and saved designs.</p>
+                    <button onclick="window.toggleLoginModal()" class="checkout-btn">Log In / Sign Up</button>
+                </div>
+            `;
+        }
+    });
+}
+
+/* =========================================
+   6. CART LOGIC (Add, Update, Remove)
    ========================================= */
 window.addToCart = function(title, price, image = '', id = null) {
     let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
@@ -197,26 +335,7 @@ function updateCartUI() {
 document.addEventListener('DOMContentLoaded', updateCartUI);
 
 /* =========================================
-   5. ACCOUNT DATA
-   ========================================= */
-function populateAccountData() {
-    const orderList = document.getElementById('order-list'); // Ensure this ID exists in HTML
-    if(!orderList) return;
-
-    // Dummy Data
-    orderList.innerHTML = `
-        <div class="order-item">
-            <div class="order-left">
-                <h4>#TAPT-9921</h4>
-                <p>Matte Black Card • 2 Items</p>
-            </div>
-            <div class="status-badge">Delivered</div>
-        </div>
-    `;
-}
-
-/* =========================================
-   6. 3D TILT EFFECT (Global Utility)
+   7. 3D TILT EFFECT (Global Utility)
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
     const tiltElements = document.querySelectorAll('.card-stage, .product-card, .home-card, .home-keychain');

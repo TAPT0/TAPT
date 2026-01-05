@@ -34,6 +34,7 @@
         input, textarea, select { width: 100%; background: #1a1a1a; border: 1px solid var(--border); padding: 12px; color: white; border-radius: 5px; outline: none; }
         input:focus, textarea:focus { border-color: var(--gold); }
         .btn-gold { background: var(--gold); color: black; border: none; padding: 12px 24px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; }
+        .btn-red { background: #ff5555; color: white; border: none; padding: 12px 24px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; }
         
         /* DATA TABLES */
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -45,10 +46,19 @@
 
         /* IMAGE PREVIEW GRID */
         .img-preview-grid { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-        .img-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; border: 1px solid #444; }
+        .img-thumb-container { position: relative; width: 80px; height: 80px; }
+        .img-thumb { width: 100%; height: 100%; object-fit: cover; border-radius: 5px; border: 1px solid #444; }
+        .img-del-btn { position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center;}
+
+        /* EDIT MODAL */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.open { display: flex; }
+        .modal-content { background: #111; border: 1px solid var(--gold); padding: 30px; border-radius: 10px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .close-modal { background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer; }
 
         /* TOAST NOTIFICATION */
-        #toast { position: fixed; bottom: 20px; right: 20px; background: var(--gold); color: black; padding: 15px 30px; border-radius: 5px; font-weight: bold; transform: translateY(100px); transition: 0.3s; }
+        #toast { position: fixed; bottom: 20px; right: 20px; background: var(--gold); color: black; padding: 15px 30px; border-radius: 5px; font-weight: bold; transform: translateY(100px); transition: 0.3s; z-index: 2000; }
         #toast.show { transform: translateY(0); }
     </style>
 </head>
@@ -102,17 +112,14 @@
                         <label>Product Title</label>
                         <input type="text" id="p-title" placeholder="e.g. The Executive Black">
                     </div>
-                    
                     <div class="form-group">
                         <label>Description</label>
                         <textarea id="p-desc" rows="4" placeholder="Enter full product description here..."></textarea>
                     </div>
-
                     <div class="form-group">
                         <label>Price (₹)</label>
                         <input type="number" id="p-price" placeholder="1999">
                     </div>
-                    
                     <div class="form-group">
                         <label>Product Type</label>
                         <select id="p-type">
@@ -120,7 +127,6 @@
                             <option value="tag">NFC Tag / Keychain (Circle)</option>
                         </select>
                     </div>
-
                     <div class="form-group">
                         <label>Category</label>
                         <select id="p-category">
@@ -133,21 +139,19 @@
                     </div>
                     <div class="form-group">
                         <label>Product Images (Select Multiple)</label>
-                        <input type="file" id="p-images" multiple accept="image/*">
-                        <div class="img-preview-grid" id="image-previews"></div>
+                        <input type="file" id="p-images" multiple accept="image/*" onchange="previewImages(this, 'add-preview')">
+                        <div class="img-preview-grid" id="add-preview"></div>
                     </div>
                     <button class="btn-gold" onclick="uploadProduct()">UPLOAD PRODUCT</button>
                     <p id="upload-status" style="margin-top:10px; color:#888; font-size:0.8rem;"></p>
                 </div>
 
                 <h3>Current Inventory</h3>
-                <div id="products-list-container">
-                    </div>
+                <div id="products-list-container"></div>
             </div>
 
             <div id="coupons" class="section">
                 <h2>Coupon Manager</h2>
-                
                 <div style="background: #1a1a1a; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
                     <h3 style="margin-top:0;">Create Coupon</h3>
                     <div class="form-group">
@@ -167,7 +171,6 @@
                     </div>
                     <button class="btn-gold" onclick="createCoupon()">SAVE COUPON</button>
                 </div>
-
                 <h3>Active Coupons</h3>
                 <table id="coupons-table">
                     <thead>
@@ -184,13 +187,67 @@
         </div>
     </div>
 
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Product</h3>
+                <button class="close-modal" onclick="closeEditModal()">&times;</button>
+            </div>
+            
+            <input type="hidden" id="edit-key">
+            
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="edit-title">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="edit-desc" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Price (₹)</label>
+                <input type="number" id="edit-price">
+            </div>
+            <div class="form-group">
+                <label>Type</label>
+                <select id="edit-type">
+                    <option value="card">NFC Card</option>
+                    <option value="tag">NFC Tag</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="edit-category">
+                    <option value="music">Music</option>
+                    <option value="review">Reviews</option>
+                    <option value="privacy">Privacy</option>
+                    <option value="pet">Pet</option>
+                    <option value="custom">Custom</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Current Photos (Click X to remove)</label>
+                <div class="img-preview-grid" id="edit-current-images"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Add New Photos</label>
+                <input type="file" id="edit-new-images" multiple accept="image/*" onchange="previewImages(this, 'edit-new-preview')">
+                <div class="img-preview-grid" id="edit-new-preview"></div>
+            </div>
+
+            <button class="btn-gold" style="width:100%" onclick="saveProductChanges()">SAVE CHANGES</button>
+        </div>
+    </div>
+
     <div id="toast">Action Successful</div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     
     <script>
-        /* PASTE YOUR FIREBASE CONFIG HERE */
+        /* FIREBASE CONFIG */
         const firebaseConfig = {
             apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
             authDomain: "tapt-337b8.firebaseapp.com",
@@ -202,16 +259,17 @@
             measurementId: "G-2CB8QXYNJY"
         };
 
-        // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const db = firebase.database();
 
+        let allProductsCache = {}; // Local storage for products to easy edit
+        let tempEditImages = [];   // Array to hold images during edit
+
         /* --- AUTHENTICATION --- */
         function checkAdmin() {
             const pass = document.getElementById('admin-pass').value;
-            // Simple hardcoded password
             if(pass === "admin123") { 
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-ui').style.display = 'flex';
@@ -221,9 +279,7 @@
             }
         }
 
-        function logout() {
-            location.reload();
-        }
+        function logout() { location.reload(); }
 
         /* --- NAVIGATION --- */
         function showSection(id) {
@@ -246,9 +302,7 @@
             loadCoupons();
         }
 
-        /* --- 1. PRODUCT MANAGEMENT (BASE64 METHOD) --- */
-        
-        // Helper: Convert File to Base64 String
+        /* --- IMAGE HELPERS --- */
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -256,9 +310,31 @@
             reader.onerror = error => reject(error);
         });
 
+        // Simple preview for file inputs
+        function previewImages(input, divId) {
+            const container = document.getElementById(divId);
+            container.innerHTML = "";
+            if (input.files) {
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement("img");
+                        img.src = e.target.result;
+                        img.classList.add("img-thumb");
+                        const div = document.createElement("div");
+                        div.className = "img-thumb-container";
+                        div.appendChild(img);
+                        container.appendChild(div);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+
+        /* --- 1. UPLOAD NEW PRODUCT --- */
         async function uploadProduct() {
             const title = document.getElementById('p-title').value;
-            const desc = document.getElementById('p-desc').value; // NEW: Get Description
+            const desc = document.getElementById('p-desc').value;
             const price = document.getElementById('p-price').value;
             const category = document.getElementById('p-category').value;
             const type = document.getElementById('p-type').value; 
@@ -273,7 +349,6 @@
             statusText.textContent = "Processing images...";
             let imageUrls = [];
 
-            // Convert all selected images to Base64
             for(let i=0; i<files.length; i++) {
                 try {
                     const base64String = await toBase64(files[i]);
@@ -287,11 +362,9 @@
 
             statusText.textContent = "Saving to Database...";
 
-            // Save to Firebase
-            const newProductRef = db.ref('products').push();
-            newProductRef.set({
+            db.ref('products').push().set({
                 title: title,
-                description: desc, // NEW: Save Description
+                description: desc,
                 price: parseFloat(price),
                 category: category,
                 type: type, 
@@ -305,42 +378,49 @@
                     showToast("Product Added!");
                     // Clear inputs
                     document.getElementById('p-title').value = "";
-                    document.getElementById('p-desc').value = ""; // NEW: Clear Description
+                    document.getElementById('p-desc').value = "";
                     document.getElementById('p-price').value = "";
                     document.getElementById('p-images').value = "";
-                    loadProducts(); 
+                    document.getElementById('add-preview').innerHTML = "";
                 }
             });
         }
 
+        /* --- 2. LIST PRODUCTS --- */
         function loadProducts() {
             const container = document.getElementById('products-list-container');
             container.innerHTML = "<p>Loading...</p>";
             
             db.ref('products').on('value', (snapshot) => {
                 container.innerHTML = "";
+                allProductsCache = {}; // Reset cache
+
                 if(!snapshot.exists()) {
                     container.innerHTML = "<p>No products yet.</p>";
                     return;
                 }
+                
                 snapshot.forEach((childSnapshot) => {
                     const p = childSnapshot.val();
                     const key = childSnapshot.key;
-                    // Use the Base64 string directly as the image source
-                    const img = (p.images && p.images.length > 0) ? p.images[0] : '';
-                    const typeLabel = p.type ? (p.type === 'card' ? 'Card' : 'Tag') : 'Card'; 
+                    allProductsCache[key] = p; // Store for editing
 
+                    const img = (p.images && p.images.length > 0) ? p.images[0] : '';
+                    
                     const div = document.createElement('div');
                     div.style.cssText = "display:flex; justify-content:space-between; align-items:center; background:#222; padding:15px; margin-bottom:10px; border-radius:5px;";
                     div.innerHTML = `
                         <div style="display:flex; gap:15px; align-items:center;">
-                            <img src="${img}" style="width:50px; height:50px; border-radius:5px; object-fit:cover; background:#333;">
+                            <img src="${img}" style="width:60px; height:60px; border-radius:5px; object-fit:cover; background:#333;">
                             <div>
-                                <strong>${p.title}</strong><br>
-                                <span style="color:#888;">₹${p.price} | ${typeLabel} | ${p.category}</span>
+                                <strong style="font-size:1.1rem; color:white;">${p.title}</strong><br>
+                                <span style="color:#888;">₹${p.price} | ${p.type ? p.type.toUpperCase() : 'CARD'}</span>
                             </div>
                         </div>
-                        <button onclick="deleteProduct('${key}')" style="background:#ff5555; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer;">Delete</button>
+                        <div style="display:flex; gap:10px;">
+                            <button onclick="openEditModal('${key}')" style="background:var(--gold); color:black; border:none; padding:8px 15px; border-radius:3px; cursor:pointer; font-weight:bold;">MANAGE</button>
+                            <button onclick="deleteProduct('${key}')" style="background:#ff5555; color:white; border:none; padding:8px 15px; border-radius:3px; cursor:pointer; font-weight:bold;">DELETE</button>
+                        </div>
                     `;
                     container.appendChild(div);
                 });
@@ -348,59 +428,135 @@
         }
 
         function deleteProduct(key) {
-            if(confirm("Delete this product?")) {
+            if(confirm("Delete this product permanently?")) {
                 db.ref('products/' + key).remove();
             }
         }
 
-        /* --- 2. COUPONS --- */
+        /* --- 3. EDIT PRODUCT FUNCTIONALITY --- */
+        function openEditModal(key) {
+            const product = allProductsCache[key];
+            if(!product) return;
+
+            document.getElementById('edit-key').value = key;
+            document.getElementById('edit-title').value = product.title || "";
+            document.getElementById('edit-desc').value = product.description || "";
+            document.getElementById('edit-price').value = product.price || "";
+            document.getElementById('edit-type').value = product.type || "card";
+            document.getElementById('edit-category').value = product.category || "custom";
+            
+            // Setup Images
+            tempEditImages = product.images ? [...product.images] : [];
+            renderEditImages();
+            
+            // Clear new uploads
+            document.getElementById('edit-new-images').value = "";
+            document.getElementById('edit-new-preview').innerHTML = "";
+
+            document.getElementById('edit-modal').classList.add('open');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.remove('open');
+        }
+
+        function renderEditImages() {
+            const container = document.getElementById('edit-current-images');
+            container.innerHTML = "";
+            
+            tempEditImages.forEach((imgBase64, index) => {
+                const div = document.createElement("div");
+                div.className = "img-thumb-container";
+                
+                const img = document.createElement("img");
+                img.src = imgBase64;
+                img.className = "img-thumb";
+                
+                const btn = document.createElement("button");
+                btn.className = "img-del-btn";
+                btn.innerHTML = "&times;";
+                btn.onclick = () => {
+                    tempEditImages.splice(index, 1);
+                    renderEditImages(); // Re-render
+                };
+
+                div.appendChild(img);
+                div.appendChild(btn);
+                container.appendChild(div);
+            });
+        }
+
+        async function saveProductChanges() {
+            const key = document.getElementById('edit-key').value;
+            const newFiles = document.getElementById('edit-new-images').files;
+            
+            // 1. Process new images
+            if(newFiles.length > 0) {
+                showToast("Processing new images...");
+                for(let i=0; i<newFiles.length; i++) {
+                    try {
+                        const base64 = await toBase64(newFiles[i]);
+                        tempEditImages.push(base64);
+                    } catch(err) {
+                        console.error(err);
+                    }
+                }
+            }
+
+            // 2. Prepare Data
+            const updatedData = {
+                title: document.getElementById('edit-title').value,
+                description: document.getElementById('edit-desc').value,
+                price: parseFloat(document.getElementById('edit-price').value),
+                type: document.getElementById('edit-type').value,
+                category: document.getElementById('edit-category').value,
+                images: tempEditImages, // The modified list
+                updatedAt: new Date().toISOString()
+            };
+
+            // 3. Save to Firebase
+            db.ref('products/' + key).update(updatedData, (error) => {
+                if(error) {
+                    alert("Error updating: " + error.message);
+                } else {
+                    showToast("Product Updated!");
+                    closeEditModal();
+                    loadProducts(); // Refresh list
+                }
+            });
+        }
+
+        /* --- 4. COUPONS & ORDERS --- */
         function createCoupon() {
             const code = document.getElementById('c-code').value.toUpperCase().trim();
             const type = document.getElementById('c-type').value;
             const value = document.getElementById('c-value').value;
-
             if(!code || !value) return alert("Enter details");
-
-            db.ref('coupons/' + code).set({
-                type: type,
-                value: parseFloat(value)
-            });
+            db.ref('coupons/' + code).set({ type, value: parseFloat(value) });
             showToast("Coupon Saved");
             document.getElementById('c-code').value = "";
         }
 
         function loadCoupons() {
             const tbody = document.getElementById('coupons-body');
-            db.ref('coupons').on('value', (snapshot) => {
+            db.ref('coupons').on('value', (s) => {
                 tbody.innerHTML = "";
-                snapshot.forEach((child) => {
-                    const c = child.val();
+                s.forEach((c) => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td style="color:var(--gold);">${child.key}</td>
-                        <td>${c.type === 'percentage' ? c.value + '%' : '₹' + c.value}</td>
-                        <td><button onclick="db.ref('coupons/${child.key}').remove()" style="color:#f55; background:none; border:none; cursor:pointer;">X</button></td>
-                    `;
+                    tr.innerHTML = `<td style="color:var(--gold);">${c.key}</td><td>${c.val().type === 'percentage' ? c.val().value + '%' : '₹' + c.val().value}</td><td><button onclick="db.ref('coupons/${c.key}').remove()" style="color:#f55;background:none;border:none;cursor:pointer;">X</button></td>`;
                     tbody.appendChild(tr);
                 });
             });
         }
 
-        /* --- 3. ORDERS --- */
         function loadOrders() {
             const tbody = document.getElementById('orders-table-body');
-            db.ref('orders').on('value', (snapshot) => {
+            db.ref('orders').on('value', (s) => {
                 tbody.innerHTML = "";
-                snapshot.forEach((child) => {
-                    const o = child.val();
+                s.forEach((c) => {
+                    const o = c.val();
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${child.key.substring(0,6)}</td>
-                        <td>${o.shipping.firstName}<br><small>${o.contactEmail}</small></td>
-                        <td>${o.items ? o.items.length : 0} Items</td>
-                        <td style="color:var(--gold);">₹${o.total}</td>
-                        <td><span class="status-badge status-new">PAID</span></td>
-                    `;
+                    tr.innerHTML = `<td>${c.key.substring(0,6)}</td><td>${o.shipping.firstName}<br><small>${o.contactEmail}</small></td><td>${o.items ? o.items.length : 0} Items</td><td style="color:var(--gold);">₹${o.total}</td><td><span class="status-badge status-new">PAID</span></td>`;
                     tbody.appendChild(tr);
                 });
             });

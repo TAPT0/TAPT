@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Get Product ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
 
@@ -8,47 +7,39 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // 2. Fetch Data from Firebase
-    const db = firebase.database();
+    const db = firebase.firestore();
     let currentProduct = null;
     let cartQuantity = 0;
 
-    db.ref('products/' + productId).once('value').then((snapshot) => {
-        if (snapshot.exists()) {
-            currentProduct = snapshot.val();
-            currentProduct.id = productId;
-            
-            // Render Page
+    // Fetch Doc
+    db.collection("products").doc(productId).get().then((doc) => {
+        if (doc.exists) {
+            currentProduct = doc.data();
+            currentProduct.id = doc.id;
             renderProductPage(currentProduct);
-            
-            // Check Cart State
             checkCartState(currentProduct.title);
         } else {
             document.getElementById('p-title').textContent = "Product Not Found";
         }
     });
 
-    // 3. Render Logic
     function renderProductPage(p) {
         document.title = `${p.title} | TAPT.`;
         document.getElementById('p-title').textContent = p.title;
         document.getElementById('p-price').textContent = `₹${p.price}`;
         
-        // Description
         const descContainer = document.getElementById('p-desc');
         if (p.description) {
             descContainer.innerHTML = p.description.replace(/\n/g, '<br>');
         }
 
-        // Images
         const mainImg = document.getElementById('main-image');
         const thumbStrip = document.getElementById('thumb-strip');
         const images = p.images || [];
 
         if(images.length > 0) {
             mainImg.src = images[0];
-            thumbStrip.innerHTML = ""; // Clear loader
-            
+            thumbStrip.innerHTML = "";
             images.forEach((imgSrc, index) => {
                 const thumb = document.createElement('img');
                 thumb.src = imgSrc;
@@ -62,13 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 thumbStrip.appendChild(thumb);
             });
         }
-        
-        // Remove Loader
         const spinner = document.querySelector('.loading-spinner');
         if(spinner) spinner.style.display = 'none';
     }
 
-    // 4. Cart & Quantity Logic
     window.startAddToCart = function() {
         if(!currentProduct) return;
         window.addToCart(currentProduct.title, currentProduct.price, currentProduct.images ? currentProduct.images[0] : null, currentProduct.id);
@@ -120,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'customize.html';
     };
 
-    // 5. Render Reviews
     const reviewsData = [
         { name: "Rahul M.", text: "Absolutely insane quality.", rating: 5 },
         { name: "Sarah J.", text: "Works perfectly with my iPhone.", rating: 5 },

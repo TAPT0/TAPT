@@ -34,8 +34,7 @@
                 <img id="main-image" src="" alt="Product Image">
                 <div class="loading-spinner"></div>
             </div>
-            <div class="thumb-strip" id="thumb-strip">
-                </div>
+            <div class="thumb-strip" id="thumb-strip"></div>
         </div>
 
         <div class="product-info">
@@ -92,13 +91,17 @@
         <button class="auth-btn-submit" onclick="signupEmail()">Create Account</button>
         <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Close</button>
     </div>
-
+    
     <div class="cart-overlay" onclick="closeAllDrawers()"></div>
     <div class="cursor-dot" data-cursor-dot></div>
     <div class="cursor-outline" data-cursor-outline></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>      <script src="script.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script> 
+    
+    <script src="script.js"></script>
     <script src="product.js"></script>
 
 </body>

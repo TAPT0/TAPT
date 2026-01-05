@@ -3,61 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TAPT Admin | Control Center</title>
+    <title>TAPT Admin | Firestore</title>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
+        /* (Keep your existing CSS styles exactly as they were) */
         :root { --bg: #050505; --gold: #D4AF37; --panel: #111; --border: #333; }
         body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
-        
-        /* LOGIN SCREEN */
         #login-screen { position: fixed; inset: 0; background: black; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .login-box { border: 1px solid var(--gold); padding: 40px; border-radius: 10px; text-align: center; }
         .login-box input { background: #222; border: 1px solid #444; padding: 10px; color: white; margin-bottom: 10px; width: 200px; display: block; }
         .login-box button { background: var(--gold); border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; width: 100%; }
-
-        /* DASHBOARD LAYOUT */
         .admin-container { display: flex; height: 100vh; }
         .sidebar { width: 250px; background: var(--panel); border-right: 1px solid var(--border); padding: 20px; }
         .logo { font-family: 'Syncopate', sans-serif; font-size: 1.5rem; margin-bottom: 40px; display: block; }
         .nav-btn { display: block; width: 100%; padding: 15px; background: transparent; border: none; color: #888; text-align: left; cursor: pointer; transition: 0.3s; font-size: 1rem; }
         .nav-btn:hover, .nav-btn.active { color: var(--gold); background: rgba(255,255,255,0.05); border-left: 3px solid var(--gold); }
-        
         .content-area { flex: 1; padding: 40px; overflow-y: auto; }
         .section { display: none; }
         .section.active { display: block; }
         h2 { font-family: 'Syncopate', sans-serif; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 30px; color: var(--gold); }
-
-        /* FORMS & INPUTS */
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; color: #aaa; font-size: 0.9rem; }
         input, textarea, select { width: 100%; background: #1a1a1a; border: 1px solid var(--border); padding: 12px; color: white; border-radius: 5px; outline: none; }
         input:focus, textarea:focus { border-color: var(--gold); }
         .btn-gold { background: var(--gold); color: black; border: none; padding: 12px 24px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; }
-        .btn-red { background: #ff5555; color: white; border: none; padding: 12px 24px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; }
-        
-        /* DATA TABLES */
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { text-align: left; padding: 15px; border-bottom: 1px solid var(--border); }
         th { color: var(--gold); font-size: 0.8rem; text-transform: uppercase; }
         td { font-size: 0.9rem; color: #ccc; }
         .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; text-transform: uppercase; }
         .status-new { background: rgba(0, 255, 0, 0.1); color: #0f0; }
-
-        /* IMAGE PREVIEW GRID */
         .img-preview-grid { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
         .img-thumb-container { position: relative; width: 80px; height: 80px; }
         .img-thumb { width: 100%; height: 100%; object-fit: cover; border-radius: 5px; border: 1px solid #444; }
         .img-del-btn { position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center;}
-
-        /* EDIT MODAL */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
         .modal.open { display: flex; }
         .modal-content { background: #111; border: 1px solid var(--gold); padding: 30px; border-radius: 10px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .close-modal { background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer; }
-
-        /* TOAST NOTIFICATION */
         #toast { position: fixed; bottom: 20px; right: 20px; background: var(--gold); color: black; padding: 15px 30px; border-radius: 5px; font-weight: bold; transform: translateY(100px); transition: 0.3s; z-index: 2000; }
         #toast.show { transform: translateY(0); }
     </style>
@@ -244,14 +229,11 @@
     <div id="toast">Action Successful</div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    
-    <script>
-        /* FIREBASE CONFIG */
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script> <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
             authDomain: "tapt-337b8.firebaseapp.com",
-            databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com/", 
             projectId: "tapt-337b8",
             storageBucket: "tapt-337b8.firebasestorage.app",
             messagingSenderId: "887956121124",
@@ -262,10 +244,12 @@
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-        const db = firebase.database();
+        
+        // SWITCH TO FIRESTORE
+        const db = firebase.firestore();
 
-        let allProductsCache = {}; // Local storage for products to easy edit
-        let tempEditImages = [];   // Array to hold images during edit
+        let allProductsCache = {};
+        let tempEditImages = [];
 
         /* --- AUTHENTICATION --- */
         function checkAdmin() {
@@ -310,7 +294,6 @@
             reader.onerror = error => reject(error);
         });
 
-        // Simple preview for file inputs
         function previewImages(input, divId) {
             const container = document.getElementById(divId);
             container.innerHTML = "";
@@ -331,7 +314,7 @@
             }
         }
 
-        /* --- 1. UPLOAD NEW PRODUCT --- */
+        /* --- 1. UPLOAD NEW PRODUCT (FIRESTORE) --- */
         async function uploadProduct() {
             const title = document.getElementById('p-title').value;
             const desc = document.getElementById('p-desc').value;
@@ -362,7 +345,8 @@
 
             statusText.textContent = "Saving to Database...";
 
-            db.ref('products').push().set({
+            // Firestore Add
+            db.collection("products").add({
                 title: title,
                 description: desc,
                 price: parseFloat(price),
@@ -370,40 +354,39 @@
                 type: type, 
                 images: imageUrls,
                 createdAt: new Date().toISOString()
-            }, (error) => {
-                if (error) {
-                    statusText.textContent = "Database Error: " + error.message;
-                } else {
-                    statusText.textContent = "";
-                    showToast("Product Added!");
-                    // Clear inputs
-                    document.getElementById('p-title').value = "";
-                    document.getElementById('p-desc').value = "";
-                    document.getElementById('p-price').value = "";
-                    document.getElementById('p-images').value = "";
-                    document.getElementById('add-preview').innerHTML = "";
-                }
+            }).then(() => {
+                statusText.textContent = "";
+                showToast("Product Added!");
+                // Clear inputs
+                document.getElementById('p-title').value = "";
+                document.getElementById('p-desc').value = "";
+                document.getElementById('p-price').value = "";
+                document.getElementById('p-images').value = "";
+                document.getElementById('add-preview').innerHTML = "";
+            }).catch((error) => {
+                statusText.textContent = "Database Error: " + error.message;
             });
         }
 
-        /* --- 2. LIST PRODUCTS --- */
+        /* --- 2. LIST PRODUCTS (FIRESTORE REALTIME) --- */
         function loadProducts() {
             const container = document.getElementById('products-list-container');
             container.innerHTML = "<p>Loading...</p>";
             
-            db.ref('products').on('value', (snapshot) => {
+            // Firestore onSnapshot for realtime updates
+            db.collection("products").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
                 container.innerHTML = "";
-                allProductsCache = {}; // Reset cache
+                allProductsCache = {}; 
 
-                if(!snapshot.exists()) {
+                if(snapshot.empty) {
                     container.innerHTML = "<p>No products yet.</p>";
                     return;
                 }
                 
-                snapshot.forEach((childSnapshot) => {
-                    const p = childSnapshot.val();
-                    const key = childSnapshot.key;
-                    allProductsCache[key] = p; // Store for editing
+                snapshot.forEach((doc) => {
+                    const p = doc.data();
+                    const key = doc.id;
+                    allProductsCache[key] = p;
 
                     const img = (p.images && p.images.length > 0) ? p.images[0] : '';
                     
@@ -429,7 +412,7 @@
 
         function deleteProduct(key) {
             if(confirm("Delete this product permanently?")) {
-                db.ref('products/' + key).remove();
+                db.collection("products").doc(key).delete();
             }
         }
 
@@ -445,11 +428,9 @@
             document.getElementById('edit-type').value = product.type || "card";
             document.getElementById('edit-category').value = product.category || "custom";
             
-            // Setup Images
             tempEditImages = product.images ? [...product.images] : [];
             renderEditImages();
             
-            // Clear new uploads
             document.getElementById('edit-new-images').value = "";
             document.getElementById('edit-new-preview').innerHTML = "";
 
@@ -477,7 +458,7 @@
                 btn.innerHTML = "&times;";
                 btn.onclick = () => {
                     tempEditImages.splice(index, 1);
-                    renderEditImages(); // Re-render
+                    renderEditImages();
                 };
 
                 div.appendChild(img);
@@ -490,7 +471,6 @@
             const key = document.getElementById('edit-key').value;
             const newFiles = document.getElementById('edit-new-images').files;
             
-            // 1. Process new images
             if(newFiles.length > 0) {
                 showToast("Processing new images...");
                 for(let i=0; i<newFiles.length; i++) {
@@ -503,60 +483,63 @@
                 }
             }
 
-            // 2. Prepare Data
             const updatedData = {
                 title: document.getElementById('edit-title').value,
                 description: document.getElementById('edit-desc').value,
                 price: parseFloat(document.getElementById('edit-price').value),
                 type: document.getElementById('edit-type').value,
                 category: document.getElementById('edit-category').value,
-                images: tempEditImages, // The modified list
+                images: tempEditImages,
                 updatedAt: new Date().toISOString()
             };
 
-            // 3. Save to Firebase
-            db.ref('products/' + key).update(updatedData, (error) => {
-                if(error) {
-                    alert("Error updating: " + error.message);
-                } else {
-                    showToast("Product Updated!");
-                    closeEditModal();
-                    loadProducts(); // Refresh list
-                }
+            db.collection("products").doc(key).update(updatedData).then(() => {
+                showToast("Product Updated!");
+                closeEditModal();
+            }).catch(error => {
+                alert("Error updating: " + error.message);
             });
         }
 
-        /* --- 4. COUPONS & ORDERS --- */
+        /* --- 4. COUPONS & ORDERS (FIRESTORE) --- */
         function createCoupon() {
             const code = document.getElementById('c-code').value.toUpperCase().trim();
             const type = document.getElementById('c-type').value;
             const value = document.getElementById('c-value').value;
             if(!code || !value) return alert("Enter details");
-            db.ref('coupons/' + code).set({ type, value: parseFloat(value) });
-            showToast("Coupon Saved");
-            document.getElementById('c-code').value = "";
+            
+            db.collection("coupons").doc(code).set({ type, value: parseFloat(value) }).then(() => {
+                showToast("Coupon Saved");
+                document.getElementById('c-code').value = "";
+            });
         }
 
         function loadCoupons() {
             const tbody = document.getElementById('coupons-body');
-            db.ref('coupons').on('value', (s) => {
+            db.collection("coupons").onSnapshot((snap) => {
                 tbody.innerHTML = "";
-                s.forEach((c) => {
+                snap.forEach((doc) => {
+                    const c = doc.data();
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td style="color:var(--gold);">${c.key}</td><td>${c.val().type === 'percentage' ? c.val().value + '%' : '₹' + c.val().value}</td><td><button onclick="db.ref('coupons/${c.key}').remove()" style="color:#f55;background:none;border:none;cursor:pointer;">X</button></td>`;
+                    tr.innerHTML = `<td style="color:var(--gold);">${doc.id}</td><td>${c.type === 'percentage' ? c.value + '%' : '₹' + c.value}</td><td><button onclick="deleteCoupon('${doc.id}')" style="color:#f55;background:none;border:none;cursor:pointer;">X</button></td>`;
                     tbody.appendChild(tr);
                 });
             });
         }
+        
+        function deleteCoupon(id) {
+            db.collection("coupons").doc(id).delete();
+        }
 
         function loadOrders() {
             const tbody = document.getElementById('orders-table-body');
-            db.ref('orders').on('value', (s) => {
+            // Assuming you want recent orders
+            db.collection("orders").orderBy("createdAt", "desc").limit(20).onSnapshot((snap) => {
                 tbody.innerHTML = "";
-                s.forEach((c) => {
-                    const o = c.val();
+                snap.forEach((doc) => {
+                    const o = doc.data();
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${c.key.substring(0,6)}</td><td>${o.shipping.firstName}<br><small>${o.contactEmail}</small></td><td>${o.items ? o.items.length : 0} Items</td><td style="color:var(--gold);">₹${o.total}</td><td><span class="status-badge status-new">PAID</span></td>`;
+                    tr.innerHTML = `<td>${doc.id.substring(0,6)}</td><td>${o.shipping ? o.shipping.firstName : 'Guest'}<br><small>${o.contactEmail || ''}</small></td><td>${o.items ? o.items.length : 0} Items</td><td style="color:var(--gold);">₹${o.total}</td><td><span class="status-badge status-new">PAID</span></td>`;
                     tbody.appendChild(tr);
                 });
             });

@@ -31,7 +31,7 @@
         
         <div class="product-gallery">
             <div class="main-image-frame">
-                <img id="main-image" src="" alt="Product Image">
+                <img id="main-image" src="" alt="Product Image" style="opacity:0">
                 <div class="loading-spinner"></div>
             </div>
             <div class="thumb-strip" id="thumb-strip"></div>
@@ -39,7 +39,7 @@
 
         <div class="product-info">
             <h1 id="p-title" class="p-detail-title">Loading...</h1>
-            <div class="p-detail-price" id="p-price">...</div>
+            <div class="p-detail-price" id="p-price"></div>
             
             <div class="divider"></div>
 
@@ -71,10 +71,32 @@
     </div>
 
     <div class="cart-drawer" id="cart-drawer">
-        <div class="drawer-header"><h2>Your Bag</h2><button class="close-cart" onclick="toggleCart()">×</button></div>
+        <div class="drawer-header">
+            <h2>Your Bag</h2>
+            <button class="close-cart" onclick="toggleCart()">×</button>
+        </div>
+        
         <div class="cart-items" id="cart-items-container"></div>
+        
         <div class="cart-footer">
-            <div class="summary-row"><span>Total</span><span id="total-price">₹0</span></div>
+            <div class="coupon-wrapper">
+                <input type="text" id="coupon-code" class="coupon-input" placeholder="Promo Code">
+                <button class="coupon-btn" onclick="applyCoupon()">APPLY</button>
+            </div>
+            
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span class="val" id="cart-subtotal">₹0</span>
+            </div>
+            <div class="summary-row" id="discount-row" style="display:none;">
+                <span class="discount-active">Discount</span>
+                <span class="val discount-active" id="cart-discount">-₹0</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span class="val" id="cart-total">₹0</span>
+            </div>
+            
             <button class="checkout-btn" onclick="window.location.href='checkout.html'">Checkout</button>
         </div>
     </div>
@@ -93,13 +115,10 @@
     </div>
     
     <div class="cart-overlay" onclick="closeAllDrawers()"></div>
-    <div class="cursor-dot" data-cursor-dot></div>
-    <div class="cursor-outline" data-cursor-outline></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script> 
     
     <script src="script.js"></script>
     <script src="product.js"></script>

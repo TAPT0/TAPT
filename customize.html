@@ -100,15 +100,48 @@
     </div>
 
     <div class="cart-drawer" id="cart-drawer">
-        <div class="drawer-header"><h2>Your Bag</h2><button class="close-cart" onclick="toggleCart()">×</button></div>
+        <div class="drawer-header">
+            <h2>Your Bag</h2>
+            <button class="close-cart" onclick="toggleCart()">×</button>
+        </div>
+        
         <div class="cart-items" id="cart-items-container"></div>
+        
         <div class="cart-footer">
-            <div class="summary-row"><span>Total</span><span id="total-price">₹0</span></div>
+            <div class="coupon-wrapper">
+                <input type="text" id="coupon-code" class="coupon-input" placeholder="Promo Code">
+                <button class="coupon-btn" onclick="applyCoupon()">APPLY</button>
+            </div>
+            
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span class="val" id="cart-subtotal">₹0</span>
+            </div>
+            <div class="summary-row" id="discount-row" style="display:none;">
+                <span class="discount-active">Discount</span>
+                <span class="val discount-active" id="cart-discount">-₹0</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span class="val" id="cart-total">₹0</span>
+            </div>
+            
             <button class="checkout-btn" onclick="window.location.href='checkout.html'">Checkout</button>
         </div>
     </div>
 
-    <div class="auth-modal" id="auth-modal"></div>
+    <div class="auth-modal" id="auth-modal">
+        <h2 style="color:white; font-family:'Syncopate'; margin-bottom:20px;">Access Legacy</h2>
+        <button class="auth-btn-google" onclick="loginWithGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Continue with Google
+        </button>
+        <div class="auth-divider">OR CREATE ACCOUNT</div>
+        <input type="email" id="auth-email" class="auth-input" placeholder="Email Address">
+        <input type="tel" id="auth-phone" class="auth-input" placeholder="Phone Number">
+        <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
+        <button class="auth-btn-submit" onclick="signupEmail()">Create Account</button>
+        <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Close</button>
+    </div>
     
     <div class="cart-overlay" onclick="closeAllDrawers()"></div>
     <div class="cursor-dot" data-cursor-dot></div>

@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Create Your Legacy | TAPT.</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
-    <link rel="stylesheet" href="style.css">     <link rel="stylesheet" href="customize.css"> </head>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="customize.css">
+</head>
 <body>
 
     <div class="noise-overlay"></div>
@@ -17,32 +17,31 @@
 
     <nav>
         <a href="index.html" class="logo">TAPT<span>.</span></a>
-        <div class="nav-links">
+        <div class="nav-right">
             <a href="shop.html">Shop</a>
-            <a href="customize.html" style="color:var(--tapt-gold);">Create</a>
-        </div>
-        <div class="cart-trigger" onclick="toggleCart()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-            <span id="cart-count">0</span>
+            <div class="nav-icon" onclick="toggleAccount()"><i class="fa-regular fa-user"></i></div>
+            <div class="cart-trigger" onclick="toggleCart()">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span id="cart-count">0</span>
+            </div>
         </div>
     </nav>
 
     <div class="customize-container">
-        
         <div class="builder-layout">
             
             <div class="builder-controls">
                 <div class="builder-header">
-                    <h2>Customize</h2>
+                    <h2>Design It</h2>
                 </div>
                 
                 <div class="type-selector" style="display:flex; gap:10px; margin-bottom:25px;">
-                    <button class="filter-btn active" id="btn-card" onclick="setProductMode('card')" style="flex:1; text-align:center;">NFC Card</button>
-                    <button class="filter-btn" id="btn-tag" onclick="setProductMode('keychain')" style="flex:1; text-align:center;">NFC Tag</button>
+                    <button class="filter-btn active" id="btn-card" onclick="setProductMode('card')" style="flex:1;">Card</button>
+                    <button class="filter-btn" id="btn-tag" onclick="setProductMode('keychain')" style="flex:1;">Tag</button>
                 </div>
 
                 <div class="input-group">
-                    <label>Material / Finish</label>
+                    <label>Finish</label>
                     <select id="c-theme">
                         <option value="black">Matte Black</option>
                         <option value="white">Polar White</option>
@@ -51,71 +50,74 @@
                 </div>
 
                 <div class="input-group">
-                    <label>Main Text / Name</label>
-                    <input type="text" id="c-name" placeholder="e.g. Hasnain" maxlength="18">
+                    <label>Name</label>
+                    <input type="text" id="c-name" placeholder="YOUR NAME" maxlength="18">
                 </div>
 
                 <div class="input-group">
-                    <label>Subtext / Role</label>
-                    <input type="text" id="c-role" placeholder="e.g. CEO" maxlength="20">
+                    <label>Designation / Role</label>
+                    <input type="text" id="c-role" placeholder="CEO / FOUNDER" maxlength="20">
                 </div>
 
                 <div class="input-group">
-                    <label>Upload Logo</label>
+                    <label>Logo (Optional)</label>
                     <label for="c-logo-upload" class="file-upload-label">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> Choose Image
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Upload PNG
                     </label>
-                    <input type="file" id="c-logo-upload" accept="image/png, image/jpeg, image/webp">
+                    <input type="file" id="c-logo-upload" accept="image/png, image/jpeg">
                 </div>
 
                 <div class="builder-actions">
-                    <button id="add-btn" class="btn-save">
-                        Add Card — ₹1,999
-                    </button>
+                    <button id="add-btn" class="btn-save">Add to Bag — ₹1,999</button>
                 </div>
             </div>
 
-            <div class="card-stage">
-                <div class="tapt-card skin-black" id="preview-obj">
+            <div class="card-stage" id="card-stage">
+                <div class="tapt-obj mode-card skin-black" id="preview-obj">
+                    <div class="glare-overlay" id="glare"></div>
                     
-                    <div class="keychain-hole"></div>
-                    <div class="keychain-ring"></div>
-
-                    <div class="card-content" id="preview-content">
-                        <div class="chip" id="card-chip"></div>
-                        <i class="fa-solid fa-wifi" id="wifi-icon" style="position:absolute; top:25px; right:25px; opacity:0.3; transform: rotate(90deg); font-size: 1.5rem;"></i>
+                    <div class="obj-content">
+                        <div class="chip"></div>
+                        <i class="fa-solid fa-wifi wifi-icon"></i>
+                        <div class="keychain-hole"></div> <img id="p-logo-preview" class="user-logo" src="" alt="">
                         
-                        <div class="text-area">
-                            <img id="p-logo-preview" class="card-logo" src="" alt="Logo">
+                        <div class="user-data">
                             <h3 id="p-name">YOUR NAME</h3>
-                            <p id="p-role" style="color:var(--tapt-gold); text-transform:uppercase;">ROLE</p>
+                            <p id="p-role">ROLE</p>
                         </div>
                     </div>
-
                 </div>
             </div>
 
         </div>
     </div>
 
-    <div class="cart-overlay" onclick="toggleCart()"></div>
+    <div class="account-drawer" id="account-drawer">
+        <div class="drawer-header"><h2>My Legacy</h2><button class="close-cart" onclick="toggleAccount()">×</button></div>
+        <div class="drawer-content" id="account-content"></div>
+    </div>
+
     <div class="cart-drawer" id="cart-drawer">
-        <div class="cart-header"><h2>Your Bag</h2><button class="close-cart" onclick="toggleCart()">×</button></div>
-        <div class="cart-items" id="cart-items-container"><div class="empty-msg">Your bag is empty.</div></div>
+        <div class="drawer-header"><h2>Your Bag</h2><button class="close-cart" onclick="toggleCart()">×</button></div>
+        <div class="cart-items" id="cart-items-container"></div>
         <div class="cart-footer">
-            <div class="summary-row total"><span>Total</span><span id="total-price">₹0</span></div>
+            <div class="summary-row"><span>Total</span><span id="total-price">₹0</span></div>
             <button class="checkout-btn" onclick="window.location.href='checkout.html'">Checkout</button>
         </div>
     </div>
 
+    <div class="auth-modal" id="auth-modal">
+        </div>
+    
+    <div class="cart-overlay" onclick="closeAllDrawers()"></div>
     <div class="cursor-dot" data-cursor-dot></div>
     <div class="cursor-outline" data-cursor-outline></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     
     <script src="script.js"></script>
-    
     <script src="customize.js"></script>
 
 </body>

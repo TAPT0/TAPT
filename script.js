@@ -4,7 +4,6 @@
 const firebaseConfig = {
     apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
     authDomain: "tapt-337b8.firebaseapp.com",
-    databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
     projectId: "tapt-337b8",
     storageBucket: "tapt-337b8.firebasestorage.app",
     messagingSenderId: "887956121124",
@@ -12,14 +11,14 @@ const firebaseConfig = {
     measurementId: "G-2CB8QXYNJY"
 };
 
-// Initialize Firebase if not already done
+// Initialize
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
 // Global Firebase References
 const auth = firebase.auth();
-const db = firebase.database();
+const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
 
 /* =========================================
@@ -121,9 +120,9 @@ window.toggleLoginModal = function() {
         modal.style.display = 'none';
         overlay.classList.remove('active');
     } else {
-        window.closeAllDrawers(); // Close sidebars first
+        window.closeAllDrawers(); 
         modal.style.display = 'block';
-        overlay.classList.add('active'); // Reuse cart overlay background
+        overlay.classList.add('active'); 
     }
 }
 
@@ -132,13 +131,14 @@ window.loginWithGoogle = function() {
     auth.signInWithPopup(provider).then((result) => {
         const user = result.user;
         // Save user to DB if new
-        db.ref('users/' + user.uid).update({
+        db.collection('users').doc(user.uid).set({
             email: user.email,
             name: user.displayName,
             lastLogin: new Date().toISOString()
-        });
-        window.toggleLoginModal(); // Close modal
-        window.toggleAccount(); // Open drawer to show profile
+        }, { merge: true });
+        
+        window.toggleLoginModal(); 
+        window.toggleAccount(); 
     }).catch((error) => {
         alert(error.message);
     });
@@ -155,10 +155,10 @@ window.signupEmail = function() {
     auth.createUserWithEmailAndPassword(email, pass).then((userCredential) => {
         const user = userCredential.user;
         // Save extra data
-        db.ref('users/' + user.uid).set({
+        db.collection('users').doc(user.uid).set({
             email: email,
             phone: phone,
-            name: email.split('@')[0], // Default name from email
+            name: email.split('@')[0], 
             createdAt: new Date().toISOString()
         });
         window.toggleLoginModal();
@@ -171,7 +171,7 @@ window.signupEmail = function() {
 // Logout
 window.logout = function() {
     auth.signOut().then(() => {
-        window.toggleAccount(); // Close drawer to refresh view
+        window.toggleAccount(); 
         alert("Logged out.");
     });
 }
@@ -202,20 +202,20 @@ window.populateAccountData = function() {
                 </div>
             `;
 
-            // Fetch Orders from Firebase
-            db.ref('orders').orderByChild('userId').equalTo(user.uid).once('value', snapshot => {
+            // Fetch Orders from Firestore
+            db.collection('orders').where('userId', '==', user.uid).get().then(snapshot => {
                 const list = document.getElementById('real-orders-list');
-                if(!snapshot.exists()) {
+                if(snapshot.empty) {
                     list.innerHTML = "<p style='color:#666; font-size:0.8rem;'>No active orders.</p>";
                     return;
                 }
                 list.innerHTML = "";
-                snapshot.forEach(child => {
-                    const o = child.val();
+                snapshot.forEach(doc => {
+                    const o = doc.data();
                     list.innerHTML += `
                         <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:10px; border:1px solid #333;">
                             <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                                <span style="color:white; font-size:0.9rem;">#${child.key.substring(0,6)}</span>
+                                <span style="color:white; font-size:0.9rem;">#${doc.id.substring(0,6)}</span>
                                 <span style="color:#D4AF37;">₹${o.total}</span>
                             </div>
                             <div style="font-size:0.7rem; color:#888;">${o.items ? o.items.length : 0} Items • ${o.status || 'Processing'}</div>
@@ -238,11 +238,13 @@ window.populateAccountData = function() {
 }
 
 /* =========================================
-   6. CART LOGIC (Add, Update, Remove)
+   6. CART & COUPON LOGIC (UPDATED)
    ========================================= */
+let activeCoupon = null;
+
 window.addToCart = function(title, price, image = '', id = null) {
     let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
-    const itemId = id || title.replace(/\s+/g, '-').toLowerCase(); // Fallback ID generation
+    const itemId = id || title.replace(/\s+/g, '-').toLowerCase(); 
     
     const existingItem = cart.find(i => (id && i.id === id) || i.title === title);
     
@@ -255,7 +257,6 @@ window.addToCart = function(title, price, image = '', id = null) {
     localStorage.setItem('taptCart', JSON.stringify(cart));
     updateCartUI();
     
-    // Open cart to show success
     const cartDrawer = document.getElementById('cart-drawer');
     if(cartDrawer && !cartDrawer.classList.contains('open')) {
         window.toggleCart();
@@ -283,26 +284,62 @@ window.removeFromCart = function(id) {
     updateCartUI();
 };
 
+// --- NEW COUPON FUNCTION ---
+window.applyCoupon = function() {
+    const codeInput = document.getElementById('coupon-code');
+    const code = codeInput.value.toUpperCase().trim();
+    const btn = document.querySelector('.coupon-btn');
+
+    if(!code) return;
+
+    btn.textContent = "Checking...";
+
+    // Check Firestore for Coupon
+    db.collection("coupons").doc(code).get().then((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+            activeCoupon = { code: code, type: data.type, value: data.value };
+            btn.textContent = "APPLIED";
+            btn.style.background = "#4ade80"; // Green
+            alert("Coupon Applied Successfully!");
+            updateCartUI();
+        } else {
+            btn.textContent = "INVALID";
+            btn.style.background = "#ff5555"; // Red
+            setTimeout(() => { 
+                btn.textContent = "APPLY"; 
+                btn.style.background = "#222"; 
+            }, 2000);
+            activeCoupon = null;
+            updateCartUI();
+        }
+    }).catch((error) => {
+        console.error("Coupon error:", error);
+        btn.textContent = "Error";
+    });
+};
+
 function updateCartUI() {
     let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
-    const cartItemsContainer = document.getElementById('cart-items-container');
-    const cartCountBadge = document.getElementById('cart-count');
-    const cartTotalEl = document.getElementById('cart-total'); // For customize page drawer
-    const totalElGlobal = document.getElementById('total-price'); // For global drawer
+    const container = document.getElementById('cart-items-container');
+    const badge = document.getElementById('cart-count');
+    
+    // New Elements
+    const subtotalEl = document.getElementById('cart-subtotal');
+    const discountRow = document.getElementById('discount-row');
+    const discountEl = document.getElementById('cart-discount');
+    const totalEl = document.getElementById('cart-total');
 
     // 1. Badge
     const totalCount = cart.reduce((acc, item) => acc + item.qty, 0);
-    if (cartCountBadge) {
-        cartCountBadge.textContent = totalCount;
-        cartCountBadge.style.display = totalCount > 0 ? 'flex' : 'none';
-    }
+    if (badge) badge.textContent = totalCount;
 
-    // 2. Drawer Items
-    if (cartItemsContainer) {
+    // 2. Render Items
+    if (container) {
         if (cart.length === 0) {
-            cartItemsContainer.innerHTML = '<p class="empty-msg">Your bag is empty.</p>';
+            container.innerHTML = '<p class="empty-msg">Your bag is empty.</p>';
         } else {
-            cartItemsContainer.innerHTML = cart.map(item => {
+            container.innerHTML = cart.map(item => {
                 const img = item.image || 'https://via.placeholder.com/80';
                 return `
                 <div class="cart-item">
@@ -310,10 +347,10 @@ function updateCartUI() {
                     <div class="item-details" style="flex:1;">
                         <h4>${item.title}</h4>
                         <p>₹${item.price}</p>
-                        <div class="qty-controls" style="margin-top:5px;">
-                            <button onclick="updateQty('${item.id}', -1)" style="padding:2px 8px;">-</button>
-                            <span style="font-size:0.9rem; margin:0 10px;">${item.qty}</span>
-                            <button onclick="updateQty('${item.id}', 1)" style="padding:2px 8px;">+</button>
+                        <div class="qty-controls">
+                            <button class="qty-btn" onclick="updateQty('${item.id}', -1)">-</button>
+                            <span style="font-size:0.9rem;">${item.qty}</span>
+                            <button class="qty-btn" onclick="updateQty('${item.id}', 1)">+</button>
                         </div>
                     </div>
                     <button onclick="removeFromCart('${item.id}')" class="remove-btn">
@@ -324,18 +361,42 @@ function updateCartUI() {
         }
     }
 
-    // 3. Totals
+    // 3. Totals Logic with Coupon
     let subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-    const formattedTotal = `₹${subtotal.toLocaleString()}`;
-    if(cartTotalEl) cartTotalEl.textContent = formattedTotal;
-    if(totalElGlobal) totalElGlobal.textContent = formattedTotal;
+    let discountAmount = 0;
+
+    if (activeCoupon) {
+        if (activeCoupon.type === 'percentage') {
+            discountAmount = Math.round((subtotal * activeCoupon.value) / 100);
+        } else {
+            discountAmount = activeCoupon.value;
+        }
+        // Ensure discount doesn't exceed total
+        if (discountAmount > subtotal) discountAmount = subtotal;
+    }
+
+    let finalTotal = subtotal - discountAmount;
+
+    // 4. Update UI Texts
+    if(subtotalEl) subtotalEl.textContent = `₹${subtotal.toLocaleString()}`;
+    
+    if(discountRow && discountEl) {
+        if(discountAmount > 0) {
+            discountRow.style.display = "flex";
+            discountEl.textContent = `-₹${discountAmount.toLocaleString()}`;
+        } else {
+            discountRow.style.display = "none";
+        }
+    }
+
+    if(totalEl) totalEl.textContent = `₹${finalTotal.toLocaleString()}`;
 }
 
 // Initial Load
 document.addEventListener('DOMContentLoaded', updateCartUI);
 
 /* =========================================
-   7. 3D TILT EFFECT (Global Utility)
+   7. 3D TILT EFFECT
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
     const tiltElements = document.querySelectorAll('.card-stage, .product-card, .home-card, .home-keychain');
@@ -348,7 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
         
-        // Calculate rotation based on mouse position
         const xRotation = -((y - centerY) / 20); 
         const yRotation = (x - centerX) / 20;
 

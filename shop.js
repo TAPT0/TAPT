@@ -5,20 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (grid) {
         let allProducts = [];
+        grid.innerHTML = `<div class="loading-skeleton"><div class="skeleton-card"></div><div class="skeleton-card"></div></div>`;
 
-        // 1. Show Skeleton immediately
-        grid.innerHTML = `
-            <div class="loading-skeleton">
-                <div class="skeleton-card"></div>
-                <div class="skeleton-card"></div>
-                <div class="skeleton-card"></div>
-            </div>
-        `;
-
-        // 2. Fetch Products
         const db = firebase.firestore();
         db.collection("products").orderBy("createdAt", "desc").get().then((querySnapshot) => {
-            grid.innerHTML = ""; // Clear loader
+            grid.innerHTML = "";
             allProducts = [];
             
             if (querySnapshot.empty) {
@@ -34,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
             renderShopProducts(allProducts);
         });
 
-        // 3. Render Function
         function renderShopProducts(products) {
             grid.innerHTML = "";
             if (products.length === 0) {
@@ -43,9 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             products.forEach(p => {
-                // Image fallback
                 const img = (p.images && p.images[0]) ? p.images[0] : 'https://via.placeholder.com/300x300/111/333?text=TAPT';
-                // Display Category or Type
                 const typeLabel = p.category ? p.category.toUpperCase() : (p.type ? p.type.toUpperCase() : 'ITEM');
 
                 const card = document.createElement('div');
@@ -74,14 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // 4. Enhanced Filter Logic
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                // UI Toggle
                 filterBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                
-                // Get filter value
                 const filterValue = btn.getAttribute('data-filter');
                 filterGrid(filterValue, searchInput ? searchInput.value : '');
             });
@@ -98,15 +82,12 @@ document.addEventListener('DOMContentLoaded', () => {
         function filterGrid(type, searchTerm) {
             const term = searchTerm.toLowerCase();
             const filtered = allProducts.filter(p => {
-                // Get data fields safely
                 const pType = p.type ? p.type.toLowerCase() : '';
                 const pCat = p.category ? p.category.toLowerCase() : '';
                 
-                // Match Logic: Check if Type OR Category includes the filter word
-                // This allows 'review' button to match 'review' category, and 'card' button to match 'card' type
+                // Matches either Type (card/tag) OR Category (social/review/etc)
                 const matchesType = (type === 'all') || (pType.includes(type)) || (pCat.includes(type));
                 const matchesSearch = p.title.toLowerCase().includes(term);
-                
                 return matchesType && matchesSearch;
             });
             renderShopProducts(filtered);

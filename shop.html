@@ -37,13 +37,14 @@
         
         <div class="category-filter">
             <button class="filter-btn active" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="review">Restaurants</button> <button class="filter-btn" data-filter="social">Social Media</button>
-            <button class="filter-btn" data-filter="custom">Custom</button>
+            <button class="filter-btn" data-filter="review">Restaurants</button>
+            <button class="filter-btn" data-filter="social">Social Media</button>
+            <button class="filter-btn" data-filter="business">Business</button>
+            <button class="filter-btn" data-filter="pet">Pets</button>
             <button class="filter-btn" data-filter="music">Music</button>
+            <button class="filter-btn" data-filter="custom">Custom</button>
             <button class="filter-btn" data-filter="card">Cards</button>
             <button class="filter-btn" data-filter="tag">Tags</button>
-            <button class="filter-btn" data-filter="tag">Pets</button>
-            <button class="filter-btn" data-filter="tag">Business</button>
         </div>
     </div>
 
@@ -55,10 +56,32 @@
     </div>
 
     <div class="cart-drawer" id="cart-drawer">
-        <div class="drawer-header"><h2>Your Bag</h2><button class="close-cart" onclick="toggleCart()">×</button></div>
+        <div class="drawer-header">
+            <h2>Your Bag</h2>
+            <button class="close-cart" onclick="toggleCart()">×</button>
+        </div>
+        
         <div class="cart-items" id="cart-items-container"></div>
+        
         <div class="cart-footer">
-            <div class="summary-row"><span>Total</span><span id="total-price">₹0</span></div>
+            <div class="coupon-wrapper">
+                <input type="text" id="coupon-code" class="coupon-input" placeholder="Promo Code">
+                <button class="coupon-btn" onclick="applyCoupon()">APPLY</button>
+            </div>
+            
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span class="val" id="cart-subtotal">₹0</span>
+            </div>
+            <div class="summary-row" id="discount-row" style="display:none;">
+                <span class="discount-active">Discount</span>
+                <span class="val discount-active" id="cart-discount">-₹0</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span class="val" id="cart-total">₹0</span>
+            </div>
+            
             <button class="checkout-btn" onclick="window.location.href='checkout.html'">Checkout</button>
         </div>
     </div>
@@ -81,8 +104,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script> 
-    
     <script src="script.js"></script>
     <script src="shop.js"></script>
 </body>

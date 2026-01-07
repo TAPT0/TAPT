@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Checkout | TAPT.</title>
+    <title>Secure Checkout | TAPT.</title>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="checkout.css">
 </head>
 <body>
 
@@ -15,7 +17,9 @@
 
     <nav>
         <a href="index.html" class="logo">TAPT<span>.</span></a>
-        <a href="shop.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Return to Shop</a>
+        <a href="shop.html" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Return to Shop
+        </a>
     </nav>
 
     <div class="checkout-container">
@@ -24,34 +28,27 @@
             <div class="checkout-left">
                 
                 <div class="checkout-section">
-                    <h2 class="c-head">Contact Information</h2>
-                    <input type="email" placeholder="Email Address" required style="margin-bottom:10px;">
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <input type="checkbox" id="news" checked style="width:auto;"> 
-                        <label for="news" style="color:#666; font-size:0.8rem;">Email me with news and offers</label>
-                    </div>
+                    <h2 class="c-head">Contact Info</h2>
+                    <input type="email" id="email" class="tapt-input" placeholder="Email Address" required>
                 </div>
 
-                <div class="checkout-section" style="margin-top: 40px;">
+                <div class="checkout-section">
                     <h2 class="c-head">Shipping Address</h2>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                        <input type="text" placeholder="First Name" required>
-                        <input type="text" placeholder="Last Name" required>
+                    <div class="row-2">
+                        <input type="text" id="f-name" class="tapt-input" placeholder="First Name" required>
+                        <input type="text" id="l-name" class="tapt-input" placeholder="Last Name" required>
                     </div>
-                    <input type="text" placeholder="Address" required style="margin-bottom: 15px;">
-                    <input type="text" placeholder="Apartment, suite, etc. (optional)" style="margin-bottom: 15px;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
-                        <input type="text" placeholder="City" required>
-                        <input type="text" placeholder="State" required>
-                        <input type="text" placeholder="ZIP Code" required>
+                    <input type="text" id="address" class="tapt-input" placeholder="Address" required>
+                    <div class="row-3">
+                        <input type="text" id="city" class="tapt-input" placeholder="City" required>
+                        <input type="text" id="state" class="tapt-input" placeholder="State" required>
+                        <input type="text" id="zip" class="tapt-input" placeholder="ZIP Code" required>
                     </div>
-                    <input type="tel" placeholder="Phone" required style="margin-top: 15px;">
+                    <input type="tel" id="phone" class="tapt-input" placeholder="Phone Number" required>
                 </div>
 
-                <div class="checkout-section" style="margin-top: 40px;">
+                <div class="checkout-section">
                     <h2 class="c-head">Payment Method</h2>
-                    <p style="color:#666; font-size:0.8rem; margin-bottom:15px;">All transactions are secure and encrypted.</p>
-                    
                     <div class="payment-options">
                         <label class="pay-option">
                             <input type="radio" name="payment" value="card" checked>
@@ -74,44 +71,38 @@
 
             <div class="checkout-right">
                 <div class="summary-card">
+                    <h3>Order Summary</h3>
+                    
                     <div class="checkout-items" id="checkout-items-list">
-                        <p style="color:#666;">Loading cart...</p>
+                        <p style="color:#888;">Loading cart...</p>
                     </div>
 
-                    <div class="summary-row" style="margin-top: 20px;">
-                        <span>Subtotal</span>
-                        <span id="c-subtotal">₹0</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Shipping</span>
-                        <span style="color:var(--tapt-gold);">Free</span>
-                    </div>
-                    <div class="summary-row total" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-top: 10px; color:white;">
-                        <span>Total</span>
-                        <span id="c-total">₹0</span>
+                    <div class="summary-details">
+                        <div class="summary-row"><span>Subtotal</span><span id="c-subtotal">₹0</span></div>
+                        <div class="summary-row"><span>Shipping</span><span style="color:var(--tapt-gold);">Free</span></div>
+                        <div class="summary-row total"><span>Total</span><span id="c-total">₹0</span></div>
                     </div>
 
                     <button type="submit" class="pay-btn">Pay Now</button>
-                    <div style="text-align:center; margin-top:15px; color:#444; font-size:0.8rem;">
-                        <i class="fa-solid fa-lock"></i> Secure Checkout
-                    </div>
+                    <div class="secure-msg"><i class="fa-solid fa-lock"></i> SSL Secure Checkout</div>
                 </div>
             </div>
 
         </form>
     </div>
 
-    <div class="success-screen" id="success-overlay">
+    <div id="success-overlay" class="success-screen" style="display: none;">
         <div class="success-content">
             <i class="fa-regular fa-circle-check"></i>
-            <h2 class="section-title" style="font-size: 2rem;">Order Confirmed</h2>
-            <p style="color:#888; margin-bottom: 30px;">Your legacy is being prepared.</p>
+            <h2>Order Confirmed</h2>
+            <p>Your legacy is being prepared.</p>
             <a href="shop.html" class="premium-btn">Continue Shopping</a>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="script.js"></script>
+    <script src="checkout.js"></script>
+
 </body>
 </html>

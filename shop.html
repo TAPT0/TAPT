@@ -87,6 +87,18 @@
     </div>
 
     <div class="cart-overlay" onclick="closeAllDrawers()"></div>
+        <div id="celebration-overlay" class="celebration-overlay">
+        <div class="confetti-container" id="confetti-container"></div>
+        <div class="celebration-card">
+            <div class="check-circle">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h2 class="celeb-title">CODE APPLIED</h2>
+            <p class="celeb-desc">Legacy secured. Discount unlocked.</p>
+            <div class="discount-tag" id="celeb-discount-amount">-₹0</div>
+            <button class="celeb-btn" onclick="closeCelebration()">CONTINUE</button>
+        </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>

@@ -1,6 +1,6 @@
 /* =========================================
    CHECKOUT LOGIC (FIRESTORE VERSION)
-   ========================================= */
+   ========================================= */ 
 
 const firebaseConfig = {
     apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",

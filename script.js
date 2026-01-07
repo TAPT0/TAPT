@@ -238,7 +238,7 @@ window.populateAccountData = function() {
 }
 
 /* =========================================
-   6. CART & COUPON LOGIC (UPDATED)
+   6. CART & COUPON LOGIC
    ========================================= */
 let activeCoupon = null;
 
@@ -284,7 +284,41 @@ window.removeFromCart = function(id) {
     updateCartUI();
 };
 
-// --- NEW COUPON FUNCTION ---
+/* --- CELEBRATION ANIMATION LOGIC (NEW) --- */
+function showCelebration(amountOff) {
+    const overlay = document.getElementById('celebration-overlay');
+    const discountText = document.getElementById('celeb-discount-amount');
+    
+    discountText.innerText = `SAVED ₹${amountOff.toLocaleString()}`;
+    overlay.classList.add('active');
+    createConfetti();
+}
+
+window.closeCelebration = function() {
+    const overlay = document.getElementById('celebration-overlay');
+    overlay.classList.remove('active');
+    document.getElementById('confetti-container').innerHTML = '';
+}
+
+function createConfetti() {
+    const container = document.getElementById('confetti-container');
+    const colors = ['#D4AF37', '#ffffff', '#F7E7CE', '#AA771C'];
+    
+    for (let i = 0; i < 60; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti-piece');
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.width = Math.random() * 8 + 5 + 'px';
+        confetti.style.height = Math.random() * 8 + 5 + 'px';
+        const duration = Math.random() * 2 + 2;
+        const delay = Math.random() * 2;
+        confetti.style.animation = `fall ${duration}s linear forwards ${delay}s`;
+        container.appendChild(confetti);
+    }
+}
+
+// --- UPDATED COUPON FUNCTION ---
 window.applyCoupon = function() {
     const codeInput = document.getElementById('coupon-code');
     const code = codeInput.value.toUpperCase().trim();
@@ -292,30 +326,58 @@ window.applyCoupon = function() {
 
     if(!code) return;
 
-    btn.textContent = "Checking...";
+    const originalText = btn.textContent;
+    btn.textContent = "...";
 
-    // Check Firestore for Coupon
+    // Firestore Check
     db.collection("coupons").doc(code).get().then((doc) => {
         if (doc.exists) {
             const data = doc.data();
+            
+            // Calculate potential discount to show in celebration
+            let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+            let subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            let discountAmount = 0;
+
+            if(data.type === 'percentage') {
+                discountAmount = Math.round(subtotal * (data.value / 100));
+            } else {
+                discountAmount = data.value;
+            }
+            if (discountAmount > subtotal) discountAmount = subtotal;
+
             activeCoupon = { code: code, type: data.type, value: data.value };
+            
+            // Update button styles
             btn.textContent = "APPLIED";
-            btn.style.background = "#4ade80"; // Green
-            alert("Coupon Applied Successfully!");
-            updateCartUI();
+            btn.style.background = "#4ade80"; 
+            btn.style.color = "#000";
+
+            // Update UI totals immediately
+            updateCartUI(); 
+
+            // Trigger Animation
+            showCelebration(discountAmount);
+            
         } else {
+            // Invalid State
             btn.textContent = "INVALID";
-            btn.style.background = "#ff5555"; // Red
+            btn.style.background = "#ff5555";
+            btn.style.color = "#fff";
+            
             setTimeout(() => { 
                 btn.textContent = "APPLY"; 
-                btn.style.background = "#222"; 
+                btn.style.background = ""; 
+                btn.style.color = ""; 
             }, 2000);
+            
             activeCoupon = null;
             updateCartUI();
         }
     }).catch((error) => {
         console.error("Coupon error:", error);
         btn.textContent = "Error";
+        btn.style.background = "#ff5555";
     });
 };
 

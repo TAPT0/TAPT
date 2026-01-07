@@ -1,24 +1,23 @@
 /* =========================================
-   CHECKOUT LOGIC
+   CHECKOUT LOGIC (FIRESTORE VERSION)
    ========================================= */
 
 const firebaseConfig = {
     apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
     authDomain: "tapt-337b8.firebaseapp.com",
-    databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
     projectId: "tapt-337b8",
     storageBucket: "tapt-337b8.firebasestorage.app",
     messagingSenderId: "887956121124",
     appId: "1:887956121124:web:6856680bf75aa3bacddab1",
     measurementId: "G-2CB8QXYNJY"
 };
-firebase.initializeApp(firebaseConfig);
 
-// MOCK COUPONS (In a real app, check Firebase DB)
-const VALID_COUPONS = {
-    'TAPT10': 0.10, // 10% off
-    'WELCOME': 500  // Flat 500 off
-};
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+// Use Firestore to match Admin Panel
+const db = firebase.firestore();
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -48,9 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="c-info">
                         <h4>${item.title}</h4>
                         <div class="qty-checkout-controls">
-                            <button class="qty-mini-btn" onclick="changeCheckoutQty(${index}, -1)">-</button>
+                            <button class="qty-mini-btn" type="button" onclick="changeCheckoutQty(${index}, -1)">-</button>
                             <span class="qty-val">${item.qty}</span>
-                            <button class="qty-mini-btn" onclick="changeCheckoutQty(${index}, 1)">+</button>
+                            <button class="qty-mini-btn" type="button" onclick="changeCheckoutQty(${index}, 1)">+</button>
                         </div>
                     </div>
                     <div style="text-align:right;">
@@ -92,38 +91,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- COUPON LOGIC ---
+    // --- COUPON LOGIC (Connected to Firestore) ---
     document.getElementById('apply-coupon-btn').addEventListener('click', () => {
         const input = document.getElementById('coupon-code');
         const msg = document.getElementById('coupon-message');
         const code = input.value.toUpperCase().trim();
+        const btn = document.getElementById('apply-coupon-btn');
+
+        if(!code) return;
+
+        btn.innerText = "Checking...";
         
-        // Calculate Subtotal for % calculation
-        let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        // Check Firestore for coupon
+        db.collection("coupons").doc(code).get().then((doc) => {
+            if (doc.exists) {
+                const couponData = doc.data();
+                let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-        if(VALID_COUPONS.hasOwnProperty(code)) {
-            const val = VALID_COUPONS[code];
-            
-            if(val < 1) { 
-                // Percentage (e.g. 0.10)
-                activeDiscount = Math.round(subtotal * val);
+                if (couponData.type === 'percentage') {
+                    // e.g. Value 20 means 20%
+                    activeDiscount = Math.round(subtotal * (couponData.value / 100));
+                } else {
+                    // Flat Amount
+                    activeDiscount = couponData.value;
+                }
+
+                msg.textContent = `Success! Code ${code} applied.`;
+                msg.className = "msg-success"; // Make sure you have this class in CSS (green color)
+                renderSummary();
             } else {
-                // Flat Amount
-                activeDiscount = val;
+                msg.textContent = "Invalid Coupon Code";
+                msg.className = "msg-error"; // Make sure you have this class in CSS (red color)
+                activeDiscount = 0;
+                renderSummary();
             }
-
-            msg.textContent = "Coupon Applied!";
-            msg.className = "msg-success";
-            renderSummary();
-        } else {
-            msg.textContent = "Invalid Code";
-            msg.className = "msg-error";
-            activeDiscount = 0;
-            renderSummary();
-        }
+            btn.innerText = "Apply";
+        }).catch((error) => {
+            console.error("Error checking coupon:", error);
+            msg.textContent = "Error checking code.";
+            btn.innerText = "Apply";
+        });
     });
 
-    // --- PAYMENT HANDLING ---
+    // --- PAYMENT UI LOGIC ---
     const paymentRadios = document.getElementsByName('payment');
     paymentRadios.forEach(radio => {
         radio.addEventListener('change', (e) => {
@@ -136,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- SUBMIT ORDER ---
+    // --- SUBMIT ORDER (Connected to Firestore) ---
     document.getElementById('checkout-form').addEventListener('submit', (e) => {
         e.preventDefault();
         
@@ -149,8 +159,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let paymentMethod = 'card';
         document.getElementsByName('payment').forEach(r => { if(r.checked) paymentMethod = r.value; });
 
+        // Calculate final total text
+        const totalText = document.getElementById('c-total').textContent.replace('₹', '').replace(/,/g, '');
+        const totalValue = parseFloat(totalText);
+
         const orderData = {
-            id: 'ORD-' + Date.now(),
             date: new Date().toISOString(),
             email: document.getElementById('email').value,
             paymentMethod: paymentMethod,
@@ -162,16 +175,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 phone: document.getElementById('phone').value
             },
             items: cart,
-            total: document.getElementById('c-total').innerText,
+            total: totalValue,
             status: paymentMethod === 'cod' ? 'pending_cod' : 'paid'
         };
 
-        const db = firebase.database();
-        db.ref('orders').push(orderData).then(() => {
+        // Save to Firestore "orders" collection
+        db.collection("orders").add(orderData).then(() => {
             localStorage.removeItem('taptCart');
             document.getElementById('success-overlay').style.display = 'flex';
         }).catch(err => {
-            alert("Error: " + err.message);
+            console.error(err);
+            alert("Error placing order: " + err.message);
             btn.innerText = originalText;
             btn.disabled = false;
         });

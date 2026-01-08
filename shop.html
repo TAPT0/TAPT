@@ -36,10 +36,11 @@
         </div>
 
         <div class="filter-container">
-    <button class="filter-btn active" onclick="filterProducts('all', this)">All</button>
-    <button class="filter-btn" onclick="filterProducts('card', this)">Cards</button>
-    <button class="filter-btn" onclick="filterProducts('tag', this)">Tags</button>
-</div>
+            <button class="filter-btn active" onclick="filterProducts('all', this)">All</button>
+            <button class="filter-btn" onclick="filterProducts('card', this)">Cards</button>
+            <button class="filter-btn" onclick="filterProducts('tag', this)">Tags</button>
+        </div>
+    </div>
 
     <div class="product-grid" id="shop-grid"></div>
 
@@ -93,7 +94,8 @@
     </div>
 
     <div class="cart-overlay" onclick="closeAllDrawers()"></div>
-        <div id="celebration-overlay" class="celebration-overlay">
+    
+    <div id="celebration-overlay" class="celebration-overlay">
         <div class="confetti-container" id="confetti-container"></div>
         <div class="celebration-card">
             <div class="check-circle">
@@ -106,45 +108,43 @@
         </div>
     </div>
 
-        <footer class="TAPD-footer">
-    <div class="footer-content">
-        <div class="footer-brand">
-            <h2 class="footer-logo">TAPD.</h2>
-            <p class="footer-tagline">The future of connection.</p>
+    <footer class="TAPD-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h2 class="footer-logo">TAPD.</h2>
+                <p class="footer-tagline">The future of connection.</p>
+            </div>
+
+            <div class="footer-links-group">
+                <ul class="footer-nav">
+                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Explore</span></li>
+                    <li><a href="shop" class="footer-link">Shop</a></li>
+                    <li><a href="customize" class="footer-link">Customize</a></li>
+                    <li><a href="about" class="footer-link">About Us</a></li>
+                </ul>
+                
+                <ul class="footer-nav">
+                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Legal</span></li>
+                    <li><a href="legal#shipping" class="footer-link">Shipping Policy</a></li>
+                    <li><a href="legal#refunds" class="footer-link">Refunds & Returns</a></li>
+                    <li><a href="legal#terms" class="footer-link">Terms of Service</a></li>
+                    <li><a href="legal#privacy" class="footer-link">Privacy Policy</a></li>
+                </ul>
+
+                <ul class="footer-nav">
+                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Connect</span></li>
+                    <li><a href="conTAPD" class="footer-link">ConTAPD Us</a></li>
+                    <li><a href="https://instagram.com/TAPD_.t" target="_blank" class="footer-link">Instagram ↗</a></li>
+                    <li><a href="https://wa.me/9103463033" target="_blank" class="footer-link">WhatsApp ↗</a></li>
+                </ul>
+            </div>
         </div>
 
-        <div class="footer-links-group">
-            
-            <ul class="footer-nav">
-                <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Explore</span></li>
-                <li><a href="shop" class="footer-link">Shop</a></li>
-                <li><a href="customize" class="footer-link">Customize</a></li>
-                <li><a href="about" class="footer-link">About Us</a></li>
-            </ul>
-            
-            <ul class="footer-nav">
-                <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Legal</span></li>
-                <li><a href="legal#shipping" class="footer-link">Shipping Policy</a></li>
-                <li><a href="legal#refunds" class="footer-link">Refunds & Returns</a></li>
-                <li><a href="legal#terms" class="footer-link">Terms of Service</a></li>
-                <li><a href="legal#privacy" class="footer-link">Privacy Policy</a></li>
-            </ul>
-
-            <ul class="footer-nav">
-                <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Connect</span></li>
-                <li><a href="conTAPD" class="footer-link">ConTAPD Us</a></li>
-                <li><a href="https://instagram.com/TAPD_.t" target="_blank" class="footer-link">Instagram ↗</a></li>
-                <li><a href="https://wa.me/9103463033" target="_blank" class="footer-link">WhatsApp ↗</a></li>
-            </ul>
+        <div class="footer-bottom">
+            <p>&copy; 2026 TAPD. Hardware.</p>
+            <p class="fade-text">Designed for the bold.</p>
         </div>
-    </div>
-
-    <div class="footer-bottom">
-        <p>&copy; 2026 TAPD. Hardware.</p>
-        <p class="fade-text">Designed for the bold.</p>
-    </div>
-</footer>
-
+    </footer>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>

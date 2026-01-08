@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal & Policies | TAPT.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Legal Page Specific Styles */
+        body { background-color: #050505; color: #ccc; font-family: 'Inter', sans-serif; }
+        .legal-container { display: flex; max-width: 1200px; margin: 100px auto; padding: 20px; gap: 50px; }
+        
+        /* Sidebar Navigation */
+        .legal-nav { flex: 1; min-width: 250px; position: sticky; top: 100px; height: fit-content; }
+        .legal-nav h3 { font-family: 'Syncopate'; color: white; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .legal-nav ul { list-style: none; padding: 0; }
+        .legal-nav li { margin-bottom: 15px; }
+        .legal-nav a { color: #888; text-decoration: none; font-size: 0.95rem; transition: 0.3s; display: block; }
+        .legal-nav a:hover, .legal-nav a.active { color: #D4AF37; padding-left: 10px; border-left: 2px solid #D4AF37; }
+
+        /* Content Area */
+        .legal-content { flex: 3; background: #111; padding: 40px; border-radius: 10px; border: 1px solid #222; }
+        section { margin-bottom: 60px; scroll-margin-top: 100px; }
+        h1 { font-family: 'Syncopate'; color: white; margin-bottom: 30px; font-size: 2rem; }
+        h2 { font-family: 'Syncopate'; color: #D4AF37; font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        h4 { color: white; margin-top: 20px; margin-bottom: 10px; }
+        p { line-height: 1.6; font-size: 0.95rem; margin-bottom: 15px; }
+        ul { margin-left: 20px; margin-bottom: 20px; }
+        li { margin-bottom: 10px; }
+
+        @media (max-width: 768px) {
+            .legal-container { flex-direction: column; }
+            .legal-nav { position: relative; top: 0; margin-bottom: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index" class="logo">TAPT<span>.</span></a>
+        <a href="shop" class="back-link">Back to Shop</a>
+    </nav>
+
+    <div class="legal-container">
+        
+        <aside class="legal-nav">
+            <h3>Policies</h3>
+            <ul>
+                <li><a href="#shipping">Shipping Policy</a></li>
+                <li><a href="#refunds">Cancellations & Refunds</a></li>
+                <li><a href="#terms">Terms & Conditions</a></li>
+                <li><a href="#privacy">Privacy Policy</a></li>
+            </ul>
+        </aside>
+
+        <main class="legal-content">
+            
+            <section id="shipping">
+                <h2>Shipping Policy</h2>
+                <p><strong>Order Processing:</strong> All custom TAPT cards are printed and programmed within 24-48 hours of order placement. Standard (non-custom) hardware ships within 24 hours.</p>
+                <p><strong>Shipping Timelines:</strong></p>
+                <ul>
+                    <li>Standard Shipping: 5-7 Business Days</li>
+                    <li>Express Shipping: 2-4 Business Days</li>
+                </ul>
+                <p><strong>Tracking:</strong> Once your order ships, you will receive a tracking link via email/SMS. TAPT is not responsible for delays caused by courier partners or unforeseen weather conditions.</p>
+            </section>
+
+            <section id="refunds">
+                <h2>Cancellations & Refunds</h2>
+                <h4>Custom Products</h4>
+                <p>Because our cards are custom printed with your name/design, <strong>we cannot offer refunds on custom orders</strong> once production has started.</p>
+                
+                <h4>Defective Hardware</h4>
+                <p>If your card's NFC chip is defective upon arrival, we will replace it free of charge. You must notify us within 7 days of delivery.</p>
+                
+                <h4>Cancellations</h4>
+                <p>You may cancel your order within 2 hours of placing it. After 2 hours, the design enters our printing queue and cannot be cancelled.</p>
+            </section>
+
+            <section id="terms">
+                <h2>Terms & Conditions</h2>
+                <p>Welcome to TAPT. By using our website and purchasing our products, you agree to the following terms.</p>
+                <h4>Usage</h4>
+                <p>TAPT hardware is a tool for sharing information. We are not responsible for the content you choose to link to your card. We reserve the right to refuse service for designs containing hate speech or illegal imagery.</p>
+                <h4>Intellectual Property</h4>
+                <p>All designs, logos, and code on this website are the property of TAPT. You may not reproduce our hardware designs without permission.</p>
+            </section>
+
+            <section id="privacy">
+                <h2>Privacy Policy</h2>
+                <p>Your privacy is paramount. This is how we handle your data:</p>
+                <ul>
+                    <li><strong>Collection:</strong> We collect your name, address, and contact info solely for shipping purposes.</li>
+                    <li><strong>Storage:</strong> Your TAPT profile data (social links) is stored securely on Google Firebase.</li>
+                    <li><strong>Sharing:</strong> We do NOT sell your data to third parties. We only share shipping details with our courier partners to deliver your product.</li>
+                    <li><strong>Security:</strong> Payments are processed via Razorpay/Stripe securely. We never see or store your credit card numbers.</li>
+                </ul>
+            </section>
+
+        </main>
+    </div>
+
+    <footer class="tapt-footer">
+        <div class="footer-bottom">
+            <p>&copy; 2026 TAPT. Hardware.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

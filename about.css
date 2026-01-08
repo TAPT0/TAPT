@@ -1,0 +1,194 @@
+/* CONTAINER */
+.about-container {
+    padding-top: 100px;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+}
+
+/* HERO */
+.about-hero {
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+.fade-in-text {
+    font-family: 'Syncopate', sans-serif;
+    color: #666;
+    letter-spacing: 4px;
+    font-size: 0.8rem;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeIn 2s forwards;
+}
+
+.about-hero h1 {
+    font-family: 'Syncopate', sans-serif;
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 0;
+    text-transform: uppercase;
+    position: relative;
+}
+
+.scroll-line {
+    width: 1px;
+    height: 100px;
+    background: linear-gradient(to bottom, var(--tapt-gold), transparent);
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+}
+
+/* MISSION */
+.mission-section {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 100px 10%;
+    gap: 50px;
+}
+
+.text-block {
+    flex: 1;
+    min-width: 300px;
+}
+
+.text-block h2 {
+    font-family: 'Syncopate', sans-serif;
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+}
+
+.text-block p {
+    color: #ccc;
+    line-height: 1.8;
+    margin-bottom: 20px;
+    font-weight: 300;
+}
+
+.gold { color: var(--tapt-gold); }
+
+/* VISUAL CARD MOCKUP */
+.visual-block {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.floating-card {
+    width: 280px;
+    height: 450px;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 20px;
+    box-shadow: 0 0 50px rgba(212, 175, 55, 0.1);
+    animation: float 6s ease-in-out infinite;
+    position: relative;
+}
+.floating-card::after {
+    content: "TAPT.";
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    font-family: 'Syncopate';
+    font-size: 3rem;
+    color: #222;
+    font-weight: bold;
+}
+
+/* STATS */
+.aesthetic-section {
+    padding: 50px 10%;
+    background: #0a0a0a;
+    border-top: 1px solid #222;
+    border-bottom: 1px solid #222;
+}
+
+.stat-grid {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.stat-box h3 {
+    font-family: 'Syncopate', sans-serif;
+    font-size: 3rem;
+    color: var(--tapt-gold);
+    margin: 0;
+}
+
+.stat-box p {
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 10px;
+}
+
+/* QUOTE */
+.quote-section {
+    padding: 150px 20px;
+    text-align: center;
+}
+
+blockquote {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-style: italic;
+    color: white;
+    margin-bottom: 20px;
+}
+
+cite {
+    font-family: 'Syncopate', sans-serif;
+    font-size: 0.9rem;
+    color: var(--tapt-gold);
+    letter-spacing: 2px;
+}
+
+/* CTA */
+.cta-section {
+    text-align: center;
+    padding-bottom: 100px;
+}
+
+.cta-btn {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 15px 40px;
+    background: white;
+    color: black;
+    font-family: 'Syncopate';
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.cta-btn:hover {
+    background: var(--tapt-gold);
+    transform: scale(1.05);
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn { to { opacity: 1; } }
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(2deg); }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .about-hero h1 { font-size: 2.5rem; }
+    .mission-section { padding: 50px 20px; text-align: center; }
+    .floating-card { width: 200px; height: 320px; margin-top: 40px; }
+    blockquote { font-size: 1.5rem; }
+}

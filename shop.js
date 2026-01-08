@@ -2,7 +2,9 @@
 let allProductsCache = [];
 let currentFilterType = 'all';
 let currentSearchTerm = '';
-const db = firebase.firestore();
+
+// FIX: We use a unique name 'shopDB' to avoid "redeclaration" errors with script.js
+const shopDB = firebase.firestore();
 
 /* --- 1. INITIALIZATION --- */
 document.addEventListener('DOMContentLoaded', () => {
@@ -27,7 +29,8 @@ function loadShopProducts() {
     // Show loading state
     grid.innerHTML = '<div style="color:#666; text-align:center; width:100%; margin-top:50px; font-family:\'Inter\'">Loading Collection...</div>';
 
-    db.collection("products").orderBy("createdAt", "desc").get().then((querySnapshot) => {
+    // FIX: Using 'shopDB' instead of 'db'
+    shopDB.collection("products").orderBy("createdAt", "desc").get().then((querySnapshot) => {
         allProductsCache = []; // Reset cache
         
         querySnapshot.forEach((doc) => {
@@ -40,7 +43,7 @@ function loadShopProducts() {
         applyFilters(); 
     }).catch((error) => {
         console.error("Error loading products:", error);
-        grid.innerHTML = '<div style="color:red; text-align:center; width:100%;">Error loading products.</div>';
+        grid.innerHTML = '<div style="color:red; text-align:center; width:100%;">Error loading products. Check Console.</div>';
     });
 }
 

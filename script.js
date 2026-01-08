@@ -674,3 +674,72 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+/* =========================================
+   8. PAYMENT LOGIC (RAZORPAY)
+   ========================================= */
+
+// REPLACE THIS WITH YOUR ACTUAL WORKER URL
+const WORKER_URL = "https://tapt-chat-proxy.moominafarash.workers.dev/"; 
+
+window.startPayment = async function() {
+    // 1. Get Total from Cart (Calculated dynamically)
+    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+    let totalINR = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+    
+    // If cart is empty, stop
+    if(totalINR === 0) return alert("Your cart is empty!");
+
+    // Razorpay expects PAISE. ₹1 = 100 paise.
+    const amountInPaise = totalINR * 100;
+
+    const btn = document.querySelector('.checkout-btn');
+    const originalText = btn ? btn.innerText : "Pay Now";
+    if(btn) btn.innerText = "Processing...";
+
+    try {
+        // 2. Call your Worker to create the order securely
+        const response = await fetch(WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                action: 'create_order', 
+                amount: amountInPaise 
+            })
+        });
+        
+        const order = await response.json();
+        
+        if(order.error) {
+            alert("Payment Setup Failed. Check Console.");
+            console.error(order);
+            if(btn) btn.innerText = originalText;
+            return;
+        }
+
+        // 3. Open Razorpay Payment Window
+        const options = {
+            "key": "rzp_live_S1OPe9xRMj9Gdu", // PASTE YOUR KEY ID HERE (Starts with rzp_test_...)
+            "amount": order.amount,
+            "currency": "INR",
+            "name": "TAPT Hardware",
+            "description": "Premium NFC Gear",
+            "order_id": order.id, // This secure ID came from your Worker
+            "handler": function (response){
+                // SUCCESS!
+                alert("Payment Successful! ID: " + response.razorpay_payment_id);
+                localStorage.removeItem('taptCart'); // Clear cart
+                window.location.href = "index.html"; // Redirect home (or to success page)
+            },
+            "theme": { "color": "#D4AF37" }
+        };
+
+        const rzp1 = new Razorpay(options);
+        rzp1.open();
+        if(btn) btn.innerText = originalText;
+
+    } catch (error) {
+        console.error(error);
+        alert("Connection Error. Is your Worker deployed?");
+        if(btn) btn.innerText = originalText;
+    }
+};

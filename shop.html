@@ -35,6 +35,15 @@
             <input type="text" id="shop-search" placeholder="Search Collection...">
         </div>
 
+        <div class="filter-container">
+    <button class="filter-btn active" onclick="filterProducts('all', this)">All</button>
+    <button class="filter-btn" onclick="filterProducts('card', this)">Cards</button>
+    <button class="filter-btn" onclick="filterProducts('tag', this)">Tags</button>
+</div>
+
+<div id="shop-grid" class="shop-grid">
+    </div>
+
     <div class="product-grid" id="shop-grid"></div>
 
     <div class="account-drawer" id="account-drawer">

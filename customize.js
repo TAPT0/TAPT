@@ -89,7 +89,7 @@ function autoDetectColor() {
     let r, g, b, avg;
     let colorSum = 0;
 
-    // Analyze every 40th pixel for speed
+    // Analyze every 10th pixel for speed
     for(let x = 0, len = data.length; x < len; x+=40) {
         r = data[x];
         g = data[x+1];
@@ -176,6 +176,9 @@ function finishDesign() {
     const productName = state.mode === 'card' ? 'Custom Design Card' : 'Custom Design Tag';
     const price = PRICES[state.mode];
     
+    // Pass image + Text info to cart
+    // Note: In a real production app, we would canvas-merge the text onto the image here.
+    // For now, we save the text as metadata in the title or a separate field.
     const customTitle = `${productName} (${state.text || 'No Text'})`;
     
     window.addToCart(customTitle, price, imgLayer.src);

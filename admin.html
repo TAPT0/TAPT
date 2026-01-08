@@ -90,7 +90,8 @@
     <div id="login-screen">
         <div class="logo">TAPD.<span>.</span> ADMIN</div>
         <div class="login-box">
-            <input type="password" id="admin-pass" placeholder="Enter Admin Password">
+            <input type="email" id="admin-email" placeholder="Admin Email" required>
+            <input type="password" id="admin-pass" placeholder="Admin Password" required>
             <button onclick="checkAdmin()">LOGIN</button>
         </div>
     </div>
@@ -289,52 +290,82 @@
     <div id="toast">Action Successful</div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     
     <script>
+        // --- YOUR CORRECTED CONFIG ---
         const firebaseConfig = {
-
-  apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
-
-  authDomain: "tapt-337b8.firebaseapp.com",
-
-  databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
-
-  projectId: "tapt-337b8",
-
-  storageBucket: "tapt-337b8.firebasestorage.app",
-
-  messagingSenderId: "887956121124",
-
-  appId: "1:887956121124:web:6856680bf75aa3bacddab1",
-
-  measurementId: "G-2CB8QXYNJY"
-
-};
-
+          apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
+          authDomain: "tapt-337b8.firebaseapp.com",
+          databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
+          projectId: "tapt-337b8",
+          storageBucket: "tapt-337b8.firebasestorage.app",
+          messagingSenderId: "887956121124",
+          appId: "1:887956121124:web:6856680bf75aa3bacddab1",
+          measurementId: "G-2CB8QXYNJY"
+        };
 
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         
         const db = firebase.firestore();
+        const auth = firebase.auth(); // Added Auth Module
 
         let allProductsCache = {};
         let tempEditImages = [];
+        let unsubscribeProducts = null;
+        let unsubscribeOrders = null;
+        let unsubscribeCoupons = null;
 
-        /* --- AUTHENTICATION --- */
-        function checkAdmin() {
-            const pass = document.getElementById('admin-pass').value;
-            if(pass === "admin123") { 
+        /* --- AUTHENTICATION & STARTUP --- */
+        
+        // 1. Listen for Auth State Changes (The Fix for 'Uncaught Error')
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // User is logged in -> Show Dashboard & Load Data
+                console.log("Logged in as:", user.email);
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-ui').style.display = 'flex';
                 loadAllData();
             } else {
-                alert("Wrong Password");
+                // User is logged out -> Show Login Screen
+                console.log("No user.");
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('dashboard-ui').style.display = 'none';
             }
+        });
+
+        // 2. Updated Login Function (Actually signs into Firebase)
+        function checkAdmin() {
+            const email = document.getElementById('admin-email').value;
+            const pass = document.getElementById('admin-pass').value;
+            
+            if(!email || !pass) {
+                alert("Please enter both email and password.");
+                return;
+            }
+
+            auth.signInWithEmailAndPassword(email, pass)
+                .then(() => {
+                    // Success! The onAuthStateChanged listener above will handle the UI switch.
+                    showToast("Login Successful");
+                })
+                .catch((error) => {
+                    alert("Login Failed: " + error.message);
+                });
         }
 
-        function logout() { location.reload(); }
+        function logout() {
+            auth.signOut().then(() => {
+                // Stop listening to data to prevent errors
+                if(unsubscribeProducts) unsubscribeProducts();
+                if(unsubscribeOrders) unsubscribeOrders();
+                if(unsubscribeCoupons) unsubscribeCoupons();
+                location.reload();
+            });
+        }
 
         /* --- NAVIGATION --- */
         function showSection(id) {
@@ -460,7 +491,8 @@
             const container = document.getElementById('products-list-container');
             container.innerHTML = "<p style='color:#666;'>Loading inventory...</p>";
             
-            db.collection("products").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
+            // Assign unsubscribe to variable so we can stop it on logout
+            unsubscribeProducts = db.collection("products").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
                 container.innerHTML = "";
                 allProductsCache = {}; 
 
@@ -493,6 +525,9 @@
                     `;
                     container.appendChild(div);
                 });
+            }, (error) => {
+                console.error("Product Load Error:", error);
+                container.innerHTML = "<p style='color:red'>Error loading products. Check permissions.</p>";
             });
         }
 
@@ -599,7 +634,7 @@
 
         function loadCoupons() {
             const tbody = document.getElementById('coupons-body');
-            db.collection("coupons").onSnapshot((snap) => {
+            unsubscribeCoupons = db.collection("coupons").onSnapshot((snap) => {
                 tbody.innerHTML = "";
                 snap.forEach((doc) => {
                     const c = doc.data();
@@ -623,16 +658,14 @@
         /* --- 5. ORDERS --- */
         function loadOrders() {
             const tbody = document.getElementById('orders-table-body');
-            db.collection("orders").orderBy("date", "desc").limit(20).onSnapshot((snap) => {
+            unsubscribeOrders = db.collection("orders").orderBy("date", "desc").limit(20).onSnapshot((snap) => {
                 tbody.innerHTML = "";
                 snap.forEach((doc) => {
                     const o = doc.data();
-                    // Ensure shipping object exists before accessing firstName
                     const customerName = o.shipping ? o.shipping.first : 'Guest';
                     const email = o.email || 'No Email';
                     const itemCount = o.items ? o.items.length : 0;
                     
-                    // Determine Status Badge Color
                     let statusClass = 'status-paid';
                     let statusText = 'PAID';
                     if (o.paymentMethod === 'cod') {

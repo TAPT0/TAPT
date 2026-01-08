@@ -1,150 +1,166 @@
+/* =========================================
+   CUSTOMIZE PAGE LOGIC
+   ========================================= */
+
+// Configuration
+const PRICES = { card: 1999, tag: 899 };
+let state = {
+    mode: 'card', // 'card' or 'tag'
+    scale: 1,
+    rotate: 0,
+    x: 0,
+    y: 0,
+    imageLoaded: false
+};
+
+// DOM Elements
+const mask = document.getElementById('product-mask');
+const imgLayer = document.getElementById('user-upload-img');
+const placeholder = document.getElementById('placeholder-msg');
+const tunePanel = document.getElementById('fine-tune-panel');
+const displayPrice = document.getElementById('display-price');
+const fileName = document.getElementById('file-name');
+
+// --- 1. INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-    let currentMode = 'card';
-    const prices = { card: 1999, keychain: 899 };
+    // Reset inputs on load
+    document.querySelectorAll('input[type="range"]').forEach(input => {
+        input.value = input.getAttribute('value');
+    });
+});
 
-    // --- 1. DEFINE FUNCTIONS FIRST (Fixes "Not Defined" Error) ---
+// --- 2. MODE SWITCHING (Card vs Tag) ---
+function setMode(mode) {
+    state.mode = mode;
     
-    window.setProductMode = function(mode) {
-        currentMode = mode;
-        const preview = document.getElementById('preview-obj');
-        const btnCard = document.getElementById('btn-card');
-        const btnTag = document.getElementById('btn-tag');
-        const addBtn = document.getElementById('add-btn');
-        const wifiIcon = document.querySelector('.wifi-icon');
-        const hole = document.querySelector('.keychain-hole');
-        
-        if (mode === 'card') {
-            btnCard.classList.add('active');
-            btnTag.classList.remove('active');
-            addBtn.textContent = `Add Card — ₹${prices.card}`;
-            
-            // Switch styles
-            preview.classList.remove('mode-keychain');
-            preview.classList.add('mode-card');
-            if(wifiIcon) wifiIcon.style.display = 'block';
-            if(hole) hole.style.display = 'none';
-        } else {
-            btnTag.classList.add('active');
-            btnCard.classList.remove('active');
-            addBtn.textContent = `Add Tag — ₹${prices.keychain}`;
-            
-            // Switch styles
-            preview.classList.remove('mode-card');
-            preview.classList.add('mode-keychain');
-            if(wifiIcon) wifiIcon.style.display = 'none';
-            if(hole) hole.style.display = 'block';
-        }
-        
-        // Re-apply theme to ensure class consistency
-        const currentTheme = document.getElementById('c-theme').value;
-        updateSkin(currentTheme);
-    };
-
-    function updateSkin(theme) {
-        const preview = document.getElementById('preview-obj');
-        // Remove old skin classes
-        preview.classList.remove('skin-black', 'skin-white', 'skin-gold');
-        // Add new skin
-        preview.classList.add(`skin-${theme}`);
-    }
-
-    // --- 2. INITIALIZATION ---
+    // UI Updates
+    document.getElementById('btn-card').classList.toggle('active', mode === 'card');
+    document.getElementById('btn-tag').classList.toggle('active', mode === 'tag');
     
-    const defaultMode = sessionStorage.getItem('defaultMode');
-    if (defaultMode && (defaultMode === 'card' || defaultMode === 'keychain')) {
-        setProductMode(defaultMode);
-        sessionStorage.removeItem('defaultMode');
+    // Shape Transformation
+    if (mode === 'card') {
+        mask.classList.remove('mode-tag');
+        mask.classList.add('mode-card');
+        displayPrice.innerText = `₹${PRICES.card.toLocaleString()}`;
     } else {
-        setProductMode('card');
+        mask.classList.remove('mode-card');
+        mask.classList.add('mode-tag');
+        displayPrice.innerText = `₹${PRICES.tag.toLocaleString()}`;
     }
+}
 
-    // --- 3. EVENT LISTENERS ---
+// --- 3. IMAGE UPLOAD HANDLING ---
+document.getElementById('file-upload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            // Set Image
+            imgLayer.src = event.target.result;
+            imgLayer.classList.add('active');
+            
+            // UI Updates
+            placeholder.style.display = 'none';
+            tunePanel.style.display = 'block';
+            setTimeout(() => tunePanel.style.opacity = 1, 10); // Fade in
+            fileName.innerText = file.name;
+            
+            state.imageLoaded = true;
+            resetTransforms(); // Reset positions for new image
+        }
+        reader.readAsDataURL(file);
+    }
+});
 
-    // Theme Switcher
-    document.getElementById('c-theme').addEventListener('change', (e) => {
-        updateSkin(e.target.value);
-    });
-
-    // Live Text Editing
-    const nameInput = document.getElementById('c-name');
-    const roleInput = document.getElementById('c-role');
-    const pName = document.getElementById('p-name');
-    const pRole = document.getElementById('p-role');
-
-    nameInput.addEventListener('input', (e) => {
-        pName.textContent = e.target.value.trim() || 'YOUR NAME';
-    });
+// --- 4. LIVE TWEAKING (Sliders) ---
+function updateTransform() {
+    if(!state.imageLoaded) return;
     
-    roleInput.addEventListener('input', (e) => {
-        pRole.textContent = e.target.value.trim() || 'ROLE / TITLE';
-    });
+    // Apply CSS Transform
+    imgLayer.style.transform = `
+        translate(-50%, -50%) 
+        translate(${state.x}px, ${state.y}px) 
+        rotate(${state.rotate}deg) 
+        scale(${state.scale})
+    `;
+}
 
-    // Logo Upload
-    document.getElementById('c-logo-upload').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.getElementById('p-logo-preview');
-                img.src = e.target.result;
-                img.style.display = 'block';
-            }
-            reader.readAsDataURL(file);
-        }
-    });
+// Event Listeners for Sliders
+document.getElementById('sl-scale').addEventListener('input', (e) => {
+    state.scale = parseFloat(e.target.value);
+    document.getElementById('val-scale').innerText = Math.round(state.scale * 100) + '%';
+    updateTransform();
+});
 
-    // Add to Cart Logic
-    document.getElementById('add-btn').addEventListener('click', () => {
-        const name = nameInput.value || 'Custom';
-        const type = currentMode === 'card' ? 'Custom Card' : 'Custom Tag';
-        const price = prices[currentMode];
-        const theme = document.getElementById('c-theme').value;
-        const logoSrc = document.getElementById('p-logo-preview').src;
-        const hasLogo = document.getElementById('p-logo-preview').style.display === 'block';
+document.getElementById('sl-rotate').addEventListener('input', (e) => {
+    state.rotate = parseInt(e.target.value);
+    document.getElementById('val-rotate').innerText = state.rotate + '°';
+    updateTransform();
+});
 
-        const fullTitle = `${type} (${theme}) - ${name}`;
-        
-        // Use a generic image for cart unless user uploaded a logo
-        const displayImage = hasLogo ? logoSrc : (currentMode === 'card' ? 'https://via.placeholder.com/150/000000/FFFFFF/?text=CARD' : 'https://via.placeholder.com/150/000000/FFFFFF/?text=TAG');
+document.getElementById('sl-x').addEventListener('input', (e) => {
+    state.x = parseInt(e.target.value);
+    updateTransform();
+});
 
-        // Call global addToCart from script.js
-        if(window.addToCart) {
-            window.addToCart(fullTitle, price, displayImage);
-        } else {
-            alert("Cart system loading... please try again.");
-        }
-    });
+document.getElementById('sl-y').addEventListener('input', (e) => {
+    state.y = parseInt(e.target.value); // Inverted visually for intuition? No, standad is fine.
+    updateTransform();
+});
 
-    // --- 4. 3D TILT ANIMATION ---
-    const stage = document.getElementById('card-stage');
-    const obj = document.getElementById('preview-obj');
-    const glare = document.getElementById('glare');
+// --- 5. RESET ---
+function resetTransforms() {
+    state.scale = 1;
+    state.rotate = 0;
+    state.x = 0;
+    state.y = 0;
+    
+    // Reset Slider DOM Elements
+    document.getElementById('sl-scale').value = 1;
+    document.getElementById('sl-rotate').value = 0;
+    document.getElementById('sl-x').value = 0;
+    document.getElementById('sl-y').value = 0;
+    
+    // Reset Labels
+    document.getElementById('val-scale').innerText = "100%";
+    document.getElementById('val-rotate').innerText = "0°";
+    
+    updateTransform();
+}
 
-    if(stage && obj) {
-        stage.addEventListener('mousemove', (e) => {
-            const rect = stage.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const xPct = x / rect.width;
-            const yPct = y / rect.height;
-            
-            // Limit rotation to 20 degrees
-            const xRot = (0.5 - yPct) * 20; 
-            const yRot = (xPct - 0.5) * 20;
-
-            obj.style.transform = `rotateX(${xRot}deg) rotateY(${yRot}deg)`;
-            
-            // Glare position
-            if(glare) {
-                glare.style.opacity = 1;
-                glare.style.background = `linear-gradient(${105 + xRot * 2}deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 60%)`;
-            }
-        });
-
-        stage.addEventListener('mouseleave', () => {
-            obj.style.transform = `rotateX(0deg) rotateY(0deg)`;
-            if(glare) glare.style.opacity = 0;
-        });
+// --- 6. ADD TO CART ---
+function finishDesign() {
+    if (!state.imageLoaded) {
+        alert("Please upload a design first!");
+        return;
     }
+
+    const productName = state.mode === 'card' ? 'Custom Design Card' : 'Custom Design Tag';
+    const price = PRICES[state.mode];
+    
+    // In a real app, we would canvas-draw the final cropped image here to save it.
+    // For now, we pass the raw image source.
+    window.addToCart(productName, price, imgLayer.src);
+    
+    // Optional: Show success feedback? 
+    // The cart drawer opens automatically via script.js logic.
+}
+
+// --- 7. 3D TILT EFFECT (Re-implemented for this specific page) ---
+const stage = document.getElementById('tilt-stage');
+const object = document.getElementById('product-mask');
+
+stage.addEventListener('mousemove', (e) => {
+    const rect = stage.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const xRot = -((y - rect.height/2) / 20);
+    const yRot = (x - rect.width/2) / 20;
+    
+    object.style.transform = `perspective(1000px) rotateX(${xRot}deg) rotateY(${yRot}deg)`;
+});
+
+stage.addEventListener('mouseleave', () => {
+    object.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
 });

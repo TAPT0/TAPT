@@ -35,7 +35,7 @@
                     
                     <img id="user-upload-img" src="" alt="" class="user-layer">
                     
-                    <div id="text-layer" class="design-text">YOUR NAME</div>
+                    <div id="text-canvas"></div>
 
                     <div class="placeholder-msg" id="placeholder-msg">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
@@ -44,15 +44,13 @@
 
                     <div class="overlay-texture"></div> 
                     
-                    <div class="hw-chip"></div>
-                    <i class="fa-solid fa-wifi hw-wifi"></i>
                     <div class="hw-hole"></div>
                     <div class="hw-ring"></div>
                 </div>
 
             </div>
             <div class="stage-instructions">
-                <i class="fa-solid fa-hand-pointer"></i> Drag to Pan • Scroll to Zoom
+                <i class="fa-solid fa-hand-pointer"></i> Drag Text to Move • Scroll to Zoom
             </div>
         </div>
 
@@ -79,60 +77,55 @@
                 <input type="file" id="file-upload" accept="image/*">
             </div>
 
-            <div id="text-controls-panel" style="display:none; opacity: 0; transition: 0.5s;">
-                <div class="divider"><span>ADD TEXT</span></div>
-                
-                <div class="input-group">
-                    <input type="text" id="custom-text-input" placeholder="Enter Name or Text..." maxlength="20">
-                </div>
-
-                <div class="slider-row">
-                    <div class="slider-group" style="flex:2;">
-                        <label>Font</label>
-                        <select id="font-select" class="tapt-select">
-                            <option value="'Syncopate', sans-serif">Modern (Sync)</option>
-                            <option value="'Inter', sans-serif">Clean (Inter)</option>
-                            <option value="'Playfair Display', serif">Luxury (Serif)</option>
-                            <option value="'Courier Prime', monospace">Retro (Code)</option>
-                        </select>
-                    </div>
-                    <div class="slider-group" style="flex:1; display: flex; flex-direction: column; align-items: flex-end;">
-                        <label>Color</label>
-                        <div class="color-tools">
-                            <input type="color" id="text-color-picker" value="#ffffff">
-                            <button class="magic-btn" onclick="autoDetectColor()" title="Auto Detect Best Color">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="fine-tune-panel" style="display:none; opacity: 0; transition: 0.5s;">
-                <div class="divider"><span>IMAGE DETAILS</span></div>
-                
+            <div id="image-controls" style="display:none;">
+                <div class="divider"><span>IMAGE ADJUSTMENT</span></div>
                 <div class="slider-group">
-                    <label>Scale <span id="val-scale">100%</span></label>
+                    <label>Zoom <span id="val-scale">100%</span></label>
                     <input type="range" id="sl-scale" min="0.5" max="3" step="0.01" value="1">
                 </div>
-
                 <div class="slider-group">
                     <label>Rotate <span id="val-rotate">0°</span></label>
                     <input type="range" id="sl-rotate" min="-180" max="180" step="1" value="0">
                 </div>
+                <button class="reset-link" onclick="resetImage()">Reset Image</button>
+            </div>
 
-                <div class="slider-row">
-                    <div class="slider-group">
-                        <label>Pos X</label>
-                        <input type="range" id="sl-x" min="-200" max="200" value="0">
-                    </div>
-                    <div class="slider-group">
-                        <label>Pos Y</label>
-                        <input type="range" id="sl-y" min="-200" max="200" value="0">
-                    </div>
-                </div>
+            <div id="text-section" style="display:none; margin-top:30px;">
+                <div class="divider"><span>TEXT LAYERS</span></div>
                 
-                <button class="reset-link" onclick="resetTransforms()">Reset Position</button>
+                <button class="add-text-btn" onclick="addTextLayer()">
+                    <i class="fa-solid fa-plus"></i> Add New Text
+                </button>
+
+                <div id="text-properties" style="display:none; margin-top:20px; background:#1a1a1a; padding:15px; border-radius:10px; border:1px solid #333;">
+                    <div class="input-group">
+                        <label>Content</label>
+                        <input type="text" id="txt-content" placeholder="Type here...">
+                    </div>
+                    
+                    <div class="slider-row">
+                        <div class="slider-group" style="flex:2;">
+                            <label>Font</label>
+                            <select id="txt-font" class="tapt-select">
+                                <option value="'Syncopate', sans-serif">Modern</option>
+                                <option value="'Inter', sans-serif">Clean</option>
+                                <option value="'Playfair Display', serif">Luxury</option>
+                                <option value="'Courier Prime', monospace">Retro</option>
+                            </select>
+                        </div>
+                        <div class="slider-group" style="flex:1; align-items:flex-end; display:flex; flex-direction:column;">
+                            <label>Color</label>
+                            <input type="color" id="txt-color" value="#ffffff">
+                        </div>
+                    </div>
+
+                    <div class="slider-group">
+                        <label>Size</label>
+                        <input type="range" id="txt-size" min="10" max="60" value="20">
+                    </div>
+
+                    <button class="delete-text-btn" onclick="deleteSelectedText()">Remove Text</button>
+                </div>
             </div>
 
             <div class="action-area">
@@ -159,7 +152,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="script.js"></script>
-    <script src="customize.js"></script>
 
 </body>
 </html>

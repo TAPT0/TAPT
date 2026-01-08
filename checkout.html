@@ -3,163 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Design Studio | TAPT.</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&family=Playfair+Display:wght@400;700&family=Courier+Prime&display=swap" rel="stylesheet">
+    <title>Secure Checkout | TAPT.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="customize.css">
+    <link rel="stylesheet" href="checkout.css">
 </head>
 <body>
 
     <div class="noise-overlay"></div>
-    <div class="gold-glow-sphere"></div>
+    <div class="gold-glow-sphere" style="top: -50%;"></div>
 
     <nav>
         <a href="index.html" class="logo">TAPT<span>.</span></a>
-        <div class="nav-right">
-            <a href="shop.html" class="nav-icon"><i class="fa-solid fa-shop"></i></a>
-            <div class="nav-icon" style="position: relative;" onclick="toggleCart()">
-                <i class="fa-solid fa-bag-shopping"></i>
-                <span id="cart-count" class="cart-badge">0</span>
-            </div>
-        </div>
+        <a href="shop.html" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Return to Shop
+        </a>
     </nav>
 
-    <div class="studio-container">
-        
-        <div class="studio-stage">
-            <div class="card-stage" id="tilt-stage">
-                
-                <div class="product-mask mode-card" id="product-mask">
-                    
-                    <img id="user-upload-img" src="" alt="" class="user-layer">
-                    
-                    <div id="text-layer" class="design-text">YOUR NAME</div>
-
-                    <div class="placeholder-msg" id="placeholder-msg">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <span>Upload Design</span>
-                    </div>
-
-                    <div class="overlay-texture"></div> 
-                    
-                    <div class="hw-chip"></div>
-                    <i class="fa-solid fa-wifi hw-wifi"></i>
-                    <div class="hw-hole"></div>
-                    <div class="hw-ring"></div>
-                </div>
-
-            </div>
-            <div class="stage-instructions">
-                <i class="fa-solid fa-hand-pointer"></i> Drag to Pan • Scroll to Zoom
-            </div>
-        </div>
-
-        <div class="studio-controls">
+    <div class="checkout-container">
+        <form id="checkout-form" class="checkout-layout">
             
-            <div class="control-header">
-                <h1 class="studio-title">Customize</h1>
-            </div>
-
-            <div class="control-group">
-                <label>Select Hardware</label>
-                <div class="toggle-switch">
-                    <button class="toggle-btn active" onclick="setMode('card')" id="btn-card">Card</button>
-                    <button class="toggle-btn" onclick="setMode('tag')" id="btn-tag">Tag</button>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label>Design File</label>
-                <label for="file-upload" class="upload-trigger">
-                    <span id="file-name">Choose Image</span>
-                    <i class="fa-solid fa-upload"></i>
-                </label>
-                <input type="file" id="file-upload" accept="image/*">
-            </div>
-
-            <div id="text-controls-panel" style="display:none; opacity: 0; transition: 0.5s;">
-                <div class="divider"><span>ADD TEXT</span></div>
-                
-                <div class="input-group">
-                    <input type="text" id="custom-text-input" placeholder="Enter Name or Text..." maxlength="20">
+            <div class="checkout-left">
+                <div class="checkout-section">
+                    <h2 class="c-head">Contact</h2>
+                    <input type="email" id="email" class="tapt-input" placeholder="Email Address" required>
                 </div>
 
-                <div class="slider-row">
-                    <div class="slider-group" style="flex:2;">
-                        <label>Font</label>
-                        <select id="font-select" class="tapt-select">
-                            <option value="'Syncopate', sans-serif">Modern (Sync)</option>
-                            <option value="'Inter', sans-serif">Clean (Inter)</option>
-                            <option value="'Playfair Display', serif">Luxury (Serif)</option>
-                            <option value="'Courier Prime', monospace">Retro (Code)</option>
-                        </select>
+                <div class="checkout-section">
+                    <h2 class="c-head">Shipping</h2>
+                    <div class="row-2">
+                        <input type="text" id="f-name" class="tapt-input" placeholder="First Name" required>
+                        <input type="text" id="l-name" class="tapt-input" placeholder="Last Name" required>
                     </div>
-                    <div class="slider-group" style="flex:1; display: flex; flex-direction: column; align-items: flex-end;">
-                        <label>Color</label>
-                        <div class="color-tools">
-                            <input type="color" id="text-color-picker" value="#ffffff">
-                            <button class="magic-btn" onclick="autoDetectColor()" title="Auto Detect Best Color">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                            </button>
+                    <input type="text" id="address" class="tapt-input" placeholder="Address" required>
+                    <div class="row-3">
+                        <input type="text" id="city" class="tapt-input" placeholder="City" required>
+                        <input type="text" id="state" class="tapt-input" placeholder="State" required>
+                        <input type="text" id="zip" class="tapt-input" placeholder="ZIP" required>
+                    </div>
+                    <input type="tel" id="phone" class="tapt-input" placeholder="Phone" required>
+                </div>
+
+                <div class="checkout-section">
+                    <h2 class="c-head">Payment Method</h2>
+                    <div class="payment-options">
+                        <label class="pay-option">
+                            <input type="radio" name="payment" value="card" checked>
+                            <div class="pay-box">
+                                <i class="fa-regular fa-credit-card"></i>
+                                <span>Card</span>
+                            </div>
+                        </label>
+                        <label class="pay-option">
+                            <input type="radio" name="payment" value="upi">
+                            <div class="pay-box">
+                                <i class="fa-solid fa-mobile-screen-button"></i>
+                                <span>UPI</span>
+                            </div>
+                        </label>
+                        <label class="pay-option">
+                            <input type="radio" name="payment" value="cod">
+                            <div class="pay-box">
+                                <i class="fa-solid fa-money-bill-wave"></i>
+                                <span>COD</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkout-right">
+                <div class="summary-card">
+                    <h3>Order Summary</h3>
+                    
+                    <div class="checkout-items" id="checkout-items-list">
+                        <p>Loading...</p>
+                    </div>
+
+                    <div class="coupon-wrapper">
+                        <input type="text" id="coupon-code" placeholder="Gift card or discount code">
+                        <button type="button" id="apply-coupon-btn">Apply</button>
+                    </div>
+                    <div id="coupon-message"></div>
+
+                    <div class="summary-details">
+                        <div class="summary-row"><span>Subtotal</span><span id="c-subtotal">₹0</span></div>
+                        <div class="summary-row" id="discount-row" style="display:none; color: var(--tapt-gold);">
+                            <span>Discount</span><span id="c-discount">-₹0</span>
                         </div>
+                        <div class="summary-row"><span>Shipping</span><span style="color:var(--tapt-gold);">Free</span></div>
+                        <div class="summary-row total"><span>Total</span><span id="c-total">₹0</span></div>
                     </div>
+
+                    <button type="submit" class="pay-btn" id="pay-btn">Pay Now</button>
+                    <div class="secure-msg"><i class="fa-solid fa-lock"></i> SSL Secure Checkout</div>
                 </div>
             </div>
 
-            <div id="fine-tune-panel" style="display:none; opacity: 0; transition: 0.5s;">
-                <div class="divider"><span>IMAGE DETAILS</span></div>
-                
-                <div class="slider-group">
-                    <label>Scale <span id="val-scale">100%</span></label>
-                    <input type="range" id="sl-scale" min="0.5" max="3" step="0.01" value="1">
-                </div>
-
-                <div class="slider-group">
-                    <label>Rotate <span id="val-rotate">0°</span></label>
-                    <input type="range" id="sl-rotate" min="-180" max="180" step="1" value="0">
-                </div>
-
-                <div class="slider-row">
-                    <div class="slider-group">
-                        <label>Pos X</label>
-                        <input type="range" id="sl-x" min="-200" max="200" value="0">
-                    </div>
-                    <div class="slider-group">
-                        <label>Pos Y</label>
-                        <input type="range" id="sl-y" min="-200" max="200" value="0">
-                    </div>
-                </div>
-                
-                <button class="reset-link" onclick="resetTransforms()">Reset Position</button>
-            </div>
-
-            <div class="action-area">
-                <div class="price-display">
-                    <span>Total</span>
-                    <span id="display-price" style="color:var(--tapt-gold); font-size:1.5rem;">₹1,999</span>
-                </div>
-                <button class="add-cart-btn" onclick="finishDesign()">Add to Cart</button>
-            </div>
-
-        </div>
+        </form>
     </div>
 
-    <div class="cart-overlay" id="overlay" onclick="closeAllDrawers()"></div>
-    <div class="cart-drawer" id="cart-drawer">
-        <div class="drawer-header"><h2>Bag</h2><button class="close-drawer" onclick="toggleCart()">×</button></div>
-        <div class="cart-items" id="cart-items-container"></div>
-        <div class="cart-footer">
-            <div class="summary-row total"><span>Total</span><span id="cart-total">₹0</span></div>
-            <button class="checkout-btn" onclick="window.location.href='checkout.html'">Checkout</button>
+    <div id="success-overlay" class="success-screen" style="display: none;">
+        <div class="success-content">
+            <i class="fa-regular fa-circle-check"></i>
+            <h2>Order Confirmed</h2>
+            <p>Your legacy is being prepared.</p>
+            <a href="shop.html" class="premium-btn">Continue Shopping</a>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="script.js"></script>
-    <script src="customize.js"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script> <script src="checkout.js"></script>
 </body>
 </html>

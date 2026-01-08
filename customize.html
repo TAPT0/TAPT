@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Create Your Legacy | TAPT.</title>
+    <title>Design Studio | TAPT.</title>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
@@ -18,168 +18,117 @@
     <nav>
         <a href="index.html" class="logo">TAPT<span>.</span></a>
         <div class="nav-right">
-            <a href="shop.html">Shop</a>
-            <div class="nav-icon" onclick="toggleAccount()"><i class="fa-regular fa-user"></i></div>
-            <div class="cart-trigger" onclick="toggleCart()">
+            <a href="shop.html" class="nav-icon"><i class="fa-solid fa-shop"></i></a>
+            <div class="nav-icon" style="position: relative;" onclick="toggleCart()">
                 <i class="fa-solid fa-bag-shopping"></i>
-                <span id="cart-count">0</span>
+                <span id="cart-count" class="cart-badge">0</span>
             </div>
         </div>
     </nav>
 
-    <div class="customize-container">
-        <div class="builder-layout">
-            
-            <div class="builder-controls">
-                <div class="builder-header">
-                    <h2>Design It</h2>
-                </div>
+    <div class="studio-container">
+        
+        <div class="studio-stage">
+            <div class="card-stage" id="tilt-stage">
                 
-                <div class="type-selector" style="display:flex; gap:10px; margin-bottom:25px;">
-                    <button class="filter-btn active" id="btn-card" onclick="setProductMode('card')" style="flex:1;">Card</button>
-                    <button class="filter-btn" id="btn-tag" onclick="setProductMode('keychain')" style="flex:1;">Tag</button>
+                <div class="product-mask mode-card" id="product-mask">
+                    
+                    <img id="user-upload-img" src="" alt="" class="user-layer">
+                    
+                    <div class="placeholder-msg" id="placeholder-msg">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Upload Design</span>
+                    </div>
+
+                    <div class="overlay-texture"></div> <div class="hw-chip"></div>
+                    <i class="fa-solid fa-wifi hw-wifi"></i>
+                    
+                    <div class="hw-hole"></div>
+                    <div class="hw-ring"></div>
                 </div>
 
-                <div class="input-group">
-                    <label>Finish</label>
-                    <select id="c-theme">
-                        <option value="black">Matte Black</option>
-                        <option value="white">Polar White</option>
-                        <option value="gold">Luxury Gold</option>
-                    </select>
-                </div>
+            </div>
+            
+            <div class="stage-instructions">
+                <i class="fa-solid fa-hand-pointer"></i> Drag to Pan • Scroll to Zoom
+            </div>
+        </div>
 
-                <div class="input-group">
-                    <label>Name</label>
-                    <input type="text" id="c-name" placeholder="YOUR NAME" maxlength="18">
-                </div>
+        <div class="studio-controls">
+            
+            <div class="control-header">
+                <h1 class="studio-title">Customize</h1>
+                <p class="studio-sub">Create your unique legacy.</p>
+            </div>
 
-                <div class="input-group">
-                    <label>Designation / Role</label>
-                    <input type="text" id="c-role" placeholder="CEO / FOUNDER" maxlength="20">
-                </div>
-
-                <div class="input-group">
-                    <label>Logo (Optional)</label>
-                    <label for="c-logo-upload" class="file-upload-label">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> Upload PNG
-                    </label>
-                    <input type="file" id="c-logo-upload" accept="image/png, image/jpeg">
-                </div>
-
-                <div class="builder-actions">
-                    <button id="add-btn" class="btn-save">Add to Bag — ₹1,999</button>
+            <div class="control-group">
+                <label>Select Hardware</label>
+                <div class="toggle-switch">
+                    <button class="toggle-btn active" onclick="setMode('card')" id="btn-card">Card</button>
+                    <button class="toggle-btn" onclick="setMode('tag')" id="btn-tag">Tag</button>
                 </div>
             </div>
 
-            <div class="card-stage" id="card-stage">
-                <div class="tapt-obj mode-card skin-black" id="preview-obj">
-                    <div class="glare-overlay" id="glare"></div>
-                    
-                    <div class="obj-content">
-                        <div class="chip"></div>
-                        <i class="fa-solid fa-wifi wifi-icon"></i>
-                        <div class="keychain-hole"></div> 
-                        
-                        <img id="p-logo-preview" class="user-logo" src="" alt="">
-                        
-                        <div class="user-data">
-                            <h3 id="p-name">YOUR NAME</h3>
-                            <p id="p-role">ROLE</p>
-                        </div>
+            <div class="control-group">
+                <label>Design File</label>
+                <label for="file-upload" class="upload-trigger">
+                    <span id="file-name">Choose Image (JPG/PNG)</span>
+                    <i class="fa-solid fa-upload"></i>
+                </label>
+                <input type="file" id="file-upload" accept="image/*">
+            </div>
+
+            <div id="fine-tune-panel" style="display:none; opacity: 0; transition: 0.5s;">
+                <div class="divider"><span>TWEAK DETAILS</span></div>
+                
+                <div class="slider-group">
+                    <label>Scale <span id="val-scale">100%</span></label>
+                    <input type="range" id="sl-scale" min="0.5" max="3" step="0.01" value="1">
+                </div>
+
+                <div class="slider-group">
+                    <label>Rotate <span id="val-rotate">0°</span></label>
+                    <input type="range" id="sl-rotate" min="-180" max="180" step="1" value="0">
+                </div>
+
+                <div class="slider-row">
+                    <div class="slider-group">
+                        <label>Pos X</label>
+                        <input type="range" id="sl-x" min="-200" max="200" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Pos Y</label>
+                        <input type="range" id="sl-y" min="-200" max="200" value="0">
                     </div>
                 </div>
+                
+                <button class="reset-link" onclick="resetTransforms()">Reset Position</button>
+            </div>
+
+            <div class="action-area">
+                <div class="price-display">
+                    <span>Total</span>
+                    <span id="display-price" style="color:var(--tapt-gold); font-size:1.5rem;">₹1,999</span>
+                </div>
+                <button class="add-cart-btn" onclick="finishDesign()">
+                    Add to Cart
+                </button>
             </div>
 
         </div>
     </div>
 
-    <div class="account-drawer" id="account-drawer">
-        <div class="drawer-header"><h2>My Legacy</h2><button class="close-cart" onclick="toggleAccount()">×</button></div>
-        <div class="drawer-content" id="account-content"></div>
-    </div>
-
+    <div class="cart-overlay" id="overlay" onclick="closeAllDrawers()"></div>
     <div class="cart-drawer" id="cart-drawer">
-        <div class="drawer-header">
-            <h2>Your Bag</h2>
-            <button class="close-cart" onclick="toggleCart()">×</button>
-        </div>
-        
+        <div class="drawer-header"><h2>Bag</h2><button class="close-drawer" onclick="toggleCart()">×</button></div>
         <div class="cart-items" id="cart-items-container"></div>
-        
         <div class="cart-footer">
-            <div class="coupon-wrapper">
-                <input type="text" id="coupon-code" class="coupon-input" placeholder="Promo Code">
-                <button class="coupon-btn" onclick="applyCoupon()">APPLY</button>
-            </div>
-            
-            <div class="summary-row">
-                <span>Subtotal</span>
-                <span class="val" id="cart-subtotal">₹0</span>
-            </div>
-            <div class="summary-row" id="discount-row" style="display:none;">
-                <span class="discount-active">Discount</span>
-                <span class="val discount-active" id="cart-discount">-₹0</span>
-            </div>
-            <div class="summary-row total">
-                <span>Total</span>
-                <span class="val" id="cart-total">₹0</span>
-            </div>
-            
+            <div class="summary-row total"><span>Total</span><span id="cart-total">₹0</span></div>
             <button class="checkout-btn" onclick="window.location.href='checkout.html'">Checkout</button>
         </div>
     </div>
 
-    <div class="auth-modal" id="auth-modal">
-        <h2 style="color:white; font-family:'Syncopate'; margin-bottom:20px;">Access Legacy</h2>
-        <button class="auth-btn-google" onclick="loginWithGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Continue with Google
-        </button>
-        <div class="auth-divider">OR CREATE ACCOUNT</div>
-        <input type="email" id="auth-email" class="auth-input" placeholder="Email Address">
-        <input type="tel" id="auth-phone" class="auth-input" placeholder="Phone Number">
-        <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
-        <button class="auth-btn-submit" onclick="signupEmail()">Create Account</button>
-        <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Close</button>
-    </div>
-    
-    <div class="cart-overlay" onclick="closeAllDrawers()"></div>
-    <div class="cursor-dot" data-cursor-dot></div>
-    <div class="cursor-outline" data-cursor-outline></div>
-
-    <footer class="tapt-footer">
-    <div class="footer-content">
-        <div class="footer-brand">
-            <h2 class="footer-logo">Tapt.</h2>
-            <p class="footer-tagline">The future of connection.</p>
-        </div>
-
-        <div class="footer-links-group">
-            <ul class="footer-nav">
-                <li><a href="/about" class="footer-link">About Us</a></li>
-                <li><a href="https://instagram.com/tapt_.t" target="_blank" class="footer-link">Instagram ↗</a></li> 
-            </ul>
-            
-            <ul class="footer-nav">
-                <li><a href="https://wa.me/9103463033" target="_blank" class="footer-link">WhatsApp ↗</a></li>
-                <li><a href="mailto:help.TAPT@gmail.com" class="footer-link">Email Us</a></li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="footer-bottom">
-        <p>&copy; 2026 Tapt. Hardware.</p>
-        <p class="fade-text">Designed for the bold.</p>
-    </div>
-</footer>
-
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    
-    <script src="script.js"></script>
-    <script src="customize.js"></script>
-    <footer class="tapt-footer">
-
-</body>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="script.js"></script> <script src="customize.js"></script> </body>
 </html>

@@ -11,15 +11,15 @@ const firebaseConfig = {
     measurementId: "G-2CB8QXYNJY"
 };
 
-// Initialize
+// Initialize Safely (Prevents "app already exists" error)
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// Global Firebase References
-const auth = firebase.auth();
-const db = firebase.firestore();
-const provider = new firebase.auth.GoogleAuthProvider();
+// Global Firebase References (Safely defined)
+const auth = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth() : null;
+const db = (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore() : null;
+const provider = (typeof firebase !== 'undefined' && firebase.auth) ? new firebase.auth.GoogleAuthProvider() : null;
 
 /* =========================================
    2. GLOBAL HELPERS (Preloader & Cursor)
@@ -76,7 +76,7 @@ window.toggleCart = function() {
         if(accountDrawer) accountDrawer.classList.remove('open');
         
         // Refresh UI when opening
-        if(cartDrawer.classList.contains('open')) updateCartUI();
+        if(cartDrawer.classList.contains('open') && window.updateCartUI) window.updateCartUI();
     }
 };
 
@@ -91,7 +91,7 @@ window.toggleAccount = function() {
         if(cartDrawer) cartDrawer.classList.remove('open');
         
         // Load Real Data when opening
-        populateAccountData();
+        if(window.populateAccountData) window.populateAccountData();
     }
 };
 
@@ -244,9 +244,10 @@ let activeCoupon = null;
 
 window.addToCart = function(title, price, image = '', id = null) {
     let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
-    const itemId = id || title.replace(/\s+/g, '-').toLowerCase(); 
+    const itemId = id || title.replace(/\s+/g, '-').toLowerCase() + Date.now(); 
     
-    const existingItem = cart.find(i => (id && i.id === id) || i.title === title);
+    // Check if simple item exists, otherwise add new (for custom designs we usually add new)
+    const existingItem = id ? cart.find(i => i.id === id) : null;
     
     if(existingItem) {
         existingItem.qty++;
@@ -289,19 +290,23 @@ function showCelebration(amountOff) {
     const overlay = document.getElementById('celebration-overlay');
     const discountText = document.getElementById('celeb-discount-amount');
     
-    discountText.innerText = `SAVED ₹${amountOff.toLocaleString()}`;
-    overlay.classList.add('active');
-    createConfetti();
+    if(overlay && discountText) {
+        discountText.innerText = `SAVED ₹${amountOff.toLocaleString()}`;
+        overlay.classList.add('active');
+        createConfetti();
+    }
 }
 
 window.closeCelebration = function() {
     const overlay = document.getElementById('celebration-overlay');
-    overlay.classList.remove('active');
-    document.getElementById('confetti-container').innerHTML = '';
+    if(overlay) overlay.classList.remove('active');
+    const container = document.getElementById('confetti-container');
+    if(container) container.innerHTML = '';
 }
 
 function createConfetti() {
     const container = document.getElementById('confetti-container');
+    if(!container) return;
     const colors = ['#D4AF37', '#ffffff', '#F7E7CE', '#AA771C'];
     
     for (let i = 0; i < 60; i++) {
@@ -381,7 +386,7 @@ window.applyCoupon = function() {
     });
 };
 
-function updateCartUI() {
+window.updateCartUI = function() {
     let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
     const container = document.getElementById('cart-items-container');
     const badge = document.getElementById('cart-count');
@@ -492,5 +497,180 @@ document.addEventListener('DOMContentLoaded', () => {
             applyTilt(el, e.clientX - rect.left, e.clientY - rect.top);
         });
         el.addEventListener('mouseleave', () => resetTilt(el));
+    });
+});
+
+/* =========================================
+   8. CUSTOMIZE PAGE LOGIC (ADDED to fix setMode error)
+   ========================================= */
+const PRICES = { card: 1999, tag: 899 };
+let state = { mode: 'card', imgScale: 1, imgRotate: 0, x: 0, y: 0, imageLoaded: false, texts: [], selectedTextId: null };
+
+// Attached to window so HTML can see it
+window.setMode = function(mode) {
+    state.mode = mode;
+    const btnCard = document.getElementById('btn-card');
+    const btnTag = document.getElementById('btn-tag');
+    const mask = document.getElementById('product-mask');
+    const price = document.getElementById('display-price');
+
+    if(btnCard && btnTag) {
+        btnCard.classList.toggle('active', mode === 'card');
+        btnTag.classList.toggle('active', mode === 'tag');
+    }
+    
+    if (mask && price) {
+        if (mode === 'card') {
+            mask.classList.remove('mode-tag'); mask.classList.add('mode-card');
+            price.innerText = `₹${PRICES.card.toLocaleString()}`;
+        } else {
+            mask.classList.remove('mode-card'); mask.classList.add('mode-tag');
+            price.innerText = `₹${PRICES.tag.toLocaleString()}`;
+        }
+    }
+};
+
+window.resetImage = function() {
+    const slScale = document.getElementById('sl-scale');
+    const slRotate = document.getElementById('sl-rotate');
+    if(slScale) slScale.value = 1;
+    if(slRotate) slRotate.value = 0;
+    
+    state.imgScale = 1; state.imgRotate = 0;
+    updateTransform();
+    
+    if(document.getElementById('val-scale')) document.getElementById('val-scale').innerText = "100%";
+    if(document.getElementById('val-rotate')) document.getElementById('val-rotate').innerText = "0°";
+};
+
+window.addTextLayer = function() {
+    const id = Date.now();
+    const textObj = { id: id, content: 'NEW TEXT', x: 50, y: 50, font: "'Syncopate', sans-serif", color: '#ffffff', size: 20 };
+    state.texts.push(textObj);
+    renderTextElement(textObj);
+    selectText(id);
+};
+
+window.deleteSelectedText = function() {
+    if(!state.selectedTextId) return;
+    const el = document.getElementById(`txt-${state.selectedTextId}`);
+    if(el) el.remove();
+    state.texts = state.texts.filter(t => t.id !== state.selectedTextId);
+    state.selectedTextId = null;
+    const props = document.getElementById('text-properties');
+    if(props) props.style.display = 'none';
+};
+
+window.finishDesign = function() {
+    if (!state.imageLoaded) return alert("Please upload a design first!");
+    const img = document.getElementById('user-upload-img');
+    const productName = state.mode === 'card' ? 'Custom Design Card' : 'Custom Design Tag';
+    let textSummary = state.texts.map(t => `${t.content}`).join(', ');
+    const customTitle = `${productName} ${textSummary ? '['+textSummary+']' : ''}`;
+    window.addToCart(customTitle, PRICES[state.mode], img ? img.src : '');
+};
+
+// --- Customize Internal Helpers ---
+function updateTransform() {
+    const imgLayer = document.getElementById('user-upload-img');
+    if(imgLayer && state.imageLoaded) {
+        imgLayer.style.transform = `translate(-50%, -50%) translate(${state.x}px, ${state.y}px) rotate(${state.imgRotate}deg) scale(${state.imgScale})`;
+    }
+}
+
+function renderTextElement(textObj) {
+    const canvas = document.getElementById('text-canvas');
+    if(!canvas) return;
+
+    const el = document.createElement('div');
+    el.id = `txt-${textObj.id}`;
+    el.className = 'draggable-text';
+    el.innerText = textObj.content;
+    el.style.left = textObj.x + '%';
+    el.style.top = textObj.y + '%';
+    el.style.transform = 'translate(-50%, -50%)';
+    el.style.fontFamily = textObj.font;
+    el.style.color = textObj.color;
+    el.style.fontSize = textObj.size + 'px';
+    
+    el.addEventListener('mousedown', initDrag);
+    el.addEventListener('touchstart', initDrag, {passive: false});
+    el.addEventListener('click', (e) => { e.stopPropagation(); selectText(textObj.id); });
+
+    canvas.appendChild(el);
+}
+
+function selectText(id) {
+    state.selectedTextId = id;
+    document.querySelectorAll('.draggable-text').forEach(el => el.classList.remove('selected'));
+    const el = document.getElementById(`txt-${id}`);
+    if(el) el.classList.add('selected');
+
+    const textObj = state.texts.find(t => t.id === id);
+    const props = document.getElementById('text-properties');
+    
+    if(textObj && props) {
+        props.style.display = 'block';
+        if(document.getElementById('txt-content')) document.getElementById('txt-content').value = textObj.content;
+        if(document.getElementById('txt-font')) document.getElementById('txt-font').value = textObj.font;
+        if(document.getElementById('txt-color')) document.getElementById('txt-color').value = textObj.color;
+        if(document.getElementById('txt-size')) document.getElementById('txt-size').value = textObj.size;
+    }
+}
+
+// Drag Logic
+let dragItem = null;
+function initDrag(e) { e.preventDefault(); e.stopPropagation(); dragItem = e.target; selectText(parseInt(dragItem.id.split('-')[1])); document.addEventListener('mousemove', doDrag); document.addEventListener('mouseup', stopDrag); document.addEventListener('touchmove', doDrag, {passive: false}); document.addEventListener('touchend', stopDrag); }
+function doDrag(e) { if (!dragItem) return; e.preventDefault(); const rect = document.getElementById('text-canvas').getBoundingClientRect(); const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX; const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY; let xPct = ((clientX - rect.left) / rect.width) * 100; let yPct = ((clientY - rect.top) / rect.height) * 100; dragItem.style.left = xPct + '%'; dragItem.style.top = yPct + '%'; const id = parseInt(dragItem.id.split('-')[1]); const textObj = state.texts.find(t => t.id === id); if(textObj) { textObj.x = xPct; textObj.y = yPct; } }
+function stopDrag() { dragItem = null; document.removeEventListener('mousemove', doDrag); document.removeEventListener('mouseup', stopDrag); document.removeEventListener('touchmove', doDrag); document.removeEventListener('touchend', stopDrag); }
+
+// Event Listeners for Customize Page Interaction
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. File Upload
+    const fileInput = document.getElementById('file-upload');
+    if(fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const imgLayer = document.getElementById('user-upload-img');
+                    if(imgLayer) { imgLayer.src = event.target.result; imgLayer.classList.add('active'); }
+                    document.getElementById('placeholder-msg').style.display = 'none';
+                    document.getElementById('image-controls').style.display = 'block';
+                    document.getElementById('text-section').style.display = 'block';
+                    document.getElementById('file-name').innerText = file.name;
+                    state.imageLoaded = true;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // 2. Sliders
+    const slScale = document.getElementById('sl-scale');
+    const slRotate = document.getElementById('sl-rotate');
+    if(slScale) slScale.addEventListener('input', (e) => { state.imgScale = e.target.value; document.getElementById('val-scale').innerText = Math.round(state.imgScale * 100) + '%'; updateTransform(); });
+    if(slRotate) slRotate.addEventListener('input', (e) => { state.imgRotate = e.target.value; document.getElementById('val-rotate').innerText = state.imgRotate + '°'; updateTransform(); });
+
+    // 3. Text Properties
+    const txtInputs = ['txt-content', 'txt-font', 'txt-color', 'txt-size'];
+    txtInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.addEventListener('input', () => {
+            if(!state.selectedTextId) return;
+            const textObj = state.texts.find(t => t.id === state.selectedTextId);
+            const domEl = document.getElementById(`txt-${state.selectedTextId}`);
+            
+            textObj.content = document.getElementById('txt-content').value;
+            textObj.font = document.getElementById('txt-font').value;
+            textObj.color = document.getElementById('txt-color').value;
+            textObj.size = document.getElementById('txt-size').value;
+
+            domEl.innerText = textObj.content;
+            domEl.style.fontFamily = textObj.font;
+            domEl.style.color = textObj.color;
+            domEl.style.fontSize = textObj.size + 'px';
+        });
     });
 });

@@ -94,3 +94,74 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+/* --- VARIABLES --- */
+let allProducts = []; // Stores all data locally so filtering is instant
+const db = firebase.firestore();
+
+/* --- 1. LOAD PRODUCTS ON START --- */
+function loadShopProducts() {
+    const grid = document.getElementById('shop-grid');
+    grid.innerHTML = "<p style='color:#666; text-align:center; width:100%;'>Loading collection...</p>";
+
+    db.collection("products").get().then((querySnapshot) => {
+        allProducts = []; // Reset cache
+        
+        querySnapshot.forEach((doc) => {
+            let p = doc.data();
+            p.id = doc.id; // Save ID for linking
+            allProducts.push(p);
+        });
+
+        // Initially show ALL products
+        renderGrid(allProducts);
+    });
+}
+
+/* --- 2. RENDER THE GRID --- */
+function renderGrid(productList) {
+    const grid = document.getElementById('shop-grid');
+    grid.innerHTML = "";
+
+    if (productList.length === 0) {
+        grid.innerHTML = "<p style='color:#666; text-align:center; width:100%;'>No products found.</p>";
+        return;
+    }
+
+    productList.forEach(p => {
+        // Use the first image or a placeholder
+        let img = (p.images && p.images.length > 0) ? p.images[0] : 'placeholder.jpg';
+
+        // Create Product Card HTML
+        let html = `
+            <div class="product-card">
+                <div class="p-img-box">
+                    <img src="${img}" alt="${p.title}">
+                </div>
+                <div class="p-details">
+                    <h3>${p.title}</h3>
+                    <p class="p-price">₹${p.price}</p>
+                    <a href="product.html?id=${p.id}" class="buy-btn">View</a>
+                </div>
+            </div>
+        `;
+        grid.innerHTML += html;
+    });
+}
+
+/* --- 3. FILTER FUNCTION --- */
+function filterProducts(type, btnElement) {
+    // 1. Update Buttons (Visuals)
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    btnElement.classList.add('active');
+
+    // 2. Filter Data
+    if (type === 'all') {
+        renderGrid(allProducts);
+    } else {
+        const filtered = allProducts.filter(p => p.type === type);
+        renderGrid(filtered);
+    }
+}
+
+// Start loading when page opens
+window.onload = loadShopProducts;

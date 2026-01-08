@@ -1,198 +1,196 @@
 /* =========================================
-   CUSTOMIZE PAGE LOGIC (WITH SMART COLOR)
-   ========================================= */
+   CHECKOUT LOGIC (FIRESTORE VERSION)
+   ========================================= */ 
 
-// Configuration
-const PRICES = { card: 1999, tag: 899 };
-let state = {
-    mode: 'card', 
-    scale: 1, rotate: 0, x: 0, y: 0,
-    imageLoaded: false,
-    text: '',
-    font: "'Syncopate', sans-serif",
-    textColor: '#ffffff'
+const firebaseConfig = {
+    apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
+    authDomain: "tapt-337b8.firebaseapp.com",
+    projectId: "tapt-337b8",
+    storageBucket: "tapt-337b8.firebasestorage.app",
+    messagingSenderId: "887956121124",
+    appId: "1:887956121124:web:6856680bf75aa3bacddab1",
+    measurementId: "G-2CB8QXYNJY"
 };
 
-// DOM Elements
-const mask = document.getElementById('product-mask');
-const imgLayer = document.getElementById('user-upload-img');
-const textLayer = document.getElementById('text-layer');
-const placeholder = document.getElementById('placeholder-msg');
-const tunePanel = document.getElementById('fine-tune-panel');
-const textPanel = document.getElementById('text-controls-panel');
-const displayPrice = document.getElementById('display-price');
-const fileName = document.getElementById('file-name');
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
-// --- 1. INITIALIZATION ---
+// Use Firestore to match Admin Panel
+const db = firebase.firestore();
+
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('input[type="range"]').forEach(input => {
-        input.value = input.getAttribute('value');
-    });
-});
-
-// --- 2. MODE SWITCHING ---
-function setMode(mode) {
-    state.mode = mode;
-    document.getElementById('btn-card').classList.toggle('active', mode === 'card');
-    document.getElementById('btn-tag').classList.toggle('active', mode === 'tag');
     
-    if (mode === 'card') {
-        mask.classList.remove('mode-tag'); mask.classList.add('mode-card');
-        displayPrice.innerText = `₹${PRICES.card.toLocaleString()}`;
-    } else {
-        mask.classList.remove('mode-card'); mask.classList.add('mode-tag');
-        displayPrice.innerText = `₹${PRICES.tag.toLocaleString()}`;
+    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+    let activeDiscount = 0;
+    
+    // Redirect if empty
+    if (cart.length === 0) {
+        window.location.href = 'shop.html';
+        return;
     }
-}
 
-// --- 3. IMAGE UPLOAD & AUTO COLOR LOGIC ---
-document.getElementById('file-upload').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            imgLayer.src = event.target.result;
-            imgLayer.classList.add('active');
-            
-            placeholder.style.display = 'none';
-            tunePanel.style.display = 'block';
-            textPanel.style.display = 'block';
-            setTimeout(() => { tunePanel.style.opacity = 1; textPanel.style.opacity = 1; }, 10);
-            fileName.innerText = file.name;
-            
-            state.imageLoaded = true;
-            resetTransforms();
-            
-            // Trigger Smart Color Detection after image loads
-            setTimeout(autoDetectColor, 300); 
+    // --- RENDER FUNCTION ---
+    function renderSummary() {
+        const list = document.getElementById('checkout-items-list');
+        list.innerHTML = '';
+        let subtotal = 0;
+
+        cart.forEach((item, index) => {
+            const lineTotal = item.price * item.qty;
+            subtotal += lineTotal;
+            const img = item.image || 'https://via.placeholder.com/60';
+
+            const itemHTML = `
+                <div class="c-item">
+                    <img src="${img}" alt="${item.title}">
+                    <div class="c-info">
+                        <h4>${item.title}</h4>
+                        <div class="qty-checkout-controls">
+                            <button class="qty-mini-btn" type="button" onclick="changeCheckoutQty(${index}, -1)">-</button>
+                            <span class="qty-val">${item.qty}</span>
+                            <button class="qty-mini-btn" type="button" onclick="changeCheckoutQty(${index}, 1)">+</button>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <p style="color:white; font-size:0.9rem;">₹${lineTotal.toLocaleString()}</p>
+                    </div>
+                </div>
+            `;
+            list.insertAdjacentHTML('beforeend', itemHTML);
+        });
+
+        // CALCULATE TOTALS
+        let finalTotal = subtotal - activeDiscount;
+        if(finalTotal < 0) finalTotal = 0;
+
+        document.getElementById('c-subtotal').textContent = "₹" + subtotal.toLocaleString();
+        document.getElementById('c-total').textContent = "₹" + finalTotal.toLocaleString();
+        
+        if(activeDiscount > 0) {
+            document.getElementById('discount-row').style.display = 'flex';
+            document.getElementById('c-discount').textContent = "-₹" + activeDiscount.toLocaleString();
+        } else {
+            document.getElementById('discount-row').style.display = 'none';
         }
-        reader.readAsDataURL(file);
-    }
-});
-
-// --- 4. SMART COLOR DETECTION ALGORITHM ---
-function autoDetectColor() {
-    if (!state.imageLoaded) return;
-
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    // Draw image to canvas to read pixels
-    const img = document.getElementById('user-upload-img');
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
-    ctx.drawImage(img, 0, 0);
-
-    // Get image data
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-    let r, g, b, avg;
-    let colorSum = 0;
-
-    // Analyze every 40th pixel for speed
-    for(let x = 0, len = data.length; x < len; x+=40) {
-        r = data[x];
-        g = data[x+1];
-        b = data[x+2];
-        avg = Math.floor((r + g + b) / 3);
-        colorSum += avg;
     }
 
-    const brightness = Math.floor(colorSum / (data.length / 40));
-    
-    // Logic: If dark image (low brightness), text should be White. Else Black.
-    let bestColor = (brightness < 128) ? '#ffffff' : '#000000';
-    
-    // If it's very middle-ground, stick to Gold for brand
-    if (brightness > 100 && brightness < 150) bestColor = '#D4AF37';
+    // --- QUANTITY LOGIC ---
+    window.changeCheckoutQty = function(index, change) {
+        cart[index].qty += change;
+        if(cart[index].qty <= 0) {
+            cart.splice(index, 1); // Remove item
+        }
+        
+        localStorage.setItem('taptCart', JSON.stringify(cart));
+        
+        if(cart.length === 0) {
+            window.location.href = 'shop.html';
+        } else {
+            renderSummary();
+        }
+    };
 
-    // Apply
-    updateTextColor(bestColor);
-    
-    // Update Input Picker UI
-    document.getElementById('text-color-picker').value = bestColor;
-}
+    // --- COUPON LOGIC (Connected to Firestore) ---
+    document.getElementById('apply-coupon-btn').addEventListener('click', () => {
+        const input = document.getElementById('coupon-code');
+        const msg = document.getElementById('coupon-message');
+        const code = input.value.toUpperCase().trim();
+        const btn = document.getElementById('apply-coupon-btn');
 
-// --- 5. TEXT & FONT HANDLING ---
-document.getElementById('custom-text-input').addEventListener('input', (e) => {
-    state.text = e.target.value;
-    textLayer.innerText = state.text || "YOUR NAME";
-});
+        if(!code) return;
 
-document.getElementById('font-select').addEventListener('change', (e) => {
-    state.font = e.target.value;
-    textLayer.style.fontFamily = state.font;
-});
+        btn.innerText = "Checking...";
+        
+        // Check Firestore for coupon
+        db.collection("coupons").doc(code).get().then((doc) => {
+            if (doc.exists) {
+                const couponData = doc.data();
+                let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-document.getElementById('text-color-picker').addEventListener('input', (e) => {
-    updateTextColor(e.target.value);
-});
+                if (couponData.type === 'percentage') {
+                    // e.g. Value 20 means 20%
+                    activeDiscount = Math.round(subtotal * (couponData.value / 100));
+                } else {
+                    // Flat Amount
+                    activeDiscount = couponData.value;
+                }
 
-function updateTextColor(color) {
-    state.textColor = color;
-    textLayer.style.color = color;
-}
+                msg.textContent = `Success! Code ${code} applied.`;
+                msg.className = "msg-success"; // Make sure you have this class in CSS (green color)
+                renderSummary();
+            } else {
+                msg.textContent = "Invalid Coupon Code";
+                msg.className = "msg-error"; // Make sure you have this class in CSS (red color)
+                activeDiscount = 0;
+                renderSummary();
+            }
+            btn.innerText = "Apply";
+        }).catch((error) => {
+            console.error("Error checking coupon:", error);
+            msg.textContent = "Error checking code.";
+            btn.innerText = "Apply";
+        });
+    });
 
-// --- 6. LIVE TWEAKING ---
-function updateTransform() {
-    if(!state.imageLoaded) return;
-    imgLayer.style.transform = `translate(-50%, -50%) translate(${state.x}px, ${state.y}px) rotate(${state.rotate}deg) scale(${state.scale})`;
-}
+    // --- PAYMENT UI LOGIC ---
+    const paymentRadios = document.getElementsByName('payment');
+    paymentRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const btn = document.getElementById('pay-btn');
+            if(e.target.value === 'cod') {
+                btn.textContent = "Place Order (COD)";
+            } else {
+                btn.textContent = "Pay Now";
+            }
+        });
+    });
 
-document.getElementById('sl-scale').addEventListener('input', (e) => {
-    state.scale = parseFloat(e.target.value);
-    document.getElementById('val-scale').innerText = Math.round(state.scale * 100) + '%';
-    updateTransform();
-});
-document.getElementById('sl-rotate').addEventListener('input', (e) => {
-    state.rotate = parseInt(e.target.value);
-    document.getElementById('val-rotate').innerText = state.rotate + '°';
-    updateTransform();
-});
-document.getElementById('sl-x').addEventListener('input', (e) => {
-    state.x = parseInt(e.target.value);
-    updateTransform();
-});
-document.getElementById('sl-y').addEventListener('input', (e) => {
-    state.y = parseInt(e.target.value);
-    updateTransform();
-});
+    // --- SUBMIT ORDER (Connected to Firestore) ---
+    document.getElementById('checkout-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const btn = document.getElementById('pay-btn');
+        const originalText = btn.innerText;
+        btn.innerText = "Processing...";
+        btn.disabled = true;
 
-function resetTransforms() {
-    state.scale = 1; state.rotate = 0; state.x = 0; state.y = 0;
-    document.getElementById('sl-scale').value = 1;
-    document.getElementById('sl-rotate').value = 0;
-    document.getElementById('sl-x').value = 0;
-    document.getElementById('sl-y').value = 0;
-    document.getElementById('val-scale').innerText = "100%";
-    document.getElementById('val-rotate').innerText = "0°";
-    updateTransform();
-}
+        // Get Selected Payment
+        let paymentMethod = 'card';
+        document.getElementsByName('payment').forEach(r => { if(r.checked) paymentMethod = r.value; });
 
-// --- 7. ADD TO CART ---
-function finishDesign() {
-    if (!state.imageLoaded) return alert("Please upload a design first!");
+        // Calculate final total text
+        const totalText = document.getElementById('c-total').textContent.replace('₹', '').replace(/,/g, '');
+        const totalValue = parseFloat(totalText);
 
-    const productName = state.mode === 'card' ? 'Custom Design Card' : 'Custom Design Tag';
-    const price = PRICES[state.mode];
-    
-    const customTitle = `${productName} (${state.text || 'No Text'})`;
-    
-    window.addToCart(customTitle, price, imgLayer.src);
-}
+        const orderData = {
+            date: new Date().toISOString(),
+            email: document.getElementById('email').value,
+            paymentMethod: paymentMethod,
+            shipping: {
+                first: document.getElementById('f-name').value,
+                last: document.getElementById('l-name').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                phone: document.getElementById('phone').value
+            },
+            items: cart,
+            total: totalValue,
+            status: paymentMethod === 'cod' ? 'pending_cod' : 'paid'
+        };
 
-// --- 8. 3D TILT ---
-const stage = document.getElementById('tilt-stage');
-const object = document.getElementById('product-mask');
+        // Save to Firestore "orders" collection
+        db.collection("orders").add(orderData).then(() => {
+            localStorage.removeItem('taptCart');
+            document.getElementById('success-overlay').style.display = 'flex';
+        }).catch(err => {
+            console.error(err);
+            alert("Error placing order: " + err.message);
+            btn.innerText = originalText;
+            btn.disabled = false;
+        });
+    });
 
-stage.addEventListener('mousemove', (e) => {
-    const rect = stage.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const xRot = -((y - rect.height/2) / 20);
-    const yRot = (x - rect.width/2) / 20;
-    object.style.transform = `perspective(1000px) rotateX(${xRot}deg) rotateY(${yRot}deg)`;
-});
-stage.addEventListener('mouseleave', () => {
-    object.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+    // Initial Render
+    renderSummary();
 });

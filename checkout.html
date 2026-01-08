@@ -23,7 +23,7 @@
     </nav>
 
     <div class="checkout-container">
-        <form id="checkout-form" class="checkout-layout">
+        <div id="checkout-form" class="checkout-layout">
             
             <div class="checkout-left">
                 <div class="checkout-section">
@@ -53,14 +53,7 @@
                             <input type="radio" name="payment" value="card" checked>
                             <div class="pay-box">
                                 <i class="fa-regular fa-credit-card"></i>
-                                <span>Card</span>
-                            </div>
-                        </label>
-                        <label class="pay-option">
-                            <input type="radio" name="payment" value="upi">
-                            <div class="pay-box">
-                                <i class="fa-solid fa-mobile-screen-button"></i>
-                                <span>UPI</span>
+                                <span>Card / UPI</span>
                             </div>
                         </label>
                         <label class="pay-option">
@@ -97,12 +90,13 @@
                         <div class="summary-row total"><span>Total</span><span id="c-total">₹0</span></div>
                     </div>
 
-                    <button type="submit" class="pay-btn" id="pay-btn">Pay Now</button>
+                    <button type="button" class="pay-btn" id="pay-btn" onclick="startPayment()">Pay Now</button>
+                    
                     <div class="secure-msg"><i class="fa-solid fa-lock"></i> SSL Secure Checkout</div>
                 </div>
             </div>
 
-        </form>
+        </div>
     </div>
 
     <div id="success-overlay" class="success-screen" style="display: none;">
@@ -115,7 +109,91 @@
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script> <script src="checkout.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script> 
+    
+    <script src="checkout.js"></script>
+    
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script>
+        // REPLACE THIS WITH YOUR CLOUDFLARE WORKER URL
+        const WORKER_URL = "https://tapt-chat-proxy.moominafarash.workers.dev/"; 
+
+        async function startPayment() {
+            // 1. Get Cart Total
+            let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+            let totalINR = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+
+            if(totalINR === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+
+            // 2. Validate Inputs (Simple check)
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            if(!email || !phone) {
+                alert("Please fill in your Email and Phone.");
+                return;
+            }
+
+            // 3. UI Feedback
+            const btn = document.getElementById('pay-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "Processing...";
+            btn.style.opacity = "0.7";
+
+            try {
+                // 4. Create Order securely via Cloudflare
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        action: 'create_order', 
+                        amount: totalINR * 100 // Convert to paise
+                    })
+                });
+
+                const order = await response.json();
+
+                if (order.error) {
+                    throw new Error("Server Error: " + JSON.stringify(order));
+                }
+
+                // 5. Open Razorpay
+                const options = {
+                    "key": "rzp_live_S1OPe9xRMj9Gdu", // <--- PASTE YOUR KEY ID HERE
+                    "amount": order.amount,
+                    "currency": "INR",
+                    "name": "TAPT Hardware",
+                    "description": "Premium NFC Gear",
+                    "order_id": order.id,
+                    "prefill": {
+                        "email": email,
+                        "contact": phone
+                    },
+                    "handler": function (response) {
+                        // Success! Show overlay
+                        document.getElementById('success-overlay').style.display = "flex";
+                        localStorage.removeItem('taptCart'); // Clear cart
+                    },
+                    "theme": { "color": "#D4AF37" }
+                };
+
+                const rzp1 = new Razorpay(options);
+                rzp1.open();
+                
+                // Reset button text
+                btn.innerText = originalText;
+                btn.style.opacity = "1";
+
+            } catch (error) {
+                console.error(error);
+                alert("Payment setup failed. Check your Worker URL.");
+                btn.innerText = originalText;
+                btn.style.opacity = "1";
+            }
+        }
+    </script>
 </body>
 </html>

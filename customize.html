@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Design Studio | TAPT.</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&family=Playfair+Display:wght@400;700&family=Courier+Prime&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <link rel="stylesheet" href="style.css">
@@ -35,20 +35,22 @@
                     
                     <img id="user-upload-img" src="" alt="" class="user-layer">
                     
+                    <div id="text-layer" class="design-text">YOUR NAME</div>
+
                     <div class="placeholder-msg" id="placeholder-msg">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
                         <span>Upload Design</span>
                     </div>
 
-                    <div class="overlay-texture"></div> <div class="hw-chip"></div>
-                    <i class="fa-solid fa-wifi hw-wifi"></i>
+                    <div class="overlay-texture"></div> 
                     
+                    <div class="hw-chip"></div>
+                    <i class="fa-solid fa-wifi hw-wifi"></i>
                     <div class="hw-hole"></div>
                     <div class="hw-ring"></div>
                 </div>
 
             </div>
-            
             <div class="stage-instructions">
                 <i class="fa-solid fa-hand-pointer"></i> Drag to Pan • Scroll to Zoom
             </div>
@@ -58,7 +60,6 @@
             
             <div class="control-header">
                 <h1 class="studio-title">Customize</h1>
-                <p class="studio-sub">Create your unique legacy.</p>
             </div>
 
             <div class="control-group">
@@ -72,14 +73,43 @@
             <div class="control-group">
                 <label>Design File</label>
                 <label for="file-upload" class="upload-trigger">
-                    <span id="file-name">Choose Image (JPG/PNG)</span>
+                    <span id="file-name">Choose Image</span>
                     <i class="fa-solid fa-upload"></i>
                 </label>
                 <input type="file" id="file-upload" accept="image/*">
             </div>
 
+            <div id="text-controls-panel" style="display:none; opacity: 0; transition: 0.5s;">
+                <div class="divider"><span>ADD TEXT</span></div>
+                
+                <div class="input-group">
+                    <input type="text" id="custom-text-input" placeholder="Enter Name or Text..." maxlength="20">
+                </div>
+
+                <div class="slider-row">
+                    <div class="slider-group" style="flex:2;">
+                        <label>Font</label>
+                        <select id="font-select" class="tapt-select">
+                            <option value="'Syncopate', sans-serif">Modern (Sync)</option>
+                            <option value="'Inter', sans-serif">Clean (Inter)</option>
+                            <option value="'Playfair Display', serif">Luxury (Serif)</option>
+                            <option value="'Courier Prime', monospace">Retro (Code)</option>
+                        </select>
+                    </div>
+                    <div class="slider-group" style="flex:1; display: flex; flex-direction: column; align-items: flex-end;">
+                        <label>Color</label>
+                        <div class="color-tools">
+                            <input type="color" id="text-color-picker" value="#ffffff">
+                            <button class="magic-btn" onclick="autoDetectColor()" title="Auto Detect Best Color">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div id="fine-tune-panel" style="display:none; opacity: 0; transition: 0.5s;">
-                <div class="divider"><span>TWEAK DETAILS</span></div>
+                <div class="divider"><span>IMAGE DETAILS</span></div>
                 
                 <div class="slider-group">
                     <label>Scale <span id="val-scale">100%</span></label>
@@ -110,9 +140,7 @@
                     <span>Total</span>
                     <span id="display-price" style="color:var(--tapt-gold); font-size:1.5rem;">₹1,999</span>
                 </div>
-                <button class="add-cart-btn" onclick="finishDesign()">
-                    Add to Cart
-                </button>
+                <button class="add-cart-btn" onclick="finishDesign()">Add to Cart</button>
             </div>
 
         </div>
@@ -130,5 +158,8 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="script.js"></script> <script src="customize.js"></script> </body>
+    <script src="script.js"></script>
+    <script src="customize.js"></script>
+
+</body>
 </html>

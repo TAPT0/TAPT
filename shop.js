@@ -1,167 +1,121 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const grid = document.getElementById('shop-grid');
-    const searchInput = document.querySelector('.search-container input');
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    
-    if (grid) {
-        let allProducts = [];
-        grid.innerHTML = `<div class="loading-skeleton"><div class="skeleton-card"></div><div class="skeleton-card"></div></div>`;
-
-        const db = firebase.firestore();
-        db.collection("products").orderBy("createdAt", "desc").get().then((querySnapshot) => {
-            grid.innerHTML = "";
-            allProducts = [];
-            
-            if (querySnapshot.empty) {
-                grid.innerHTML = "<p style='text-align:center; width:100%; color:#666;'>No products found.</p>";
-                return;
-            }
-
-            querySnapshot.forEach((doc) => {
-                const p = doc.data();
-                allProducts.push({ ...p, id: doc.id });
-            });
-
-            renderShopProducts(allProducts);
-        });
-
-        function renderShopProducts(products) {
-            grid.innerHTML = "";
-            if (products.length === 0) {
-                grid.innerHTML = "<p style='text-align:center; width:100%; color:#666;'>No matches found.</p>";
-                return;
-            }
-
-            products.forEach(p => {
-                const img = (p.images && p.images[0]) ? p.images[0] : 'https://via.placeholder.com/300x300/111/333?text=TAPT';
-                const typeLabel = p.category ? p.category.toUpperCase() : (p.type ? p.type.toUpperCase() : 'ITEM');
-
-                const card = document.createElement('div');
-                card.className = "product-card";
-                card.onclick = (e) => {
-                    if(e.target.closest('.add-icon')) return;
-                    window.location.href = `product.html?id=${p.id}`;
-                };
-
-                card.innerHTML = `
-                    <div class="card-image-wrapper">
-                        <img src="${img}" alt="${p.title}" loading="lazy">
-                    </div>
-                    <div class="card-info">
-                        <div class="p-category">${typeLabel}</div>
-                        <div class="p-title">${p.title}</div>
-                        <div class="p-footer">
-                            <div class="p-price">₹${p.price}</div>
-                            <div class="add-icon" onclick="addToCart('${p.title}', ${p.price}, '${img}', '${p.id}')">
-                                <i class="fa-solid fa-plus"></i>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const filterValue = btn.getAttribute('data-filter');
-                filterGrid(filterValue, searchInput ? searchInput.value : '');
-            });
-        });
-
-        if(searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                const activeBtn = document.querySelector('.filter-btn.active');
-                const filterType = activeBtn ? activeBtn.getAttribute('data-filter') : 'all';
-                filterGrid(filterType, e.target.value);
-            });
-        }
-
-        function filterGrid(type, searchTerm) {
-            const term = searchTerm.toLowerCase();
-            const filtered = allProducts.filter(p => {
-                const pType = p.type ? p.type.toLowerCase() : '';
-                const pCat = p.category ? p.category.toLowerCase() : '';
-                
-                // Matches either Type (card/tag) OR Category (social/review/etc)
-                const matchesType = (type === 'all') || (pType.includes(type)) || (pCat.includes(type));
-                const matchesSearch = p.title.toLowerCase().includes(term);
-                return matchesType && matchesSearch;
-            });
-            renderShopProducts(filtered);
-        }
-    }
-});
-/* --- VARIABLES --- */
-let allProducts = []; // Stores all data locally so filtering is instant
+/* --- GLOBAL VARIABLES --- */
+let allProductsCache = [];
+let currentFilterType = 'all';
+let currentSearchTerm = '';
 const db = firebase.firestore();
 
-/* --- 1. LOAD PRODUCTS ON START --- */
+/* --- 1. INITIALIZATION --- */
+document.addEventListener('DOMContentLoaded', () => {
+    // Load products immediately
+    loadShopProducts();
+
+    // Setup Search Listener
+    const searchInput = document.getElementById('shop-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            currentSearchTerm = e.target.value.toLowerCase().trim();
+            applyFilters(); // Re-run filters whenever user types
+        });
+    }
+});
+
+/* --- 2. LOAD PRODUCTS --- */
 function loadShopProducts() {
     const grid = document.getElementById('shop-grid');
-    grid.innerHTML = "<p style='color:#666; text-align:center; width:100%;'>Loading collection...</p>";
+    if (!grid) return;
 
-    db.collection("products").get().then((querySnapshot) => {
-        allProducts = []; // Reset cache
+    // Show loading state
+    grid.innerHTML = '<div style="color:#666; text-align:center; width:100%; margin-top:50px; font-family:\'Inter\'">Loading Collection...</div>';
+
+    db.collection("products").orderBy("createdAt", "desc").get().then((querySnapshot) => {
+        allProductsCache = []; // Reset cache
         
         querySnapshot.forEach((doc) => {
             let p = doc.data();
             p.id = doc.id; // Save ID for linking
-            allProducts.push(p);
+            allProductsCache.push(p);
         });
 
-        // Initially show ALL products
-        renderGrid(allProducts);
+        // Initial Render (Show All)
+        applyFilters(); 
+    }).catch((error) => {
+        console.error("Error loading products:", error);
+        grid.innerHTML = '<div style="color:red; text-align:center; width:100%;">Error loading products.</div>';
     });
 }
 
-/* --- 2. RENDER THE GRID --- */
+/* --- 3. FILTER LOGIC (Called by Buttons) --- */
+function filterProducts(type, btnElement) {
+    // 1. Update Button Visuals
+    const buttons = document.querySelectorAll('.filter-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    if (btnElement) {
+        btnElement.classList.add('active');
+    }
+
+    // 2. Set Filter State
+    currentFilterType = type;
+
+    // 3. Apply changes
+    applyFilters();
+}
+
+/* --- 4. MASTER FILTER (Combines Type + Search) --- */
+function applyFilters() {
+    let filtered = allProductsCache;
+
+    // A. Filter by Type (Card vs Tag)
+    if (currentFilterType !== 'all') {
+        filtered = filtered.filter(p => {
+            // Check 'type' field safely
+            const pType = p.type ? p.type.toLowerCase() : '';
+            return pType === currentFilterType;
+        });
+    }
+
+    // B. Filter by Search Term
+    if (currentSearchTerm !== '') {
+        filtered = filtered.filter(p => {
+            const title = p.title ? p.title.toLowerCase() : '';
+            const category = p.category ? p.category.toLowerCase() : '';
+            return title.includes(currentSearchTerm) || category.includes(currentSearchTerm);
+        });
+    }
+
+    // C. Render Result
+    renderGrid(filtered);
+}
+
+/* --- 5. RENDER GRID --- */
 function renderGrid(productList) {
     const grid = document.getElementById('shop-grid');
     grid.innerHTML = "";
 
     if (productList.length === 0) {
-        grid.innerHTML = "<p style='color:#666; text-align:center; width:100%;'>No products found.</p>";
+        grid.innerHTML = '<div style="color:#666; text-align:center; width:100%; margin-top:50px;">No items match your search.</div>';
         return;
     }
 
     productList.forEach(p => {
-        // Use the first image or a placeholder
-        let img = (p.images && p.images.length > 0) ? p.images[0] : 'placeholder.jpg';
+        // Use first image or placeholder
+        let img = (p.images && p.images.length > 0) ? p.images[0] : 'assets/placeholder.jpg';
+        let categoryLabel = p.category ? p.category : (p.type ? p.type.toUpperCase() : 'NFC');
 
-        // Create Product Card HTML
         let html = `
-            <div class="product-card">
+            <div class="product-card" onclick="window.location.href='product.html?id=${p.id}'">
                 <div class="p-img-box">
-                    <img src="${img}" alt="${p.title}">
+                    <img src="${img}" alt="${p.title}" loading="lazy">
                 </div>
                 <div class="p-details">
-                    <h3>${p.title}</h3>
-                    <p class="p-price">₹${p.price}</p>
-                    <a href="product.html?id=${p.id}" class="buy-btn">View</a>
+                    <div class="p-info">
+                        <h3>${p.title}</h3>
+                        <p class="p-cat">${categoryLabel}</p>
+                    </div>
+                    <div class="p-price">₹${p.price}</div>
                 </div>
             </div>
         `;
         grid.innerHTML += html;
     });
 }
-
-/* --- 3. FILTER FUNCTION --- */
-function filterProducts(type, btnElement) {
-    // 1. Update Buttons (Visuals)
-    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-    btnElement.classList.add('active');
-
-    // 2. Filter Data
-    if (type === 'all') {
-        renderGrid(allProducts);
-    } else {
-        const filtered = allProducts.filter(p => p.type === type);
-        renderGrid(filtered);
-    }
-}
-
-// Start loading when page opens
-window.onload = loadShopProducts;

@@ -179,108 +179,46 @@ async function uploadProduct() {
     });
 }
 
-/* --- REPLACE YOUR loadOrders FUNCTION IN admin.js --- */
-
-function loadOrders() {
-    const container = document.getElementById('orders-list-container');
-    container.innerHTML = '<p style="color:var(--gold);">Loading orders...</p>';
-
-    unsubscribeOrders = db.collection("orders").orderBy("date", "desc").limit(20).onSnapshot((snapshot) => {
+function loadProducts() {
+    const container = document.getElementById('products-list-container');
+    container.innerHTML = "<p style='color:#666;'>Loading inventory...</p>";
+    
+    unsubscribeProducts = db.collection("products").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
         container.innerHTML = "";
-        
-        if (snapshot.empty) {
-            container.innerHTML = "<p>No orders found.</p>";
+        allProductsCache = {}; 
+
+        if(snapshot.empty) {
+            container.innerHTML = "<p style='color:#666;'>No products found.</p>";
             return;
         }
-
+        
         snapshot.forEach((doc) => {
-            const order = doc.data();
-            const orderId = doc.id;
+            const p = doc.data();
+            const key = doc.id;
+            allProductsCache[key] = p;
+
+            const img = (p.images && p.images.length > 0) ? p.images[0] : '';
             
-            // Generate Items HTML
-            let itemsHtml = "";
-            order.items.forEach(item => {
-                let actionBtns = '';
-                
-                // 1. Download IMAGE Button
-                if (item.img && item.img.startsWith('data:image')) {
-                    actionBtns += `
-                        <a href="${item.img}" download="IMG_${orderId}.png" 
-                           style="background:var(--gold); color:black; padding:5px 10px; text-decoration:none; font-weight:bold; font-size:0.7rem; border-radius:4px; margin-left:10px;">
-                           <i class="fa-solid fa-image"></i> PNG
-                        </a>
-                    `;
-                }
-
-                // 2. Download JSON Button (The New Part)
-                if (item.designJson) {
-                    // Create a downloadable blob for the JSON text
-                    const blob = new Blob([item.designJson], {type: "application/json"});
-                    const url = URL.createObjectURL(blob);
-                    
-                    actionBtns += `
-                        <a href="${url}" download="CODE_${orderId}.json" 
-                           style="background:#333; color:white; padding:5px 10px; text-decoration:none; font-weight:bold; font-size:0.7rem; border-radius:4px; margin-left:5px; border:1px solid #555;">
-                           <i class="fa-solid fa-code"></i> JSON
-                        </a>
-                    `;
-                }
-
-                itemsHtml += `
-                    <div style="display:flex; gap:15px; margin-top:10px; background:#111; padding:10px; border-radius:6px; align-items:center; border:1px solid #333;">
-                        <img src="${item.img}" style="width:50px; height:50px; object-fit:contain; background:#222; border-radius:4px; border:1px solid #444;">
-                        <div style="flex:1;">
-                            <div style="color:white; font-weight:bold; font-size:0.9rem;">${item.name}</div>
-                            <div style="color:#888; font-size:0.8rem;">Qty: ${item.qty}</div>
-                        </div>
-                        <div style="display:flex;">
-                            ${actionBtns}
-                        </div>
-                    </div>
-                `;
-            });
-
-            // Build Order Card (Same as before)
-            const orderCard = `
-                <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #333;">
-                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:15px;">
-                        <div>
-                            <span style="color:var(--gold); font-weight:bold; font-family:monospace; font-size:1.1rem;">#${orderId.substring(0,8).toUpperCase()}</span>
-                            <span style="display:block; font-size:0.75rem; color:#666;">${new Date(order.date).toLocaleString()}</span>
-                        </div>
-                        <div style="text-align:right;">
-                            <span style="background:${order.method==='cod'?'rgba(255,165,0,0.1)':'rgba(0,255,0,0.1)'}; color:${order.method==='cod'?'orange':'#00ff88'}; padding:4px 8px; border-radius:4px; font-size:0.75rem; border:1px solid ${order.method==='cod'?'rgba(255,165,0,0.3)':'rgba(0,255,0,0.3)'}; font-weight:bold;">
-                                ${order.status || (order.method==='cod'?'PENDING (COD)':'PAID')}
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; font-size:0.85rem; color:#ccc; margin-bottom:15px;">
-                        <div>
-                            <strong style="color:white; text-transform:uppercase; font-size:0.75rem;">Customer</strong><br>
-                            ${order.customer['f-name']} ${order.customer['l-name']}<br>
-                            ${order.customer.phone}<br>
-                            ${order.customer.email}
-                        </div>
-                        <div>
-                            <strong style="color:white; text-transform:uppercase; font-size:0.75rem;">Shipping</strong><br>
-                            ${order.customer.address}<br>
-                            ${order.customer.city}, ${order.customer.state} - ${order.customer.zip}
-                        </div>
-                    </div>
-
-                    <div style="background:#050505; padding:15px; border-radius:6px; border:1px solid #222;">
-                        ${itemsHtml}
-                    </div>
-
-                    <div style="margin-top:15px; display:flex; justify-content:flex-end; align-items:center; gap:10px; font-size:1.1rem; color:white;">
-                        <span>Total:</span>
-                        <span style="color:var(--gold); font-weight:bold;">₹${order.total}</span> 
+            const div = document.createElement('div');
+            div.className = 'inventory-item';
+            div.innerHTML = `
+                <div class="inv-left">
+                    <img src="${img}" class="inv-img">
+                    <div class="inv-info">
+                        <strong>${p.title}</strong>
+                        <span>₹${p.price} | ${p.type ? p.type.toUpperCase() : 'CARD'}</span>
                     </div>
                 </div>
+                <div class="inv-actions">
+                    <button class="btn-sm btn-edit" onclick="openEditModal('${key}')">MANAGE</button>
+                    <button class="btn-sm btn-del" onclick="deleteProduct('${key}')">DELETE</button>
+                </div>
             `;
-            container.innerHTML += orderCard;
+            container.appendChild(div);
         });
+    }, (error) => {
+        console.error("Product Load Error:", error);
+        container.innerHTML = "<p style='color:red'>Error loading products. Check permissions.</p>";
     });
 }
 
@@ -408,12 +346,12 @@ function deleteCoupon(id) {
     if(confirm("Delete coupon?")) db.collection("coupons").doc(id).delete();
 }
 
-/* --- ORDERS (WITH DESIGN DOWNLOAD) --- */
+/* --- ORDERS (WITH TRACKING, STATUS & DELETE) --- */
 function loadOrders() {
     const container = document.getElementById('orders-list-container');
     container.innerHTML = '<p style="color:var(--gold);">Loading orders...</p>';
 
-    unsubscribeOrders = db.collection("orders").orderBy("date", "desc").limit(20).onSnapshot((snapshot) => {
+    unsubscribeOrders = db.collection("orders").orderBy("date", "desc").limit(30).onSnapshot((snapshot) => {
         container.innerHTML = "";
         
         if (snapshot.empty) {
@@ -424,35 +362,51 @@ function loadOrders() {
         snapshot.forEach((doc) => {
             const order = doc.data();
             const orderId = doc.id;
-            const customerName = order.customer ? (order.customer['f-name'] || order.shipping.first) : 'Guest';
             
-            // Generate Items HTML with Download Button for custom designs
+            // Generate Items HTML
             let itemsHtml = "";
             order.items.forEach(item => {
                 let downloadBtn = '';
-                // If item has a long base64 image (likely a custom design), add download button
+                
+                // 1. Download IMAGE
                 if (item.img && item.img.startsWith('data:image')) {
-                    downloadBtn = `
+                    downloadBtn += `
                         <a href="${item.img}" download="Design_${orderId}_${item.name.replace(/\s+/g, '_')}.png" 
-                           style="display:flex; align-items:center; gap:5px; background:var(--gold); color:black; padding:8px 12px; text-decoration:none; font-weight:bold; font-size:0.75rem; border-radius:4px; margin-left:auto;">
-                           <i class="fa-solid fa-download"></i> DOWNLOAD DESIGN
+                           style="background:var(--gold); color:black; padding:5px 10px; text-decoration:none; font-weight:bold; font-size:0.7rem; border-radius:4px; margin-left:10px; display:inline-flex; align-items:center; gap:5px;">
+                           <i class="fa-solid fa-image"></i> PNG
+                        </a>
+                    `;
+                }
+
+                // 2. Download JSON
+                if (item.designJson) {
+                    const blob = new Blob([item.designJson], {type: "application/json"});
+                    const url = URL.createObjectURL(blob);
+                    downloadBtn += `
+                        <a href="${url}" download="CODE_${orderId}.json" 
+                           style="background:#333; color:white; padding:5px 10px; text-decoration:none; font-weight:bold; font-size:0.7rem; border-radius:4px; margin-left:5px; border:1px solid #555; display:inline-flex; align-items:center; gap:5px;">
+                           <i class="fa-solid fa-code"></i> JSON
                         </a>
                     `;
                 }
 
                 itemsHtml += `
                     <div style="display:flex; gap:15px; margin-top:10px; background:#111; padding:10px; border-radius:6px; align-items:center; border:1px solid #333;">
-                        <img src="${item.img}" style="width:60px; height:60px; object-fit:contain; background:#222; border-radius:4px; border:1px solid #444;">
+                        <img src="${item.img}" style="width:50px; height:50px; object-fit:contain; background:#222; border-radius:4px; border:1px solid #444;">
                         <div style="flex:1;">
                             <div style="color:white; font-weight:bold; font-size:0.9rem;">${item.name}</div>
                             <div style="color:#888; font-size:0.8rem;">Qty: ${item.qty} | ₹${item.price}</div>
                         </div>
-                        ${downloadBtn}
+                        <div style="display:flex;">${downloadBtn}</div>
                     </div>
                 `;
             });
 
-            // Build Order Card
+            // Determine Status and Tracking for Inputs
+            const currentStatus = order.status || 'Pending';
+            const trackingVal = order.trackingId || '';
+
+            // Build Order Card with Management Controls
             const orderCard = `
                 <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #333;">
                     <div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:15px;">
@@ -481,19 +435,66 @@ function loadOrders() {
                         </div>
                     </div>
 
-                    <div style="background:#050505; padding:15px; border-radius:6px; border:1px solid #222;">
-                        <strong style="color:#666; font-size:0.7rem; text-transform:uppercase; display:block; margin-bottom:5px;">Order Items</strong>
+                    <div style="background:#050505; padding:10px; border-radius:6px; border:1px solid #222; margin-bottom:15px;">
                         ${itemsHtml}
                     </div>
 
-                    <div style="margin-top:15px; display:flex; justify-content:flex-end; align-items:center; gap:10px; font-size:1.1rem; color:white;">
-                        <span>Total:</span>
-                        <span style="color:var(--gold); font-weight:bold;">₹${order.total}</span> 
-                        <span style="font-size:0.75rem; background:#333; padding:2px 6px; border-radius:4px; color:#aaa; text-transform:uppercase;">${order.method}</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:15px; border-top:1px solid #333;">
+                        <div style="font-size:1.1rem; color:white;">
+                            Total: <span style="color:var(--gold); font-weight:bold;">₹${order.total}</span> 
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 15px; background: #111; padding: 10px; border-radius: 6px; border: 1px solid #444; display: flex; align-items: center; gap: 10px; flex-wrap:wrap;">
+                        <input type="text" id="track-${orderId}" placeholder="Tracking ID (e.g. DTDC123)" value="${trackingVal}" 
+                               style="flex: 1; background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 4px; font-size: 0.85rem;">
+                        
+                        <select id="status-${orderId}" style="background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 4px; font-size: 0.85rem;">
+                            <option value="Pending" ${currentStatus==='Pending'?'selected':''}>Pending</option>
+                            <option value="Processing" ${currentStatus==='Processing'?'selected':''}>Processing</option>
+                            <option value="Shipped" ${currentStatus==='Shipped'?'selected':''}>Shipped</option>
+                            <option value="Delivered" ${currentStatus==='Delivered'?'selected':''}>Delivered</option>
+                            <option value="Cancelled" ${currentStatus==='Cancelled'?'selected':''}>Cancelled</option>
+                        </select>
+
+                        <button onclick="updateOrder('${orderId}')" style="background: #00aa55; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size:0.8rem;">
+                            <i class="fa-solid fa-floppy-disk"></i> UPDATE
+                        </button>
+                        
+                        <button onclick="deleteOrder('${orderId}')" style="background: #aa2222; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
                     </div>
                 </div>
             `;
             container.innerHTML += orderCard;
         });
     });
+}
+
+// Function to Update Order Status & Tracking
+function updateOrder(orderId) {
+    const tracking = document.getElementById(`track-${orderId}`).value;
+    const status = document.getElementById(`status-${orderId}`).value;
+
+    db.collection("orders").doc(orderId).update({
+        trackingId: tracking,
+        status: status
+    }).then(() => {
+        showToast("Order Updated Successfully");
+    }).catch(err => {
+        console.error(err);
+        alert("Error updating order: " + err.message);
+    });
+}
+
+// Function to Delete Order
+function deleteOrder(orderId) {
+    if(confirm("⚠️ ARE YOU SURE? \n\nThis will permanently delete this order record from the database. This action cannot be undone.")) {
+        db.collection("orders").doc(orderId).delete().then(() => {
+            showToast("Order Deleted");
+        }).catch(err => {
+            alert("Error deleting: " + err.message);
+        });
+    }
 }

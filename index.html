@@ -26,7 +26,7 @@
         body {
             background-color: var(--bg);
             color: white;
-            overflow-x: hidden;
+            overflow-x: hidden; /* Critical for mobile 3D elements */
             margin: 0;
             font-family: 'Inter', sans-serif;
         }
@@ -48,10 +48,19 @@
             top: 0;
             z-index: 100;
             backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px); /* Safari support */
             border-bottom: 1px solid var(--border);
-            background: rgba(5, 5, 5, 0.8);
+            background: rgba(5, 5, 5, 0.85);
             box-sizing: border-box;
         }
+
+        .logo {
+            font-family: 'Syncopate', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: -1px;
+        }
+        .logo span { color: var(--gold); }
 
         /* --- HERO SECTION (ANIMATED) --- */
         .hero-section {
@@ -60,9 +69,9 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            padding: 100px 20px;
+            padding: 120px 20px 60px; /* Adjusted padding for mobile top bar */
             overflow: hidden;
-            perspective: 1000px; /* For 3D */
+            perspective: 1200px; /* Deeper perspective for premium feel */
         }
 
         .hero-content {
@@ -72,41 +81,100 @@
             text-align: center;
             z-index: 10;
             max-width: 800px;
+            width: 100%;
         }
 
-        /* The Giant 3D Hero Card Animation */
+        /* --- THE 3D CARD CONTAINER --- */
         .hero-card-wrapper {
             width: 340px;
-            height: 215px;
-            margin-bottom: 40px;
+            height: 215px; /* Credit Card Ratio */
+            margin-bottom: 50px;
             position: relative;
             transform-style: preserve-3d;
-            /* The Entrance Animation */
-            animation: cardEntrance 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            /* Entrance: Fly in from bottom with rotation */
+            animation: cardEntrance 2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
             opacity: 0;
         }
 
         @keyframes cardEntrance {
             0% { 
-                transform: translateY(200px) rotateX(40deg) rotateY(-30deg) scale(0.8); 
+                transform: translateY(150px) rotateX(40deg) rotateY(-20deg) scale(0.9); 
                 opacity: 0; 
             }
             100% { 
-                transform: translateY(0) rotateX(15deg) rotateY(-15deg) scale(1); 
+                transform: translateY(0) rotateX(10deg) rotateY(-10deg) scale(1); 
                 opacity: 1; 
             }
         }
 
-        /* Continuous Float after entrance */
+        /* Continuous Premium Float */
         .hero-card-float {
             width: 100%; height: 100%;
-            animation: heroFloat 6s ease-in-out infinite;
             transform-style: preserve-3d;
+            animation: premiumFloat 8s ease-in-out infinite;
         }
 
-        @keyframes heroFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+        /* A more complex float that rotates slightly on axes */
+        @keyframes premiumFloat {
+            0%, 100% { transform: translateY(0) rotateX(0deg) rotateY(0deg); }
+            25% { transform: translateY(-15px) rotateX(2deg) rotateY(-2deg); }
+            50% { transform: translateY(0) rotateX(0deg) rotateY(0deg); }
+            75% { transform: translateY(-10px) rotateX(-2deg) rotateY(2deg); }
+        }
+
+        /* --- PREMIUM CARD STYLING --- */
+        .card-3d {
+            width: 100%; height: 100%;
+            /* Matte Premium Black Gradient */
+            background: linear-gradient(135deg, #1a1a1a 0%, #050505 100%);
+            border-radius: 16px;
+            /* Subtle light border */
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            /* Deep luxurious shadow */
+            box-shadow: 
+                0 30px 60px -12px rgba(0, 0, 0, 0.9),
+                inset 0 0 0 1px rgba(255,255,255,0.05);
+            position: relative;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            padding: 30px;
+            box-sizing: border-box;
+            transform-style: preserve-3d;
+            overflow: hidden; /* Clips the shine */
+        }
+
+        /* Grain Texture Overlay */
+        .card-3d::before {
+            content: ''; position: absolute; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            opacity: 0.3;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+
+        /* The Moving Shine Animation */
+        .card-shine {
+            position: absolute;
+            top: 0; left: -150%;
+            width: 100%; height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255,255,255,0.03) 30%,
+                rgba(255,255,255,0.08) 50%,
+                rgba(255,255,255,0.03) 70%,
+                transparent 100%
+            );
+            transform: skewX(-25deg);
+            animation: shineMove 6s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes shineMove {
+            0% { left: -150%; opacity: 0; }
+            40% { left: 150%; opacity: 1; }
+            100% { left: 150%; opacity: 0; }
         }
 
         .hero-title {
@@ -121,10 +189,11 @@
         }
 
         .hero-subtitle {
-            color: #888;
+            color: #999;
             font-size: 1.1rem;
-            margin-top: 20px;
+            margin-top: 25px;
             max-width: 500px;
+            line-height: 1.6;
             opacity: 0;
             animation: fadeUp 1s ease 0.8s forwards;
         }
@@ -134,7 +203,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- INFO SECTIONS (NFC & CUSTOMIZE) --- */
+        /* --- INFO SECTIONS --- */
         .info-section {
             padding: 100px 5%;
             position: relative;
@@ -148,7 +217,7 @@
 
         .section-title {
             font-family: 'Syncopate', sans-serif;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             color: var(--gold);
             margin-bottom: 10px;
         }
@@ -169,11 +238,10 @@
             transition: 0.3s;
             position: relative;
             overflow: hidden;
-            opacity: 0; /* Hidden for scroll reveal */
+            opacity: 0; 
             transform: translateY(30px);
         }
         
-        /* Reveal Class added by JS */
         .reveal.active {
             opacity: 1;
             transform: translateY(0);
@@ -200,11 +268,11 @@
 
         .info-text {
             color: #aaa;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             line-height: 1.6;
         }
 
-        /* --- SHOWCASE (Existing Grid Styled) --- */
+        /* --- SHOWCASE --- */
         .showcase-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -230,47 +298,52 @@
             box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
         }
 
-        /* --- 3D OBJECT STYLES --- */
-        .card-3d {
-            width: 300px; height: 190px;
-            background: #0a0a0a;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.2);
-            position: relative;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            display: flex; flex-direction: column; justify-content: space-between; padding: 25px;
-            transform-style: preserve-3d;
-        }
-        
+        /* 3D Tag Style */
         .tag-3d {
             width: 200px; height: 200px;
-            background: #0a0a0a;
+            background: linear-gradient(135deg, #1a1a1a 0%, #050505 100%);
             border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
             position: relative;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             display: flex; align-items: center; justify-content: center;
             transform-style: preserve-3d;
         }
-        
-        .chip {
-            width: 40px; height: 30px;
-            background: linear-gradient(135deg, #d4af37 0%, #a67c00 100%);
-            border-radius: 6px;
-        }
 
         /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 900px) {
-            .hero-title { font-size: 2.2rem; }
-            .showcase-grid { grid-template-columns: 1fr; gap: 50px; }
-            .hero-card-wrapper { transform: scale(0.8); margin-bottom: 20px; }
-            .nav-links { display: none; }
+            .hero-section {
+                padding-top: 140px; /* More space for header */
+                align-items: flex-start; /* Push content higher */
+            }
+
+            .hero-card-wrapper {
+                /* Scale down perfectly for mobile width */
+                transform: scale(0.85); 
+                margin-bottom: 30px;
+            }
+
+            .hero-title {
+                font-size: 2rem; /* Readable on mobile */
+            }
             
-            /* Force card stacking on mobile */
+            .hero-subtitle {
+                font-size: 0.95rem;
+                padding: 0 10px;
+            }
+
+            .nav-links { display: none; } /* Hide mid links on mobile */
+            
             .grid-3 { grid-template-columns: 1fr; }
-            
-            /* Adjust hero spacing */
-            .hero-section { padding-top: 120px; align-items: flex-start; }
+            .showcase-grid { grid-template-columns: 1fr; gap: 30px; }
+
+            .section-title { font-size: 1.8rem; }
+            .info-card { padding: 30px; }
+        }
+        
+        /* Small phones */
+        @media (max-width: 380px) {
+            .hero-card-wrapper { transform: scale(0.75); }
         }
     </style>
 </head>
@@ -278,15 +351,15 @@
 
     <div class="noise-overlay"></div>
     
-    <div style="position:fixed; top:50%; left:50%; width:800px; height:800px; background:radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%); transform:translate(-50%,-50%); pointer-events:none; z-index:-1;"></div>
+    <div style="position:fixed; top:50%; left:50%; width:800px; height:800px; background:radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 70%); transform:translate(-50%,-50%); pointer-events:none; z-index:-1;"></div>
 
     <nav>
         <div class="logo">TAPD<span>.</span></div>
         <div class="nav-links">
-            <a href="shop" style="color: white; text-decoration:none; margin-right:20px;">Shop</a>
-            <a href="customize" style="color: white; text-decoration:none;">Create</a>
+            <a href="shop.html" style="color: white; text-decoration:none; margin-right:20px; font-size:0.9rem; letter-spacing:1px; text-transform:uppercase;">Shop</a>
+            <a href="customize.html" style="color: white; text-decoration:none; font-size:0.9rem; letter-spacing:1px; text-transform:uppercase;">Create</a>
         </div>
-        <a href="shop" class="btn-primary" style="text-decoration:none; padding:10px 20px; border:1px solid white; border-radius:5px; font-size:0.8rem; text-transform:uppercase;">Shop All</a>
+        <a href="shop.html" style="text-decoration:none; padding:10px 24px; background:rgba(255,255,255,0.1); color:white; border-radius:4px; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; border:1px solid rgba(255,255,255,0.2);">Shop All</a>
     </nav>
 
     <section class="hero-section">
@@ -295,13 +368,16 @@
             <div class="hero-card-wrapper">
                 <div class="hero-card-float">
                     <div class="card-3d">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <div class="chip"></div>
-                            <i class="fa-solid fa-wifi" style="transform: rotate(90deg); color:rgba(255,255,255,0.3);"></i>
+                        <div class="card-shine"></div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:center; z-index:2;">
+                            <div style="flex:1;"></div> 
+                            <i class="fa-solid fa-wifi" style="transform: rotate(90deg); color:rgba(255,255,255,0.4); font-size:1.5rem;"></i>
                         </div>
-                        <div>
-                            <div style="font-family:'Syncopate'; letter-spacing:2px; font-size:1.1rem;">TAPD.</div>
-                            <div style="font-size:0.6rem; color:#666; margin-top:5px;">PREMIUM NFC</div>
+                        
+                        <div style="z-index:2;">
+                            <div style="font-family:'Syncopate'; letter-spacing:2px; font-size:1.2rem; font-weight:700; text-shadow:0 2px 10px rgba(0,0,0,0.5);">TAPD.</div>
+                            <div style="font-size:0.6rem; color:#888; margin-top:5px; letter-spacing:1px; font-weight:600;">PREMIUM NFC</div>
                         </div>
                     </div>
                 </div>
@@ -312,8 +388,8 @@
                 The last card you'll ever need. Share your socials, music, and contact info instantly with a single tap. No apps required.
             </p>
             
-            <div style="margin-top: 40px; opacity:0; animation: fadeUp 1s ease 1s forwards;">
-                <a href="#how-it-works" style="color:#666; text-decoration:none; border-bottom:1px solid #333; padding-bottom:5px; font-size:0.9rem;">How does it work? <i class="fa-solid fa-chevron-down"></i></a>
+            <div style="margin-top: 50px; opacity:0; animation: fadeUp 1s ease 1s forwards;">
+                <a href="#how-it-works" style="color:#666; text-decoration:none; border-bottom:1px solid #333; padding-bottom:5px; font-size:0.8rem; letter-spacing:1px; text-transform:uppercase;">How does it work? &nbsp;<i class="fa-solid fa-chevron-down"></i></a>
             </div>
         </div>
     </section>
@@ -321,19 +397,19 @@
     <section class="info-section" id="how-it-works">
         <div class="section-header">
             <h2 class="section-title">The Technology</h2>
-            <p style="color:#888;">Simple. Secure. Seamless.</p>
+            <p style="color:#888; letter-spacing:1px; font-size:0.9rem;">Simple. Secure. Seamless.</p>
         </div>
 
         <div class="grid-3">
             <div class="info-card reveal">
                 <i class="fa-solid fa-mobile-screen-button info-icon"></i>
                 <div class="info-head">Zero Apps Needed</div>
-                <div class="info-text">The other person doesn't need an app or a TAPD card. Just tap your card to their phone, and your profile opens instantly in their browser.</div>
+                <div class="info-text">The other person doesn't need an app or a TAPD card. Just tap your card to their phone, and your profile opens instantly.</div>
             </div>
             <div class="info-card reveal">
                 <i class="fa-solid fa-bolt info-icon"></i>
                 <div class="info-head">Instant Transfer</div>
-                <div class="info-text">Powered by NFC (Near Field Communication). It's the same tech used in Apple Pay. It works within milliseconds.</div>
+                <div class="info-text">Powered by NFC (Near Field Communication). It's the same secure tech used in Apple Pay. It works in milliseconds.</div>
             </div>
             <div class="info-card reveal">
                 <i class="fa-solid fa-infinity info-icon"></i>
@@ -346,29 +422,29 @@
     <section class="info-section" style="background: rgba(255,255,255,0.02);">
         <div class="section-header">
             <h2 class="section-title">Create Your Own</h2>
-            <p style="color:#888;">Design your legacy in 3 steps.</p>
+            <p style="color:#888; letter-spacing:1px; font-size:0.9rem;">Design your legacy in 3 steps.</p>
         </div>
 
         <div class="grid-3">
             <div class="info-card reveal">
-                <div style="font-family:'Syncopate'; font-size:3rem; color:#333; margin-bottom:10px;">01</div>
+                <div style="font-family:'Syncopate'; font-size:3rem; color:#222; margin-bottom:10px; font-weight:700;">01</div>
                 <div class="info-head">Upload Image</div>
                 <div class="info-text">Choose your favorite photo, logo, or artwork. Our studio tool creates a sleek mask for your card or keychain.</div>
             </div>
             <div class="info-card reveal">
-                <div style="font-family:'Syncopate'; font-size:3rem; color:#333; margin-bottom:10px;">02</div>
+                <div style="font-family:'Syncopate'; font-size:3rem; color:#222; margin-bottom:10px; font-weight:700;">02</div>
                 <div class="info-head">Add Details</div>
                 <div class="info-text">Type your name, designation, or a custom phrase. Drag, drop, and style it to fit your vibe perfectly.</div>
             </div>
             <div class="info-card reveal">
-                <div style="font-family:'Syncopate'; font-size:3rem; color:#333; margin-bottom:10px;">03</div>
+                <div style="font-family:'Syncopate'; font-size:3rem; color:#222; margin-bottom:10px; font-weight:700;">03</div>
                 <div class="info-head">We Build It</div>
                 <div class="info-text">We print your design on premium matte PVC with embedded NFC chips and ship it to your doorstep.</div>
             </div>
         </div>
         
-        <div style="text-align:center; margin-top:50px;">
-            <a href="customize.html" class="btn-primary" style="background:var(--gold); color:black; padding:15px 40px; text-decoration:none; font-weight:bold; border-radius:30px; display:inline-block; transition:0.3s;">START DESIGNING</a>
+        <div style="text-align:center; margin-top:60px;">
+            <a href="customize.html" style="background:var(--gold); color:black; padding:18px 50px; text-decoration:none; font-weight:800; border-radius:4px; display:inline-block; transition:0.3s; font-family:'Syncopate'; letter-spacing:1px; font-size:0.9rem;">START DESIGNING</a>
         </div>
     </section>
 
@@ -379,14 +455,16 @@
 
         <div class="showcase-grid">
             <div class="showcase-panel reveal" onclick="selectMode('card')">
-                <div class="card-3d" id="tilt-card">
-                    <div style="display:flex; justify-content:space-between;">
-                        <div class="chip"></div>
-                        <i class="fa-solid fa-wifi" style="color:rgba(255,255,255,0.3); transform: rotate(90deg);"></i>
-                    </div>
-                    <div>
-                        <div style="font-family:'Syncopate'; font-size:1rem;">YOUR NAME</div>
-                        <div style="color:var(--gold); font-size:0.7rem; margin-top:5px;">CEO / FOUNDER</div>
+                <div class="hero-card-wrapper" style="margin:0; transform: scale(0.9);">
+                    <div class="card-3d" id="tilt-card" style="box-shadow: 0 15px 40px rgba(0,0,0,0.6);">
+                        <div class="card-shine"></div>
+                        <div style="display:flex; justify-content:flex-end;">
+                            <i class="fa-solid fa-wifi" style="color:rgba(255,255,255,0.4); transform: rotate(90deg);"></i>
+                        </div>
+                        <div>
+                            <div style="font-family:'Syncopate'; font-size:1rem; font-weight:700;">YOUR NAME</div>
+                            <div style="color:var(--gold); font-size:0.7rem; margin-top:5px; font-weight:600;">CEO / FOUNDER</div>
+                        </div>
                     </div>
                 </div>
                 <div style="text-align:center; margin-top:30px;">
@@ -397,9 +475,10 @@
 
             <div class="showcase-panel reveal" onclick="selectMode('keychain')">
                 <div class="tag-3d" id="tilt-tag">
-                    <div style="text-align:center;">
-                        <i class="fa-brands fa-spotify" style="font-size:3.5rem; color:#1DB954; margin-bottom:10px;"></i>
-                        <div style="font-family:'Syncopate'; font-size:0.8rem;">PLAYLIST</div>
+                    <div class="card-shine"></div>
+                    <div style="text-align:center; z-index:2;">
+                        <i class="fa-brands fa-spotify" style="font-size:3.5rem; color:#1DB954; margin-bottom:10px; filter: drop-shadow(0 0 10px rgba(29,185,84,0.3));"></i>
+                        <div style="font-family:'Syncopate'; font-size:0.8rem; font-weight:700;">PLAYLIST</div>
                     </div>
                 </div>
                 <div style="text-align:center; margin-top:30px;">
@@ -470,7 +549,7 @@
 
             const revealOnScroll = () => {
                 const windowHeight = window.innerHeight;
-                const elementVisible = 100;
+                const elementVisible = 50; // Lower threshold for mobile
 
                 reveals.forEach((reveal) => {
                     const elementTop = reveal.getBoundingClientRect().top;

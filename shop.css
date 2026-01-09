@@ -390,98 +390,114 @@ nav {
 }
 
 /* =========================================
-   MOBILE LAYOUT: HORIZONTAL (Like PC)
+   MOBILE LAYOUT: REAL 3D CARD (FLOATING)
    ========================================= */
 @media (max-width: 900px) {
     .hero-title { font-size: 2.2rem; }
     
     .showcase-container { 
-        gap: 60px; /* Tighter vertical spacing */
-        padding: 0 15px; 
+        gap: 80px; /* Space between products */
+        padding: 0 10px; 
     }
 
-    /* 1. FORCE HORIZONTAL LAYOUT */
+    /* 1. REMOVE THE BOX (Make it float) */
     .shop-row {
-        flex-direction: row !important; /* Keep side-by-side */
+        background: none !important; /* No dark box */
+        border: none !important;     /* No border */
+        box-shadow: none !important; /* No box shadow */
+        padding: 0 !important;       /* No padding */
+        
+        flex-direction: row !important; /* Keep horizontal */
         align-items: center;
-        padding: 20px 10px; 
-        gap: 15px; /* Small gap between image and text */
-        height: auto;
-        min-height: 220px; /* Ensure box has height */
+        gap: 20px;
+        min-height: auto;
+        margin-bottom: 40px;
     }
 
-    /* 2. KEEP ZIG-ZAG (Left-Right / Right-Left) */
-    .shop-row:nth-child(even) { 
-        flex-direction: row-reverse !important; 
-    }
+    /* Keep Zig-Zag Layout */
+    .shop-row:nth-child(even) { flex-direction: row-reverse !important; }
 
-    /* 3. Animation: Reset translate for smaller screens for smoothness */
-    /* (Or keep it if you want them flying in from sides on mobile too) */
-    .shop-row:nth-child(odd) { transform: translateX(-30px); }
-    .shop-row:nth-child(even) { transform: translateX(30px); }
-    .shop-row.active { opacity: 1; transform: translateX(0); }
-
-    /* 4. SHRINK THE IMAGE CONTAINER */
+    /* 2. CARD CONTAINER */
     .row-image-box { 
-        height: 180px; /* Small fixed height */
-        width: 50%; /* Take half width */
-        flex: 0 0 50%; /* Don't grow or shrink */
-        margin-bottom: 0;
+        width: 160px; /* Fixed width for card area */
+        height: 110px;
+        flex: 0 0 160px; /* Don't grow/shrink */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        perspective: 800px; /* Stronger 3D effect on mobile */
     }
     
-    /* 5. SHRINK THE 3D OBJECTS TO FIT */
+    /* 3. THE 3D CARD (PERFECT FIT) */
     .digital-twin.shape-card { 
-        width: 150px !important; 
-        height: 95px !important; 
-        border-radius: 10px;
+        width: 100% !important; 
+        height: 100% !important; 
+        border-radius: 8px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.8); /* Deep shadow for realism */
     } 
     .digital-twin.shape-tag { 
-        width: 110px !important; 
-        height: 110px !important; 
+        width: 100px !important; 
+        height: 100px !important; 
     }
 
-    /* 6. ADJUST TEXT TO FIT RIGHT SIDE */
+    /* FORCE IMAGE TO COVER 100% */
+    .twin-base {
+        background-size: 100% 100% !important; /* Forces image to fit perfectly */
+        background-repeat: no-repeat;
+    }
+
+    /* 4. CLEAN TEXT LAYOUT */
     .row-content { 
         flex: 1; 
-        text-align: left !important; /* Align text to side */
+        text-align: left !important;
         padding: 0;
         display: flex;
         flex-direction: column;
         justify-content: center;
     }
     
-    /* Align text correctly for the reversed rows */
+    /* Align text for reversed rows */
     .shop-row:nth-child(even) .row-content { text-align: right !important; }
     .shop-row:nth-child(even) .row-actions { justify-content: flex-end; }
     .shop-row:nth-child(even) .row-price { justify-content: flex-end; }
 
-    /* Mini Typography */
-    .row-cat { justify-content: flex-start; font-size: 0.5rem; letter-spacing: 1px; margin-bottom: 5px; }
-    .shop-row:nth-child(even) .row-cat { justify-content: flex-end; } /* Fix cat alignment on reverse */
+    /* HIDE EXTRA STUFF */
+    .row-cat { display: none; }       /* Hide "CARD SERIES" */
+    .row-desc { display: none; }      /* Hide Description */
+    .btn-add-round { display: none; } /* Hide the round (+) button */
 
+    /* NAME */
     .row-title { 
-        font-size: 1.1rem; /* Much smaller */
+        font-size: 1.3rem;
         margin-bottom: 5px;
-        line-height: 1.2;
+        line-height: 1.1;
+        color: white; /* Clean white text */
     }
     
-    .row-desc { 
-        display: none; /* Hide description on mobile to save space */
-    }
-    
+    /* PRICE */
     .row-price { 
-        justify-content: flex-start; 
-        font-size: 1rem; 
-        margin-bottom: 10px; 
+        font-size: 1.1rem; 
+        margin-bottom: 12px; 
+        color: var(--gold);
+        font-weight: 700;
     }
     
-    .row-actions { justify-content: flex-start; gap: 8px; }
-    
-    /* Mini Buttons */
-    .btn-buy { padding: 10px 15px; font-size: 0.6rem; letter-spacing: 1px; }
-    .btn-add-round { width: 35px; height: 35px; font-size: 0.8rem; }
+    /* CONFIGURE BUTTON (Small & Clean) */
+    .btn-buy { 
+        padding: 8px 16px; 
+        font-size: 0.65rem; 
+        letter-spacing: 1px; 
+        border: 1px solid rgba(255,255,255,0.3); /* Subtle border */
+        background: transparent;
+        color: white;
+    }
+    .btn-buy:active { background: var(--gold); color: black; border-color: var(--gold); }
 
-    /* Fix other sections */
+    /* Reset animations for mobile smoothness */
+    .shop-row:nth-child(odd), .shop-row:nth-child(even) { transform: none; }
+    .shop-row.active { opacity: 1; }
+    
+    /* Other sections */
     .blueprint-grid { grid-template-columns: 1fr; }
     .stats-strip { flex-direction: column; gap: 30px; }
 }

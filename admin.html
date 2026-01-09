@@ -448,56 +448,62 @@
             }
         }
 
-        /* --- 1. UPLOAD NEW PRODUCT --- */
-        async function uploadProduct() {
-            const title = document.getElementById('p-title').value;
-            const desc = document.getElementById('p-desc').value;
-            const price = document.getElementById('p-price').value;
-            const category = document.getElementById('p-category').value;
-            const type = document.getElementById('p-type').value; 
-            const files = document.getElementById('p-images').files;
-            const statusText = document.getElementById('upload-status');
+        /* --- REPLACE YOUR uploadProduct FUNCTION WITH THIS --- */
+async function uploadProduct() {
+    const title = document.getElementById('p-title').value;
+    const desc = document.getElementById('p-desc').value;
+    const price = document.getElementById('p-price').value;
+    const category = document.getElementById('p-category').value;
+    const type = document.getElementById('p-type').value; 
+    const designJson = document.getElementById('p-design-json').value; // <--- NEW LINE
+    
+    const files = document.getElementById('p-images').files;
+    const statusText = document.getElementById('upload-status');
 
-            if(!title || !price || files.length === 0) {
-                alert("Please fill all fields and select at least 1 image");
-                return;
-            }
+    if(!title || !price || files.length === 0) {
+        alert("Please fill all fields and select at least 1 image");
+        return;
+    }
 
-            statusText.textContent = "Compressing images...";
-            let imageUrls = [];
+    statusText.textContent = "Compressing images...";
+    let imageUrls = [];
 
-            for(let i=0; i<files.length; i++) {
-                try {
-                    const base64String = await compressImage(files[i], 800, 0.7);
-                    imageUrls.push(base64String);
-                } catch(err) {
-                    console.error("Compression Error", err);
-                    statusText.textContent = "Error processing image.";
-                    return;
-                }
-            }
-
-            statusText.textContent = "Saving...";
-            db.collection("products").add({
-                title: title,
-                description: desc,
-                price: parseFloat(price),
-                category: category,
-                type: type, 
-                images: imageUrls,
-                createdAt: new Date().toISOString()
-            }).then(() => {
-                statusText.textContent = "";
-                showToast("Product Added!");
-                document.getElementById('p-title').value = "";
-                document.getElementById('p-desc').value = "";
-                document.getElementById('p-price').value = "";
-                document.getElementById('p-images').value = "";
-                document.getElementById('add-preview').innerHTML = "";
-            }).catch((error) => {
-                statusText.textContent = "Error: " + error.message;
-            });
+    for(let i=0; i<files.length; i++) {
+        try {
+            const base64String = await compressImage(files[i], 800, 0.7);
+            imageUrls.push(base64String);
+        } catch(err) {
+            console.error("Compression Error", err);
+            statusText.textContent = "Error processing image.";
+            return;
         }
+    }
+
+    statusText.textContent = "Saving...";
+    
+    db.collection("products").add({
+        title: title,
+        description: desc,
+        price: parseFloat(price),
+        category: category,
+        type: type, 
+        images: imageUrls,
+        designTemplate: designJson, // <--- SAVES THE JSON HERE
+        createdAt: new Date().toISOString()
+    }).then(() => {
+        statusText.textContent = "";
+        showToast("Product Added!");
+        // Clear inputs
+        document.getElementById('p-title').value = "";
+        document.getElementById('p-desc').value = "";
+        document.getElementById('p-price').value = "";
+        document.getElementById('p-design-json').value = ""; // Clear JSON box
+        document.getElementById('p-images').value = "";
+        document.getElementById('add-preview').innerHTML = "";
+    }).catch((error) => {
+        statusText.textContent = "Error: " + error.message;
+    });
+}
 
         /* --- 2. LIST PRODUCTS --- */
         function loadProducts() {

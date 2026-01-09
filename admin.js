@@ -1,3 +1,6 @@
+/* --- CLOUDINARY CONFIGURATION --- */
+const cloudName = "dmsaqoa0l"; // Replace with your actual Cloud Name
+const uploadPreset = "tapd_preset"; // Replace with your actual Preset Name
 /* --- FIREBASE CONFIGURATION & SETUP --- */
 const firebaseConfig = {
     apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
@@ -132,29 +135,16 @@ async function uploadProduct() {
     const type = document.getElementById('p-type').value; 
     const designJson = document.getElementById('p-design-json').value;
     
-    const files = document.getElementById('p-images').files;
+    // Get the URL from our hidden input instead of the file input
+    const imageUrl = document.getElementById('p-image-url').value;
     const statusText = document.getElementById('upload-status');
 
-    if(!title || !price || files.length === 0) {
-        alert("Please fill all fields and select at least 1 image");
+    if(!title || !price || !imageUrl) {
+        alert("Please fill all fields and upload an image via Cloudinary");
         return;
     }
 
-    statusText.textContent = "Compressing images...";
-    let imageUrls = [];
-
-    for(let i=0; i<files.length; i++) {
-        try {
-            const base64String = await compressImage(files[i], 800, 0.7);
-            imageUrls.push(base64String);
-        } catch(err) {
-            console.error("Compression Error", err);
-            statusText.textContent = "Error processing image.";
-            return;
-        }
-    }
-
-    statusText.textContent = "Saving...";
+    statusText.textContent = "Saving to Legacy...";
     
     db.collection("products").add({
         title: title,
@@ -162,23 +152,22 @@ async function uploadProduct() {
         price: parseFloat(price),
         category: category,
         type: type, 
-        images: imageUrls,
+        images: [imageUrl], // Saving the Cloudinary URL in an array
         designTemplate: designJson, 
         createdAt: new Date().toISOString()
     }).then(() => {
         statusText.textContent = "";
         showToast("Product Added!");
+        // Clear form
         document.getElementById('p-title').value = "";
         document.getElementById('p-desc').value = "";
         document.getElementById('p-price').value = "";
-        document.getElementById('p-design-json').value = ""; 
-        document.getElementById('p-images').value = "";
+        document.getElementById('p-image-url').value = "";
         document.getElementById('add-preview').innerHTML = "";
     }).catch((error) => {
         statusText.textContent = "Error: " + error.message;
     });
 }
-
 function loadProducts() {
     const container = document.getElementById('products-list-container');
     container.innerHTML = "<p style='color:#666;'>Loading inventory...</p>";
@@ -282,31 +271,26 @@ function renderEditImages() {
 
 async function saveProductChanges() {
     const key = document.getElementById('edit-key').value;
-    const newFiles = document.getElementById('edit-new-images').files;
+    const newImageUrl = document.getElementById('edit-image-url').value;
     
-    if(newFiles.length > 0) {
-        showToast("Compressing new images...");
-        for(let i=0; i<newFiles.length; i++) {
-            try {
-                const base64 = await compressImage(newFiles[i], 800, 0.7);
-                tempEditImages.push(base64);
-            } catch(err) { console.error(err); }
-        }
-    }
-
     const updatedData = {
         title: document.getElementById('edit-title').value,
         description: document.getElementById('edit-desc').value,
         price: parseFloat(document.getElementById('edit-price').value),
         type: document.getElementById('edit-type').value,
         category: document.getElementById('edit-category').value,
-        images: tempEditImages,
         designTemplate: document.getElementById('edit-design-json').value, 
         updatedAt: new Date().toISOString()
     };
 
+    // Only update the image if a new one was uploaded
+    if (newImageUrl) {
+        updatedData.images = [newImageUrl];
+    }
+
     db.collection("products").doc(key).update(updatedData).then(() => {
         showToast("Product Updated!");
+        document.getElementById('edit-image-url').value = ""; // Clear for next use
         closeEditModal();
     });
 }
@@ -498,3 +482,36 @@ function deleteOrder(orderId) {
         });
     }
 }
+// Widget for ADDING new products
+var myWidget = cloudinary.createUploadWidget({
+    cloudName: cloudName, 
+    uploadPreset: uploadPreset,
+    theme: "minimal",
+    colors: { action: "#D4AF37", complete: "#20B832" }
+}, (error, result) => { 
+    if (!error && result && result.event === "success") { 
+        const imageUrl = result.info.secure_url;
+        document.getElementById('p-image-url').value = imageUrl; // Store URL in hidden input
+        document.getElementById('add-preview').innerHTML = `<img src="${imageUrl}" class="img-thumb">`;
+        showToast("High-Res Image Ready");
+    }
+});
+
+// Widget for EDITING existing products
+var editWidget = cloudinary.createUploadWidget({
+    cloudName: cloudName, 
+    uploadPreset: uploadPreset,
+    theme: "minimal",
+    colors: { action: "#D4AF37", complete: "#20B832" }
+}, (error, result) => { 
+    if (!error && result && result.event === "success") { 
+        const imageUrl = result.info.secure_url;
+        document.getElementById('edit-image-url').value = imageUrl; // Store URL in hidden input
+        document.getElementById('edit-current-images').innerHTML = `<img src="${imageUrl}" class="img-thumb">`;
+        showToast("Update Image Ready");
+    }
+});
+
+// Attach listeners to buttons
+document.getElementById("upload_widget").addEventListener("click", () => myWidget.open(), false);
+document.getElementById("edit_upload_widget").addEventListener("click", () => editWidget.open(), false);

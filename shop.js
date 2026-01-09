@@ -1,22 +1,23 @@
-/* --- shop.js | TAPD. Live Database Connection (Fixed) --- */
+/* --- shop.js | TAPD. Final Fix (No Conflicts) --- */
 
 // 1. Initialize Empty List
 let products = [];
 
 // 2. FETCH FROM FIREBASE
-// We access firestore directly to avoid "redeclaration" errors
-const app = firebase.app(); 
-const store = app.firestore();
-
-// "products" is the collection name. Change if your Admin Panel uses "items" etc.
-store.collection('products').get().then((querySnapshot) => {
+// FIX: We do NOT use 'const db' here to avoid the crash.
+// We use firebase.firestore() directly.
+firebase.firestore().collection('products').get().then((querySnapshot) => {
     products = []; // Clear list
     
     querySnapshot.forEach((doc) => {
         let data = doc.data();
         
-        // Smart Image Handling: Checks multiple possible image field names
-        let imgUrl = data.image || data.img || data.productImage || 'https://via.placeholder.com/300x300?text=TAPD';
+        // Smart Image Handling: Checks for 'image', 'img', or uses a placeholder if broken
+        // This fixes the "Image not found" text in your screenshot
+        let imgUrl = data.image || data.img || data.productImage;
+        if (!imgUrl || imgUrl === "undefined") {
+            imgUrl = 'https://via.placeholder.com/300x300/111/D4AF37?text=TAPD';
+        }
 
         products.push({
             id: doc.id, 
@@ -34,7 +35,9 @@ store.collection('products').get().then((querySnapshot) => {
 
 }).catch((error) => {
     console.error("Error getting products: ", error);
-    document.getElementById('shop-grid').innerHTML = '<p style="color:white; text-align:center;">Loading Legacy...</p>';
+    // This will show if Firebase fails (e.g., permissions or internet)
+    const grid = document.getElementById('shop-grid');
+    if(grid) grid.innerHTML = '<p style="color:white; text-align:center;">Connection to Legacy Failed.<br><small>Check console for details.</small></p>';
 });
 
 
@@ -46,7 +49,8 @@ function renderShop(filter = 'all') {
     grid.innerHTML = '';
 
     if (products.length === 0) {
-        grid.innerHTML = '<p style="color:#666; text-align:center; width:100%;">No products found in database.</p>';
+        // While loading or if empty
+        grid.innerHTML = '<p style="color:#666; text-align:center; width:100%;">Loading Collection...</p>';
         return;
     }
 
@@ -58,7 +62,7 @@ function renderShop(filter = 'all') {
             
             card.innerHTML = `
                 <div class="p-img-box">
-                    <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x300?text=TAPD'">
+                    <img src="${product.image}" alt="${product.name}" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x300/111/D4AF37?text=TAPD';">
                     <button class="add-btn" onclick="addToCart('${product.id}')">
                         ADD TO BAG
                     </button>
@@ -121,7 +125,6 @@ function updateCartCount() {
 
 // 6. TOAST NOTIFICATION
 function showToast(message) {
-    // Prevent duplicate toasts
     if(document.querySelector('.toast-msg')) return;
 
     const toast = document.createElement('div');
@@ -139,7 +142,6 @@ function showToast(message) {
 
 // Filter Function
 function filterProducts(category, btn) {
-    // Only run if buttons exist
     const buttons = document.querySelectorAll('.filter-btn');
     if(buttons.length > 0 && btn) {
         buttons.forEach(b => b.classList.remove('active'));

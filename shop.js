@@ -1,41 +1,71 @@
-/* --- shop.js | TAPD. Live Database Connection (Fixed) --- */
+/* --- shop.js | TAPD. Live Database Connection (Synced with Admin) --- */
 
-// 1. Initialize Empty List
+// 1. FIREBASE CONFIG (Matches your Admin Panel)
+const firebaseConfig = {
+    apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
+    authDomain: "tapt-337b8.firebaseapp.com",
+    databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
+    projectId: "tapt-337b8",
+    storageBucket: "tapt-337b8.firebasestorage.app",
+    messagingSenderId: "887956121124",
+    appId: "1:887956121124:web:6856680bf75aa3bacddab1",
+    measurementId: "G-2CB8QXYNJY"
+};
+
+// Initialize Firebase safely (prevents "default app already exists" error)
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+const db = firebase.firestore();
 let products = [];
 
 // 2. FETCH FROM FIREBASE
-// FIX: We use firebase.firestore() directly to avoid the "redeclaration of const db" error.
-const store = firebase.firestore();
-
-// "products" is the collection name. If your admin panel uses "items", change this to 'items'.
-store.collection('products').get().then((querySnapshot) => {
-    products = []; // Clear list
-    
-    querySnapshot.forEach((doc) => {
-        let data = doc.data();
-        
-        // SMART IMAGE FINDER: Checks every possible name you might have used in Admin Panel
-        let imgUrl = data.image || data.img || data.productImage || data.url || data.thumbnail || 'https://via.placeholder.com/300x300?text=No+Image';
-
-        products.push({
-            id: doc.id, 
-            name: data.name || data.productName || "Unnamed Product",
-            price: Number(data.price) || 0,
-            category: data.category || 'card', // defaults to 'card' if missing
-            image: imgUrl,
-            desc: data.desc || data.description || 'Premium Hardware'
-        });
-    });
-
-    // Once data is loaded, build the grid
-    renderShop();
+document.addEventListener('DOMContentLoaded', () => {
+    fetchProducts();
     updateCartCount();
-
-}).catch((error) => {
-    console.error("Error getting products: ", error);
-    const grid = document.getElementById('shop-grid');
-    if(grid) grid.innerHTML = '<p style="color:white; text-align:center;">Error loading products. Check Console.</p>';
 });
+
+function fetchProducts() {
+    const grid = document.getElementById('shop-grid');
+    if(grid) grid.innerHTML = '<p style="color:#666; text-align:center; width:100%;">Loading Legacy...</p>';
+
+    // We use "title" because that is what your Admin Panel saves
+    db.collection('products').get().then((querySnapshot) => {
+        products = []; // Clear list
+        
+        querySnapshot.forEach((doc) => {
+            let data = doc.data();
+            
+            // --- DATA MAPPING (The Fix) ---
+            // Admin saves name as 'title'
+            let pName = data.title || data.name || "Unnamed Product";
+            
+            // Admin saves images as an array 'images[]'. We take the first one.
+            let pImage = 'https://via.placeholder.com/300x300?text=No+Image';
+            if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+                pImage = data.images[0];
+            } else if (data.image) {
+                pImage = data.image; // Fallback for old data
+            }
+
+            products.push({
+                id: doc.id, 
+                name: pName,
+                price: Number(data.price) || 0,
+                category: data.category || 'custom',
+                image: pImage,
+                desc: data.description || 'Premium Hardware'
+            });
+        });
+
+        renderShop();
+
+    }).catch((error) => {
+        console.error("Error getting products: ", error);
+        if(grid) grid.innerHTML = '<p style="color:white; text-align:center;">Error loading products. Check Console.</p>';
+    });
+}
 
 
 // 3. RENDER PRODUCTS 
@@ -51,6 +81,9 @@ function renderShop(filter = 'all') {
     }
 
     products.forEach(product => {
+        // Filter Logic
+        // Note: Admin saves categories like 'review', 'social', 'custom'
+        // You might want to map 'card' and 'tag' buttons to these, or just show all for now.
         if (filter === 'all' || product.category === filter) {
             
             const card = document.createElement('div');
@@ -121,7 +154,7 @@ function updateCartCount() {
 
 // 6. TOAST NOTIFICATION
 function showToast(message) {
-    if(document.querySelector('.toast-msg')) return; // Prevent spam
+    if(document.querySelector('.toast-msg')) return; 
 
     const toast = document.createElement('div');
     toast.className = 'toast-msg';
@@ -145,13 +178,3 @@ function filterProducts(category, btn) {
     }
     renderShop(category);
 }
-
-// Initialize on Load
-document.addEventListener('DOMContentLoaded', () => {
-    // Wait slightly for Firebase to be ready
-    setTimeout(() => {
-        // The fetch logic runs automatically at the top, but we call render just in case
-        if(products.length > 0) renderShop();
-        updateCartCount();
-    }, 500);
-});

@@ -1,15 +1,35 @@
-/* --- shop.js | PREMIUM LOGIC --- */
+/* --- shop.js | FIXED INITIALIZATION --- */
 
+// 1. FIREBASE CONFIGURATION
+const firebaseConfig = {
+    apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
+    authDomain: "tapt-337b8.firebaseapp.com",
+    databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
+    projectId: "tapt-337b8",
+    storageBucket: "tapt-337b8.firebasestorage.app",
+    messagingSenderId: "887956121124",
+    appId: "1:887956121124:web:6856680bf75aa3bacddab1",
+    measurementId: "G-2CB8QXYNJY"
+};
+
+// 2. INITIALIZE FIREBASE (Only if not already active)
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+// 3. DEFINE SERVICES
 const store = firebase.firestore();
+const auth = firebase.auth();
 let products = [];
 
+// 4. APP LOGIC
 document.addEventListener('DOMContentLoaded', () => {
     console.log("TAPD Shop Initialized");
     fetchProducts();
     updateCartCount();
 });
 
-// 1. Fetch & Animation
+// --- FETCH PRODUCTS & ANIMATION ---
 function fetchProducts() {
     const grid = document.getElementById('shop-grid');
     if(grid) grid.innerHTML = '<div class="loading-text" style="grid-column: 1/-1; text-align:center; color:#666;">Loading Legacy...</div>';
@@ -21,10 +41,13 @@ function fetchProducts() {
         querySnapshot.forEach((doc) => {
             let data = doc.data();
             
-            // Image Fallback
+            // Image Fallback Logic
             let pImage = 'https://via.placeholder.com/300x300?text=No+Image';
-            if (data.images && data.images.length > 0) pImage = data.images[0];
-            else if (data.image) pImage = data.image;
+            if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+                pImage = data.images[0]; 
+            } else if (data.image) {
+                pImage = data.image; 
+            }
 
             products.push({
                 id: doc.id, 
@@ -40,11 +63,11 @@ function fetchProducts() {
         
     }).catch((error) => {
         console.error("Error:", error);
-        grid.innerHTML = `<p style="color:red; text-align:center;">Error loading items.</p>`;
+        grid.innerHTML = `<p style="color:red; text-align:center;">Error loading items. Check Console.</p>`;
     });
 }
 
-// 2. Render with Animation
+// --- RENDER GRID ---
 function renderShop(filter = 'all') {
     const grid = document.getElementById('shop-grid');
     if (!grid) return;
@@ -58,7 +81,7 @@ function renderShop(filter = 'all') {
 
         const card = document.createElement('div');
         card.className = 'product-card';
-        // Add animation delay for staggering effect
+        // Staggered Animation Delay
         card.style.transitionDelay = `${delayCounter * 0.05}s`; 
         
         card.innerHTML = `
@@ -79,7 +102,7 @@ function renderShop(filter = 'all') {
         
         grid.appendChild(card);
         
-        // Trigger reflow to start animation
+        // Trigger Animation
         setTimeout(() => card.classList.add('reveal'), 50);
         delayCounter++;
     });
@@ -91,7 +114,6 @@ function filterProducts(category, btn) {
     renderShop(category);
 }
 
-// 3. Search
 function searchProducts() {
     const term = document.getElementById('shop-search').value.toLowerCase();
     const cards = document.querySelectorAll('.product-card');
@@ -110,7 +132,7 @@ function viewProduct(id) {
     window.location.href = `product.html?id=${id}`;
 }
 
-// 4. Cart Logic
+// --- CART LOGIC ---
 function addToCart(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
@@ -134,7 +156,7 @@ function addToCart(productId) {
     updateCartCount();
     showToast(`${product.name} Added`);
     
-    // Open drawer to show item added
+    // Auto-open drawer
     const drawer = document.getElementById('cart-drawer');
     if(!drawer.classList.contains('open')) toggleCart();
     else renderCartContents();
@@ -150,7 +172,7 @@ function updateCartCount() {
     }
 }
 
-// 5. Drawer UI
+// --- DRAWER UI ---
 function toggleCart() {
     const drawer = document.getElementById('cart-drawer');
     const overlay = document.querySelector('.cart-overlay');
@@ -249,7 +271,7 @@ function showToast(msg) {
     setTimeout(() => toast.remove(), 2500);
 }
 
-// Account Toggles
+// --- AUTH UI ---
 function toggleAccount() {
     const drawer = document.getElementById('account-drawer');
     const overlay = document.querySelector('.cart-overlay');

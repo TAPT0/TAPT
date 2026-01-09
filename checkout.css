@@ -119,3 +119,12 @@
     .row-3, .row-2 { grid-template-columns: 1fr; }
     .payment-options { grid-template-columns: 1fr 1fr; } /* Stack differently on mobile */
 }
+/* --- FIX FOR ROUND TAGS --- */
+.canvas-wrapper {
+    overflow: hidden !important; /* Forces the circle crop */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

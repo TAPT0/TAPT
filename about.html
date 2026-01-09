@@ -255,6 +255,65 @@
         .pillar-title { font-family: 'Syncopate'; font-size: 1.1rem; margin-bottom: 10px; font-weight: 700; }
         .pillar-text { color: #888; font-size: 0.95rem; line-height: 1.6; }
 
+        /* --- NEW: THE EXPERIENCE (How it feels) --- */
+        .experience-section {
+            padding: 100px 5%;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            background: #080808;
+        }
+        .exp-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            max-width: 1100px;
+            margin: 0 auto;
+            align-items: center;
+        }
+        .exp-text h3 {
+            font-family: 'Syncopate';
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .exp-text p {
+            color: #aaa;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+        .exp-list li {
+            list-style: none;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #ddd;
+        }
+        .exp-list i { color: var(--gold); font-size: 0.8rem; }
+        
+        .exp-visual {
+            height: 400px;
+            background: #111;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .pulse-circle {
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            border: 1px solid var(--gold);
+            position: absolute;
+            animation: ripple 3s infinite;
+        }
+        .pulse-circle:nth-child(2) { animation-delay: 1s; width: 150px; height: 150px; }
+        .pulse-circle:nth-child(3) { animation-delay: 2s; width: 100px; height: 100px; }
+        @keyframes ripple {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
         /* --- MANIFESTO SECTION --- */
         .manifesto-section {
             padding: 120px 20px;
@@ -269,6 +328,38 @@
             font-weight: 300;
         }
         .highlight { color: var(--gold); font-weight: 700; font-family: 'Syncopate'; }
+
+        /* --- NEW: ECOSYSTEM --- */
+        .ecosystem-section {
+            padding: 80px 5%;
+            text-align: center;
+        }
+        .eco-grid {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-top: 50px;
+        }
+        .eco-item {
+            width: 150px;
+            height: 150px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+        .eco-item:hover {
+            border-color: var(--gold);
+            transform: scale(1.1);
+            background: rgba(212,175,55,0.1);
+        }
+        .eco-item i { font-size: 2rem; margin-bottom: 10px; color: white; }
+        .eco-item span { font-size: 0.8rem; text-transform: uppercase; color: #888; letter-spacing: 1px; }
 
         /* --- TEAM SECTION --- */
         .team-section {
@@ -298,6 +389,28 @@
             font-size: 2rem; color: #666;
         }
 
+        /* --- NEW: JOIN THE CULT (CTA) --- */
+        .cta-section {
+            padding: 100px 20px;
+            text-align: center;
+            background: radial-gradient(circle, #111 0%, #000 100%);
+        }
+        .cta-title { font-family: 'Syncopate'; font-size: 3rem; margin-bottom: 20px; color: white; }
+        .cta-btn {
+            display: inline-block;
+            background: var(--gold);
+            color: black;
+            padding: 15px 40px;
+            font-weight: 800;
+            text-decoration: none;
+            text-transform: uppercase;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: 0.3s;
+            margin-top: 20px;
+        }
+        .cta-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(212,175,55,0.4); }
+
         /* --- MOBILE --- */
         @media (max-width: 900px) {
             .hero-title { font-size: 2.5rem; }
@@ -305,6 +418,8 @@
             .card-preview { width: 300px; height: 190px; }
             .tag-preview { width: 180px; height: 180px; }
             .manifesto-text { font-size: 1.3rem; }
+            .exp-grid { grid-template-columns: 1fr; }
+            .cta-title { font-size: 2rem; }
         }
     </style>
 </head>
@@ -365,6 +480,29 @@
         </div>
     </section>
 
+    <section class="experience-section">
+        <div class="exp-grid">
+            <div class="exp-visual reveal">
+                <div class="pulse-circle"></div>
+                <div class="pulse-circle"></div>
+                <div class="pulse-circle"></div>
+                <i class="fa-solid fa-fingerprint" style="font-size:3rem; color:white; z-index:2;"></i>
+            </div>
+            <div class="exp-text reveal">
+                <h3>The <span style="color:var(--gold)">Feel</span></h3>
+                <p>
+                    It’s not just about the tech; it’s about the tactile experience. 
+                    The weight of the card, the matte finish, the satisfying "ding" on the receiver's phone.
+                </p>
+                <ul class="exp-list">
+                    <li><i class="fa-solid fa-check"></i> Waterproof PVC Construction</li>
+                    <li><i class="fa-solid fa-check"></i> Anti-Scratch Coating</li>
+                    <li><i class="fa-solid fa-check"></i> Universal Phone Compatibility</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
     <section class="manifesto-section">
         <p class="manifesto-text">
             "The paper business card was invented in the 15th century. It ends now.
@@ -393,17 +531,47 @@
         </div>
     </section>
 
+    <section class="ecosystem-section">
+        <h2 class="section-title-center" style="font-size:2rem; margin-bottom:20px;">The Ecosystem</h2>
+        <p style="color:#888;">Connects with everything you are.</p>
+        
+        <div class="eco-grid">
+            <div class="eco-item reveal">
+                <i class="fa-brands fa-instagram"></i>
+                <span>Socials</span>
+            </div>
+            <div class="eco-item reveal" style="transition-delay:0.1s;">
+                <i class="fa-brands fa-linkedin"></i>
+                <span>Career</span>
+            </div>
+            <div class="eco-item reveal" style="transition-delay:0.2s;">
+                <i class="fa-brands fa-spotify"></i>
+                <span>Music</span>
+            </div>
+            <div class="eco-item reveal" style="transition-delay:0.3s;">
+                <i class="fa-solid fa-globe"></i>
+                <span>Website</span>
+            </div>
+        </div>
+    </section>
+
     <section class="team-section">
         <div class="founder-card reveal">
             <div class="avatar">
                 <i class="fa-solid fa-fingerprint"></i>
             </div>
-            <h3 style="font-family:'Syncopate'; margin:0 0 5px 0;">AAHIL</h3>
+            <h3 style="font-family:'Syncopate'; margin:0 0 5px 0;">HASNAIN LORI</h3>
             <div style="color:var(--gold); font-size:0.8rem; font-weight:700; letter-spacing:1px; margin-bottom:20px;">CREATOR & FOUNDER</div>
             <p style="color:#aaa; font-size:0.95rem; line-height:1.6;">
                 "I built TAPD because I believe the first impression is everything. Technology should feel like magic, not a chore."
             </p>
         </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="cta-title">Join The <span style="color:var(--gold)">Legacy</span></div>
+        <p style="color:#aaa; max-width:500px; margin:0 auto;">Ready to upgrade your network? The future is waiting.</p>
+        <a href="shop.html" class="cta-btn">Get Your Card</a>
     </section>
 
     <footer class="TAPD-footer">

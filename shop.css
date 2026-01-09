@@ -390,51 +390,99 @@ nav {
     transform: translateY(0); 
 }
 
-/* REPLACE THE ENTIRE MOBILE @MEDIA SECTION WITH THIS: */
-
+vv/* =========================================
+   MOBILE LAYOUT: HORIZONTAL (Like PC)
+   ========================================= */
 @media (max-width: 900px) {
     .hero-title { font-size: 2.2rem; }
     
     .showcase-container { 
-        gap: 120px; /* More breathing room between products */
-        padding: 0 20px; 
+        gap: 60px; /* Tighter vertical spacing */
+        padding: 0 15px; 
     }
 
-    /* Keep the Zig-Zag layout even on mobile! */
-    /* This makes it look like PC (Image-Text, then Text-Image) */
-    .shop-row { flex-direction: column; }
-    .shop-row.reverse { flex-direction: column; } /* Stack normally for stability */
+    /* 1. FORCE HORIZONTAL LAYOUT */
+    .shop-row {
+        flex-direction: row !important; /* Keep side-by-side */
+        align-items: center;
+        padding: 20px 10px; 
+        gap: 15px; /* Small gap between image and text */
+        height: auto;
+        min-height: 220px; /* Ensure box has height */
+    }
 
-    /* Adjust Card Size for Mobile Screen */
+    /* 2. KEEP ZIG-ZAG (Left-Right / Right-Left) */
+    .shop-row:nth-child(even) { 
+        flex-direction: row-reverse !important; 
+    }
+
+    /* 3. Animation: Reset translate for smaller screens for smoothness */
+    /* (Or keep it if you want them flying in from sides on mobile too) */
+    .shop-row:nth-child(odd) { transform: translateX(-30px); }
+    .shop-row:nth-child(even) { transform: translateX(30px); }
+    .shop-row.active { opacity: 1; transform: translateX(0); }
+
+    /* 4. SHRINK THE IMAGE CONTAINER */
     .row-image-box { 
-        height: 380px; 
-        width: 100%; 
-        margin-bottom: 30px;
+        height: 180px; /* Small fixed height */
+        width: 50%; /* Take half width */
+        flex: 0 0 50%; /* Don't grow or shrink */
+        margin-bottom: 0;
     }
     
-    /* Make the 3D Object fit the screen perfectly */
-    .digital-twin.shape-card { width: 100%; max-width: 340px; height: 215px; } 
-    .digital-twin.shape-tag { width: 220px; height: 220px; }
+    /* 5. SHRINK THE 3D OBJECTS TO FIT */
+    .digital-twin.shape-card { 
+        width: 150px !important; 
+        height: 95px !important; 
+        border-radius: 10px;
+    } 
+    .digital-twin.shape-tag { 
+        width: 110px !important; 
+        height: 110px !important; 
+    }
 
-    /* Fix the Typography - Make it smaller & elegant */
-    .row-content { text-align: center; }
-    .row-cat { justify-content: center; font-size: 0.7rem; }
+    /* 6. ADJUST TEXT TO FIT RIGHT SIDE */
+    .row-content { 
+        flex: 1; 
+        text-align: left !important; /* Align text to side */
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
     
+    /* Align text correctly for the reversed rows */
+    .shop-row:nth-child(even) .row-content { text-align: right !important; }
+    .shop-row:nth-child(even) .row-actions { justify-content: flex-end; }
+    .shop-row:nth-child(even) .row-price { justify-content: flex-end; }
+
+    /* Mini Typography */
+    .row-cat { justify-content: flex-start; font-size: 0.5rem; letter-spacing: 1px; margin-bottom: 5px; }
+    .shop-row:nth-child(even) .row-cat { justify-content: flex-end; } /* Fix cat alignment on reverse */
+
     .row-title { 
-        font-size: 2rem; /* Much smaller than before to fit nicely */
-        margin-bottom: 15px;
+        font-size: 1.1rem; /* Much smaller */
+        margin-bottom: 5px;
+        line-height: 1.2;
     }
     
     .row-desc { 
-        font-size: 0.9rem; 
-        display: block; /* Ensure description is visible */
-        margin-bottom: 25px;
+        display: none; /* Hide description on mobile to save space */
     }
     
-    .row-price { justify-content: center; font-size: 1.8rem; margin-bottom: 30px; }
-    .row-actions { justify-content: center; }
+    .row-price { 
+        justify-content: flex-start; 
+        font-size: 1rem; 
+        margin-bottom: 10px; 
+    }
+    
+    .row-actions { justify-content: flex-start; gap: 8px; }
+    
+    /* Mini Buttons */
+    .btn-buy { padding: 10px 15px; font-size: 0.6rem; letter-spacing: 1px; }
+    .btn-add-round { width: 35px; height: 35px; font-size: 0.8rem; }
 
-    /* Layout Adjustments */
+    /* Fix other sections */
     .blueprint-grid { grid-template-columns: 1fr; }
-    .stats-strip { flex-direction: column; gap: 40px; }
+    .stats-strip { flex-direction: column; gap: 30px; }
 }

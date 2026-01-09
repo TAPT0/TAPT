@@ -1,4 +1,4 @@
-/* --- customize.js | TAPD. Advanced Design Studio --- */
+/* --- customize.js | TAPD. Advanced Design Studio (With Color & Size Fix) --- */
 
 // 1. CONFIGURATION & SETUP
 const firebaseConfig = {
@@ -15,12 +15,14 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Initialize Fabric Canvas
+// INITIAL CANVAS SETUP
 const canvas = new fabric.Canvas('editor-canvas', {
-    width: 350,  // Standard Card Width (px)
-    height: 220, // Standard Card Height (px)
+    // We start with standard Credit Card dimensions (approx ratio)
+    width: 350,  
+    height: 220, 
     backgroundColor: '#0a0a0a',
-    preserveObjectStacking: true
+    preserveObjectStacking: true,
+    selection: true
 });
 
 let currentProduct = null;
@@ -35,15 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (templateId) {
         loadTemplate(templateId);
     } else {
-        // Default Blank State
-        setMode('card');
+        setMode('card'); // Default
     }
     
     updateCartCount();
     setupEventListeners();
 });
 
-// 3. LOAD TEMPLATE FROM FIREBASE (The "Hidden Design" Feature)
+// 3. LOAD TEMPLATE
 function loadTemplate(id) {
     console.log("Loading Template:", id);
     
@@ -55,14 +56,13 @@ function loadTemplate(id) {
             
             document.getElementById('display-price').innerText = "₹" + currentPrice;
 
-            // Check if Admin saved a JSON template
             if (data.designTemplate) {
                 canvas.loadFromJSON(data.designTemplate, function() {
                     canvas.renderAll();
-                    console.log("Template Loaded Successfully");
+                    // Update the color picker to match loaded design
+                    const bgColor = canvas.backgroundColor;
+                    if(bgColor) document.getElementById('bg-color-picker').value = bgColor;
                 });
-            } else {
-                console.log("No JSON template found, using default blank.");
             }
             
             // Set mode based on product type
@@ -75,13 +75,12 @@ function loadTemplate(id) {
     });
 }
 
-// 4. CANVAS TOOLS & LAYERS
+// 4. CANVAS TOOLS
 
-// Add Text
 function addTextLayer() {
     const text = new fabric.IText('TAP TO EDIT', {
-        left: 50,
-        top: 50,
+        left: canvas.width / 2 - 50,
+        top: canvas.height / 2,
         fontFamily: 'Syncopate',
         fill: '#ffffff',
         fontSize: 20
@@ -91,13 +90,17 @@ function addTextLayer() {
     canvas.renderAll();
 }
 
-// Add Image (User Upload)
 function handleAddImage(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
             fabric.Image.fromURL(e.target.result, function(img) {
-                img.scaleToWidth(150);
+                // Scale image to fit reasonably
+                const scale = Math.min(
+                    (canvas.width * 0.5) / img.width, 
+                    (canvas.height * 0.5) / img.height
+                );
+                img.scale(scale);
                 canvas.add(img);
                 canvas.centerObject(img);
                 canvas.setActiveObject(img);
@@ -108,7 +111,6 @@ function handleAddImage(input) {
     }
 }
 
-// Delete Selected
 function deleteSelected() {
     const active = canvas.getActiveObject();
     if (active) {
@@ -118,17 +120,23 @@ function deleteSelected() {
     }
 }
 
-// 5. EVENT LISTENERS (Connecting UI to Canvas)
+// 5. EVENT LISTENERS
 function setupEventListeners() {
     
-    // When user selects an object on canvas
+    // --- BACKGROUND COLOR PICKER (NEW) ---
+    const colorPicker = document.getElementById('bg-color-picker');
+    colorPicker.addEventListener('input', function(e) {
+        canvas.setBackgroundColor(e.target.value, canvas.renderAll.bind(canvas));
+    });
+
+    // --- CANVAS EVENTS ---
     canvas.on('selection:created', updateControls);
     canvas.on('selection:updated', updateControls);
     canvas.on('selection:cleared', () => {
         document.getElementById('layer-controls').style.display = 'none';
     });
 
-    // Inputs changing Canvas
+    // --- TEXT CONTROLS ---
     document.getElementById('txt-content').addEventListener('input', function() {
         const active = canvas.getActiveObject();
         if (active && active.type === 'i-text') {
@@ -162,7 +170,6 @@ function setupEventListeners() {
     });
 }
 
-// Update UI inputs to match selected object
 function updateControls() {
     const active = canvas.getActiveObject();
     if (!active) return;
@@ -180,11 +187,10 @@ function updateControls() {
     } else {
         textTools.style.display = 'none';
     }
-    
     document.getElementById('common-scale').value = active.scaleX;
 }
 
-// 6. MODE SWITCHING (Card vs Tag)
+// 6. MODE SWITCHING (Correct Size Logic)
 function setMode(mode) {
     const wrapper = document.getElementById('canvas-wrapper');
     const hole = document.getElementById('hw-hole');
@@ -192,45 +198,58 @@ function setMode(mode) {
     const btnCard = document.getElementById('btn-card');
     const btnTag = document.getElementById('btn-tag');
 
-    // Reset Buttons
+    // UI Buttons
     btnCard.classList.remove('active');
     btnTag.classList.remove('active');
 
+    // Scale Factor: 1 inch = approx 100px for screen view
+    // Card: 3.375" x 2.125"  -> Approx 340px x 215px
+    // Tag:  2" Round         -> Approx 200px x 200px
+
     if (mode === 'card') {
-        // Rectangle
-        canvas.setWidth(350);
-        canvas.setHeight(220);
+        canvas.setDimensions({ width: 350, height: 220 });
         wrapper.style.borderRadius = "15px"; 
         wrapper.style.width = "350px";
+        wrapper.style.height = "220px";
         hole.style.display = 'none';
         ring.style.display = 'none';
         btnCard.classList.add('active');
     } else {
-        // Circle (Tag)
-        canvas.setWidth(300);
-        canvas.setHeight(300);
-        wrapper.style.borderRadius = "50%"; 
-        wrapper.style.width = "300px";
+        // 2 INCH ROUND SETUP
+        // We set canvas to 210px (approx 2 inches) square
+        const tagSize = 210; 
+        
+        canvas.setDimensions({ width: tagSize, height: tagSize });
+        wrapper.style.borderRadius = "50%"; // Makes it round visually
+        wrapper.style.width = tagSize + "px";
+        wrapper.style.height = tagSize + "px";
+        
         hole.style.display = 'block';
         ring.style.display = 'block';
         btnTag.classList.add('active');
     }
+    
+    // Recenter background if it exists
+    if(canvas.backgroundImage) {
+        canvas.backgroundImage.scaleToWidth(canvas.width);
+        canvas.backgroundImage.scaleToHeight(canvas.height);
+    }
+    
     canvas.renderAll();
 }
 
 // 7. FINISH DESIGN & ADD TO CART
 function finishDesign() {
-    // Deselect everything to capture clean image
     canvas.discardActiveObject();
     canvas.renderAll();
 
-    // 1. Generate Image of Design
+    // Export High Quality PNG
     const designImage = canvas.toDataURL({
         format: 'png',
-        quality: 0.8
+        quality: 1.0,
+        multiplier: 2 // Export at 2x resolution for better print quality
     });
 
-    // 2. Prepare Cart Item
     const productID = currentProduct ? currentProduct.id : 'custom-' + Date.now();
     const productName = currentProduct ? currentProduct.name + " (Custom)" : "Custom Design";
     
@@ -239,25 +258,20 @@ function finishDesign() {
 
 function addToCart(id, name, price, img) {
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
-    
-    // For custom designs, we usually allow duplicates because they might be different edits
-    // But to keep it simple, we push as new item
     cart.push({
         id: id,
         name: name,
         price: price,
-        img: img, // Saves the customized image!
+        img: img,
         qty: 1
     });
 
     localStorage.setItem('TAPDCart', JSON.stringify(cart));
     updateCartCount();
-    
-    // Show Cart Drawer
     toggleCart(); 
 }
 
-// 8. ADMIN TOOL: EXPORT JSON
+// 8. ADMIN TOOL
 function exportDesignJSON() {
     const json = JSON.stringify(canvas.toJSON());
     navigator.clipboard.writeText(json).then(() => {
@@ -265,7 +279,7 @@ function exportDesignJSON() {
     });
 }
 
-// 9. SHARED UTILS (Cart Drawer, etc - Same as Shop Page)
+// 9. UTILS
 function updateCartCount() {
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
     let qty = cart.reduce((acc, item) => acc + item.qty, 0);
@@ -289,21 +303,29 @@ function renderCartContents() {
     let total = 0;
 
     container.innerHTML = '';
-    
     cart.forEach((item, index) => {
         total += item.price * item.qty;
         const div = document.createElement('div');
         div.className = 'cart-item';
         div.innerHTML = `
-            <img src="${item.img}" style="width:60px; height:60px; object-fit:contain; background:#111;">
+            <img src="${item.img}" style="width:60px; height:60px; object-fit:contain; background:#111; border-radius:5px;">
             <div style="flex:1; margin-left:10px;">
                 <div style="color:white; font-size:0.9rem;">${item.name}</div>
                 <div style="color:#888;">₹${item.price}</div>
             </div>
-            <div style="color:white;">x${item.qty}</div>
+            <div style="color:white; display:flex; align-items:center; gap:5px;">
+                <span onclick="removeItem(${index})" style="cursor:pointer; color:#ff4444;">×</span>
+            </div>
         `;
         container.appendChild(div);
     });
-    
     if(totalEl) totalEl.innerText = "₹" + total;
+}
+
+function removeItem(index) {
+    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+    cart.splice(index, 1);
+    localStorage.setItem('TAPDCart', JSON.stringify(cart));
+    renderCartContents();
+    updateCartCount();
 }

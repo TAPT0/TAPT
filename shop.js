@@ -1,124 +1,152 @@
-/* --- GLOBAL VARIABLES --- */
-let allProductsCache = [];
-let currentFilterType = 'all';
-let currentSearchTerm = '';
+/* --- shop.js | TAPD. Product Logic --- */
 
-// FIX: We use a unique name 'shopDB' to avoid "redeclaration" errors with script.js
-const shopDB = firebase.firestore();
-
-/* --- 1. INITIALIZATION --- */
-document.addEventListener('DOMContentLoaded', () => {
-    // Load products immediately
-    loadShopProducts();
-
-    // Setup Search Listener
-    const searchInput = document.getElementById('shop-search');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            currentSearchTerm = e.target.value.toLowerCase().trim();
-            applyFilters(); // Re-run filters whenever user types
-        });
+// 1. PRODUCT CATALOG (Edit these to match your actual products)
+const products = [
+    {
+        id: 1,
+        name: "The 'Album Art' Minimalist",
+        price: 249,
+        category: "card",
+        image: "https://i.imgur.com/8Q5X4hM.jpg", // Replace with your image URL
+        desc: "Photo Quality Focus"
+    },
+    {
+        id: 2,
+        name: "TAPD. Matte Black",
+        price: 499,
+        category: "card",
+        image: "https://via.placeholder.com/300/111/D4AF37?text=Matte+Black",
+        desc: "Premium Finish"
+    },
+    {
+        id: 3,
+        name: "TAPD. Gold Edition",
+        price: 999,
+        category: "card",
+        image: "https://via.placeholder.com/300/D4AF37/000?text=Gold+Edition",
+        desc: "Real Metal Core"
+    },
+    {
+        id: 4,
+        name: "NFC Coin Tag",
+        price: 199,
+        category: "tag",
+        image: "https://via.placeholder.com/300/333/fff?text=Coin+Tag",
+        desc: "Stick anywhere"
     }
-});
+];
 
-/* --- 2. LOAD PRODUCTS --- */
-function loadShopProducts() {
+// 2. RENDER PRODUCTS TO GRID
+function renderShop(filter = 'all') {
     const grid = document.getElementById('shop-grid');
     if (!grid) return;
 
-    // Show loading state
-    grid.innerHTML = '<div style="color:#666; text-align:center; width:100%; margin-top:50px; font-family:\'Inter\'">Loading Collection...</div>';
+    grid.innerHTML = ''; // Clear existing
 
-    // FIX: Using 'shopDB' instead of 'db'
-    shopDB.collection("products").orderBy("createdAt", "desc").get().then((querySnapshot) => {
-        allProductsCache = []; // Reset cache
-        
-        querySnapshot.forEach((doc) => {
-            let p = doc.data();
-            p.id = doc.id; // Save ID for linking
-            allProductsCache.push(p);
-        });
-
-        // Initial Render (Show All)
-        applyFilters(); 
-    }).catch((error) => {
-        console.error("Error loading products:", error);
-        grid.innerHTML = '<div style="color:red; text-align:center; width:100%;">Error loading products. Check Console.</div>';
-    });
-}
-
-/* --- 3. FILTER LOGIC (Called by Buttons) --- */
-function filterProducts(type, btnElement) {
-    // 1. Update Button Visuals
-    const buttons = document.querySelectorAll('.filter-btn');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    
-    if (btnElement) {
-        btnElement.classList.add('active');
-    }
-
-    // 2. Set Filter State
-    currentFilterType = type;
-
-    // 3. Apply changes
-    applyFilters();
-}
-
-/* --- 4. MASTER FILTER (Combines Type + Search) --- */
-function applyFilters() {
-    let filtered = allProductsCache;
-
-    // A. Filter by Type (Card vs Tag)
-    if (currentFilterType !== 'all') {
-        filtered = filtered.filter(p => {
-            // Check 'type' field safely
-            const pType = p.type ? p.type.toLowerCase() : '';
-            return pType === currentFilterType;
-        });
-    }
-
-    // B. Filter by Search Term
-    if (currentSearchTerm !== '') {
-        filtered = filtered.filter(p => {
-            const title = p.title ? p.title.toLowerCase() : '';
-            const category = p.category ? p.category.toLowerCase() : '';
-            return title.includes(currentSearchTerm) || category.includes(currentSearchTerm);
-        });
-    }
-
-    // C. Render Result
-    renderGrid(filtered);
-}
-
-/* --- 5. RENDER GRID --- */
-function renderGrid(productList) {
-    const grid = document.getElementById('shop-grid');
-    grid.innerHTML = "";
-
-    if (productList.length === 0) {
-        grid.innerHTML = '<div style="color:#666; text-align:center; width:100%; margin-top:50px;">No items match your search.</div>';
-        return;
-    }
-
-    productList.forEach(p => {
-        // Use first image or placeholder
-        let img = (p.images && p.images.length > 0) ? p.images[0] : 'assets/placeholder.jpg';
-        let categoryLabel = p.category ? p.category : (p.type ? p.type.toUpperCase() : 'NFC');
-
-        let html = `
-            <div class="product-card" onclick="window.location.href='product.html?id=${p.id}'">
-                <div class="p-img-box">
-                    <img src="${img}" alt="${p.title}" loading="lazy">
-                </div>
-                <div class="p-details">
-                    <div class="p-info">
-                        <h3>${p.title}</h3>
-                        <p class="p-cat">${categoryLabel}</p>
+    products.forEach(product => {
+        if (filter === 'all' || product.category === filter) {
+            
+            // Create Card HTML
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <div class="card-image">
+                    <img src="${product.image}" alt="${product.name}">
+                    <div class="overlay">
+                        <button onclick="addToCart(${product.id})">ADD TO BAG</button>
                     </div>
-                    <div class="p-price">₹${p.price}</div>
                 </div>
-            </div>
-        `;
-        grid.innerHTML += html;
+                <div class="card-info">
+                    <h3>${product.name}</h3>
+                    <p>${product.desc}</p>
+                    <div class="price">₹${product.price}</div>
+                </div>
+            `;
+            grid.appendChild(card);
+        }
     });
+}
+
+// 3. THE "ADD TO CART" LOGIC (Fixed for Checkout)
+function addToCart(productId) {
+    // A. Find the product details
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    // B. Get current cart from Storage (Using 'TAPDCart' key)
+    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+
+    // C. Check if item is already in cart
+    let existingItem = cart.find(item => item.id === productId);
+
+    if (existingItem) {
+        existingItem.qty += 1;
+    } else {
+        cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            img: product.image,
+            qty: 1
+        });
+    }
+
+    // D. SAVE TO STORAGE
+    localStorage.setItem('TAPDCart', JSON.stringify(cart));
+
+    // E. Update UI
+    updateCartCount();
+    showToast(`${product.name} added to bag`);
+    
+    // Optional: Open the cart drawer automatically
+    // toggleCart(); 
+}
+
+// 4. UPDATE BAG COUNT ICON
+function updateCartCount() {
+    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+    let totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
+    
+    const countBadge = document.getElementById('cart-count');
+    if (countBadge) {
+        countBadge.innerText = totalQty;
+        countBadge.style.display = totalQty > 0 ? 'flex' : 'none';
+    }
+}
+
+// 5. SIMPLE TOAST NOTIFICATION
+function showToast(message) {
+    // Create element
+    const toast = document.createElement('div');
+    toast.className = 'toast-msg';
+    toast.innerText = message;
+    toast.style.cssText = `
+        position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+        background: #D4AF37; color: #000; padding: 12px 24px; 
+        font-family: 'Syncopate', sans-serif; font-weight: 700; font-size: 0.8rem;
+        border-radius: 4px; z-index: 9999; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    `;
+    
+    document.body.appendChild(toast);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+// 6. INITIALIZE
+document.addEventListener('DOMContentLoaded', () => {
+    renderShop();
+    updateCartCount();
+});
+
+// Filter Helper
+function filterProducts(category, btn) {
+    // Visual update for buttons
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    // Re-render
+    renderShop(category);
 }

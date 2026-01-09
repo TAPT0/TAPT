@@ -79,7 +79,7 @@
             width: 100%;
         }
 
-        /* 3D CARD ANIMATION LOGIC (Same as before) */
+        /* 3D CARD ANIMATION LOGIC */
         .hero-card-wrapper {
             width: 340px; height: 215px; margin-bottom: 50px; position: relative;
             transform-style: preserve-3d;
@@ -131,39 +131,36 @@
         }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- TRUST STRIP (Logos) --- */
+        /* --- MARQUEE STRIP --- */
+        .marquee-strip {
+            width: 100%; background: var(--gold); color: black; padding: 15px 0; overflow: hidden; white-space: nowrap;
+            font-family: 'Syncopate', sans-serif; font-weight: 800; font-size: 1rem; transform: rotate(-1deg);
+            margin: 0; position: relative; z-index: 20; box-shadow: 0 0 20px rgba(212,175,55,0.4);
+        }
+        .marquee-content { display: inline-block; animation: scrollText 25s linear infinite; }
+        @keyframes scrollText { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+        /* --- TRUST STRIP --- */
         .trust-strip {
-            padding: 40px 0;
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            background: rgba(255,255,255,0.02);
-            overflow: hidden;
-            position: relative;
+            padding: 40px 0; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02); overflow: hidden;
         }
         .logo-scroller {
             display: flex; gap: 60px; justify-content: center; align-items: center; opacity: 0.5;
-            animation: scrollLogos 20s linear infinite;
-            width: max-content;
+            animation: scrollLogos 20s linear infinite; width: max-content;
         }
         .trust-icon { font-size: 2rem; color: #fff; transition:0.3s; }
         .trust-icon:hover { color: var(--gold); opacity: 1; transform: scale(1.1); }
-        
-        @keyframes scrollLogos {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
+        @keyframes scrollLogos { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        /* --- HOW IT WORKS (Interactive Steps) --- */
+        /* --- HOW IT WORKS --- */
         .steps-section { padding: 100px 5%; position: relative; }
         .steps-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px;
             max-width: 1200px; margin: 0 auto; position: relative;
         }
-        /* Connecting Line */
         .steps-grid::before {
             content:''; position: absolute; top: 40px; left: 10%; right: 10%; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--gold), transparent);
-            z-index: 0; opacity: 0.3;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent); z-index: 0; opacity: 0.3;
         }
         .step-card {
             background: #0a0a0a; border: 1px solid var(--border); padding: 40px 20px;
@@ -179,24 +176,61 @@
         .step-title { font-size: 1.2rem; margin-bottom: 10px; font-weight: 700; }
         .step-desc { color: #888; font-size: 0.9rem; line-height: 1.6; }
 
-        /* --- LIFESTYLE PARALLAX --- */
-        .lifestyle-section {
-            height: 600px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1974&auto=format&fit=crop');
-            background-attachment: fixed; background-size: cover; background-position: center;
-            display: flex; align-items: center; justify-content: center; text-align: center;
-            padding: 0 20px; position: relative;
+        /* --- SOFTWARE DEMO (THE PORTAL) --- */
+        .software-section {
+            padding: 100px 5%; background: linear-gradient(to bottom, #000, #0a0a0a);
+            display: flex; flex-direction: column; align-items: center; text-align: center;
         }
-        .lifestyle-content { max-width: 600px; z-index: 2; }
-        .lifestyle-title { font-family: 'Syncopate'; font-size: 2.5rem; margin-bottom: 20px; }
-        .lifestyle-btn {
-            display: inline-block; background: transparent; color: white; border: 1px solid white;
-            padding: 15px 40px; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem;
-            transition: 0.3s; margin-top: 20px; cursor: pointer; text-decoration: none;
+        .phone-mockup {
+            width: 300px; height: 550px; background: #000; border: 4px solid #333;
+            border-radius: 40px; position: relative; overflow: hidden; margin-top: 50px;
+            box-shadow: 0 0 50px rgba(212,175,55,0.1);
         }
-        .lifestyle-btn:hover { background: white; color: black; }
+        .phone-notch {
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 120px; height: 25px; background: #333; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px; z-index: 10;
+        }
+        .phone-screen {
+            width: 100%; height: 100%; padding: 40px 20px; box-sizing: border-box;
+            background: radial-gradient(circle at top, #222, #000);
+        }
+        /* UI Elements inside Phone */
+        .ui-avatar { width: 80px; height: 80px; border-radius: 50%; background: #333; margin: 20px auto; border: 2px solid var(--gold); }
+        .ui-bar { height: 15px; background: #222; border-radius: 10px; margin-bottom: 10px; }
+        .ui-btn { height: 40px; background: #111; border: 1px solid #333; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; padding: 0 15px; gap: 10px; font-size: 0.7rem; color: #666; }
+        .ui-btn.active { border-color: var(--gold); color: white; background: rgba(212,175,55,0.1); }
+        
+        /* Scan Line Animation */
+        .scan-line {
+            position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--gold); box-shadow: 0 0 10px var(--gold);
+            animation: scanUI 3s infinite linear; opacity: 0.8;
+        }
+        @keyframes scanUI { 0% { top: 0; } 100% { top: 100%; } }
 
-        /* --- SHOWCASE (Existing) --- */
+        /* --- WHO IS THIS FOR (Use Cases) --- */
+        .personas-section { padding: 100px 5%; position: relative; }
+        .persona-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px;
+            max-width: 1200px; margin: 0 auto;
+        }
+        .persona-card {
+            background: var(--glass); border: 1px solid var(--border); padding: 40px; border-radius: 20px;
+            transition: 0.3s; position: relative; overflow: hidden; opacity: 0; transform: translateY(30px);
+        }
+        .persona-card:hover { transform: scale(1.02); border-color: var(--gold); background: rgba(212,175,55,0.03); }
+        .persona-icon { font-size: 2.5rem; color: white; margin-bottom: 20px; }
+        .persona-title { font-family: 'Syncopate'; font-size: 1.2rem; margin-bottom: 10px; color: var(--gold); }
+        .persona-desc { color: #888; font-size: 0.9rem; line-height: 1.6; }
+
+        /* --- THE IMPACT (Eco) --- */
+        .impact-section {
+            padding: 80px 5%; text-align: center; border-top: 1px solid var(--border); background: #030303;
+        }
+        .impact-icon { font-size: 4rem; color: #4CAF50; margin-bottom: 20px; text-shadow: 0 0 30px rgba(76, 175, 80, 0.3); }
+        .impact-stat { font-family: 'Syncopate'; font-size: 3rem; color: white; font-weight: 700; margin-bottom: 10px; }
+
+        /* --- FORM FACTOR --- */
         .info-section { padding: 100px 5%; position: relative; }
         .section-header { text-align: center; margin-bottom: 60px; }
         .section-title { font-family: 'Syncopate'; font-size: 2.2rem; color: var(--gold); margin-bottom: 10px; }
@@ -215,7 +249,6 @@
         .info-head { font-family: 'Syncopate'; font-size: 1.2rem; margin-bottom: 10px; font-weight: 700; }
         .info-text { color: #aaa; font-size: 0.95rem; line-height: 1.6; }
 
-        /* Reveal Animation */
         .reveal.active { opacity: 1; transform: translateY(0); }
 
         /* --- MOBILE RESPONSIVE --- */
@@ -227,10 +260,10 @@
             @keyframes cardEntranceMobile { 0% { opacity: 0; transform: translateY(50px) scale(0.8); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
             .hero-title { font-size: 2rem; }
             .nav-links { display: none; }
-            .steps-grid::before { display: none; } /* Hide line on mobile */
-            .showcase-grid { grid-template-columns: 1fr; }
-            .lifestyle-section { background-attachment: scroll; } /* Disable parallax on mobile */
+            .steps-grid::before { display: none; } 
+            .showcase-grid, .persona-grid { grid-template-columns: 1fr; }
             .showcase-panel .hero-card-wrapper { transform: scale(1) !important; width: 100%; height: 180px; }
+            .impact-stat { font-size: 2.2rem; }
         }
     </style>
 </head>
@@ -270,10 +303,16 @@
                 The last card you'll ever need. Share your socials, music, and contact info instantly with a single tap. No apps required.
             </p>
             <div style="margin-top: 50px; opacity:0; animation: fadeUp 1s ease 1s forwards;">
-                <a href="#how-it-works" style="color:#666; text-decoration:none; border-bottom:1px solid #333; padding-bottom:5px; font-size:0.8rem; letter-spacing:1px; text-transform:uppercase;">How does it work? &nbsp;<i class="fa-solid fa-chevron-down"></i></a>
+                <a href="#marquee" style="color:#666; text-decoration:none; border-bottom:1px solid #333; padding-bottom:5px; font-size:0.8rem; letter-spacing:1px; text-transform:uppercase;">Explore &nbsp;<i class="fa-solid fa-chevron-down"></i></a>
             </div>
         </div>
     </section>
+
+    <div class="marquee-strip" id="marquee">
+        <div class="marquee-content">
+            TAP TO CONNECT • SUSTAINABLE TECH • DEFINE YOUR LEGACY • TAP TO CONNECT • SUSTAINABLE TECH • DEFINE YOUR LEGACY • TAP TO CONNECT • SUSTAINABLE TECH • DEFINE YOUR LEGACY •
+        </div>
+    </div>
 
     <div class="trust-strip">
         <div class="logo-scroller">
@@ -294,7 +333,7 @@
         </div>
     </div>
 
-    <section class="steps-section" id="how-it-works">
+    <section class="steps-section">
         <div class="section-header">
             <h2 class="section-title">Zero Friction</h2>
             <p style="color:#888;">It's almost like magic.</p>
@@ -318,14 +357,64 @@
         </div>
     </section>
 
-    <section class="lifestyle-section">
-        <div class="lifestyle-content reveal">
-            <div class="lifestyle-title">NETWORK WITH <br><span style="color:var(--gold)">AUTHORITY</span></div>
-            <p style="color:#ddd; margin-bottom:30px;">
-                Walk into a room and own it. The TAPD card is a statement piece that says you are ahead of the curve.
-            </p>
-            <a href="shop.html" class="lifestyle-btn">Upgrade Your Network</a>
+    <section class="personas-section">
+        <div class="section-header">
+            <h2 class="section-title">For The <span style="color:var(--gold)">Bold</span></h2>
+            <p style="color:#888;">One tool. Infinite possibilities.</p>
         </div>
+        <div class="persona-grid">
+            <div class="persona-card reveal">
+                <i class="fa-solid fa-camera-retro persona-icon"></i>
+                <div class="persona-title">Creators</div>
+                <div class="persona-desc">Share your portfolio, Instagram, and latest YouTube video in one tap. Turn viewers into followers instantly.</div>
+            </div>
+            <div class="persona-card reveal">
+                <i class="fa-solid fa-briefcase persona-icon"></i>
+                <div class="persona-title">Executives</div>
+                <div class="persona-desc">Ditch the paper stack. Share your LinkedIn, Calendly, and contact vCard professionally and efficiently.</div>
+            </div>
+            <div class="persona-card reveal">
+                <i class="fa-solid fa-store persona-icon"></i>
+                <div class="persona-title">Business</div>
+                <div class="persona-desc">Get more Google Reviews, share your menu, or direct customers to your payment links effortlessly.</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="software-section">
+        <div class="section-header">
+            <h2 class="section-title">The Portal</h2>
+            <p style="color:#888;">Beautiful software to match the hardware.</p>
+        </div>
+        
+        <div class="phone-mockup reveal">
+            <div class="phone-notch"></div>
+            <div class="scan-line"></div>
+            <div class="phone-screen">
+                <div class="ui-avatar"></div>
+                <div style="font-family:'Syncopate'; margin-bottom:5px;">HASNAIN LORI</div>
+                <div style="font-size:0.8rem; color:#666; margin-bottom:30px;">CEO @ TAPD</div>
+                
+                <div class="ui-btn active"><i class="fa-brands fa-instagram"></i> Instagram</div>
+                <div class="ui-btn"><i class="fa-brands fa-linkedin"></i> LinkedIn</div>
+                <div class="ui-btn"><i class="fa-solid fa-globe"></i> Website</div>
+                <div class="ui-btn"><i class="fa-solid fa-envelope"></i> Contact Me</div>
+                
+                <div style="margin-top:20px; width:100%; height:100px; background:#111; border-radius:10px;"></div>
+            </div>
+        </div>
+        <p style="margin-top:30px; color:#666; font-size:0.9rem;">
+            *Edit your profile anytime, anywhere. No app download required.
+        </p>
+    </section>
+
+    <section class="impact-section reveal">
+        <i class="fa-solid fa-leaf impact-icon"></i>
+        <div class="impact-stat">1 Card</div>
+        <p style="color:#aaa; max-width:600px; margin:0 auto; font-size:1.1rem;">
+            Replaces thousands of paper business cards. 88% of paper cards are thrown away within a week. 
+            <span style="color:white; font-weight:bold;">Yours won't be.</span>
+        </p>
     </section>
 
     <section class="info-section">

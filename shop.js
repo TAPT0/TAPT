@@ -170,6 +170,13 @@ function renderShop(filter = 'all') {
         visibleCount++;
     });
 }
+function flipCard(container) {
+    // Find the inner wrapper inside the clicked container
+    const inner = container.querySelector('.twin-inner');
+    if (inner) {
+        inner.classList.toggle('flipped');
+    }
+}
 
 /* =========================================
    4. 3D TILT ENGINE (The Premium Feel)

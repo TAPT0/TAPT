@@ -1,7 +1,7 @@
-/* --- shop.js | FINAL FIX (No Config Conflicts) --- */
+/* --- shop.js | TAPD. Shop Page (No Description) --- */
 
 // 1. SETUP CONNECTION
-// We use 'store' instead of 'db' to prevent "redeclaration" errors if it exists in HTML
+// We use 'store' instead of 'db' to prevent conflicts
 const store = firebase.firestore();
 let products = [];
 
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartCount();
 });
 
-// 3. FETCH DATA (Matches Admin Panel Structure)
+// 3. FETCH DATA 
 function fetchProducts() {
     const grid = document.getElementById('shop-grid');
     if(grid) grid.innerHTML = '<p style="color:#666; text-align:center; width:100%;">Loading Legacy...</p>';
@@ -22,34 +22,26 @@ function fetchProducts() {
         querySnapshot.forEach((doc) => {
             let data = doc.data();
             
-            /* --- CRITICAL DATA MAPPING --- */
-            
-            // 1. TITLE: Admin saves as 'title'
+            // --- DATA MAPPING ---
             let pName = data.title || data.name || "Unnamed Product";
             
-            // 2. IMAGE: Admin saves as an ARRAY called 'images'. We grab the first one.
+            // Image Logic
             let pImage = 'https://via.placeholder.com/300x300?text=No+Image';
-            
             if (data.images && Array.isArray(data.images) && data.images.length > 0) {
-                pImage = data.images[0]; // Grab first image from array
+                pImage = data.images[0]; 
             } else if (data.image) {
-                pImage = data.image; // Fallback for old items
+                pImage = data.image; 
             } else if (data.productImage) {
                 pImage = data.productImage;
             }
 
-            // 3. PRICE & DESC
-            let pPrice = Number(data.price) || 0;
-            let pDesc = data.description || data.desc || 'Premium Hardware';
-            let pCat = data.category || 'custom';
-
             products.push({
                 id: doc.id, 
                 name: pName,
-                price: pPrice,
-                category: pCat,
+                price: Number(data.price) || 0,
+                category: data.category || 'custom',
                 image: pImage,
-                desc: pDesc
+                desc: data.description || 'Premium Hardware' // Kept in data, but won't render
             });
         });
 
@@ -62,7 +54,7 @@ function fetchProducts() {
 }
 
 
-// 4. RENDER TO GRID
+// 4. RENDER TO GRID (Description Removed)
 function renderShop(filter = 'all') {
     const grid = document.getElementById('shop-grid');
     if (!grid) return;
@@ -75,12 +67,12 @@ function renderShop(filter = 'all') {
     }
 
     products.forEach(product => {
-        // Filter Logic
         if (filter === 'all' || product.category === filter) {
             
             const card = document.createElement('div');
             card.className = 'product-card';
             
+            // REMOVED THE DESCRIPTION LINE FROM HTML BELOW
             card.innerHTML = `
                 <div class="p-img-box">
                     <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x300?text=TAPD'">
@@ -91,7 +83,6 @@ function renderShop(filter = 'all') {
                 <div class="p-details">
                     <div class="p-info">
                         <h3>${product.name}</h3>
-                        <p class="p-cat">${product.desc}</p>
                     </div>
                     <div class="p-price">₹${product.price}</div>
                 </div>
@@ -106,10 +97,7 @@ function addToCart(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
-    // Load Cart using 'TAPDCart' key
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
-
-    // Check duplicate
     let existingItem = cart.find(item => item.id === productId);
 
     if (existingItem) {
@@ -124,10 +112,7 @@ function addToCart(productId) {
         });
     }
 
-    // Save
     localStorage.setItem('TAPDCart', JSON.stringify(cart));
-
-    // Update UI
     updateCartCount();
     showToast(`${product.name} added to bag`);
 }

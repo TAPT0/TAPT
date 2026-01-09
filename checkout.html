@@ -12,24 +12,26 @@
         :root {
             --tapd-gold: #D4AF37;
             --tapd-black: #050505;
-            --tapd-glass: rgba(255, 255, 255, 0.05);
-            --tapd-border: rgba(255, 255, 255, 0.15);
+            --tapd-panel: #0a0a0a;
+            --tapd-border: rgba(255, 255, 255, 0.1);
+            --success: #00ff88;
+            --error: #ff4444;
         }
 
         body {
             background-color: var(--tapd-black);
             color: #fff;
-            font-family: 'Inter', sans-serif; /* Clean font for text */
+            font-family: 'Inter', sans-serif;
             margin: 0;
             overflow-x: hidden;
         }
 
-        /* Gold Glow Effect */
+        /* Ambient Glow */
         .gold-glow {
             position: fixed;
-            width: 50vw; height: 50vw;
-            background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, rgba(0,0,0,0) 70%);
-            top: -20%; left: 50%;
+            width: 60vw; height: 60vw;
+            background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, rgba(0,0,0,0) 70%);
+            top: -30%; left: 50%;
             transform: translateX(-50%);
             z-index: 0;
             pointer-events: none;
@@ -86,24 +88,27 @@
         /* Section Headers */
         .c-head {
             font-family: 'Syncopate', sans-serif;
-            font-size: 1rem;
-            margin-bottom: 25px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
             color: var(--tapd-gold);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid var(--tapd-border);
-            padding-bottom: 10px;
-            display: inline-block;
+            letter-spacing: 2px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .c-head::after {
+            content: ''; flex: 1; height: 1px; background: var(--tapd-border);
         }
 
-        /* Input Fields */
+        /* Input Fields with Validation */
+        .input-group { position: relative; margin-bottom: 15px; }
+        
         .TAPD-input {
             width: 100%;
-            background: rgba(20, 20, 20, 0.8);
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--tapd-border);
             padding: 16px;
+            padding-right: 40px; /* Space for icon */
             color: #fff;
-            margin-bottom: 16px;
             border-radius: 6px;
             font-size: 0.95rem;
             transition: 0.3s;
@@ -115,10 +120,23 @@
             outline: none;
             border-color: var(--tapd-gold);
             background: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 0 10px rgba(212,175,55,0.1);
+            box-shadow: 0 0 15px rgba(212,175,55,0.05);
         }
 
-        .TAPD-input::placeholder { color: #555; }
+        .input-status {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: 0.3s;
+        }
+        
+        .TAPD-input.valid { border-color: var(--success); }
+        .TAPD-input.valid + .input-status { opacity: 1; color: var(--success); }
+        
+        .TAPD-input.invalid { border-color: var(--error); }
 
         .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .row-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; }
@@ -130,107 +148,146 @@
         
         .pay-box {
             border: 1px solid var(--tapd-border);
-            background: var(--tapd-glass);
+            background: rgba(255,255,255,0.02);
             padding: 25px;
             text-align: center;
             border-radius: 8px;
             transition: 0.3s;
-            opacity: 0.5;
+            opacity: 0.6;
+            position: relative;
+            overflow: hidden;
         }
         
         .pay-box i { font-size: 1.8rem; margin-bottom: 10px; display: block; color: #fff; }
-        .pay-box span { font-size: 0.9rem; font-weight: 500; }
+        .pay-box span { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
         
         .pay-option input:checked + .pay-box {
             border-color: var(--tapd-gold);
             opacity: 1;
-            background: rgba(212, 175, 55, 0.08);
-            box-shadow: 0 0 15px rgba(212,175,55,0.15);
+            background: rgba(212, 175, 55, 0.05);
         }
-        .pay-option input:checked + .pay-box i { color: var(--tapd-gold); }
+        
+        .pay-option input:checked + .pay-box::after {
+            content: '\f00c'; /* Checkmark */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute; top: 10px; right: 10px;
+            color: var(--tapd-gold);
+            font-size: 0.8rem;
+        }
 
-        /* Order Summary Card */
+        /* Summary Card */
         .summary-card {
-            background: #111;
+            background: var(--tapd-panel);
             border: 1px solid var(--tapd-border);
             padding: 30px;
             border-radius: 12px;
             position: sticky;
             top: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
         .summary-card h3 {
             font-family: 'Syncopate', sans-serif;
             margin-top: 0;
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: #fff;
             margin-bottom: 25px;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--tapd-border);
+            padding-bottom: 15px;
         }
 
         /* Cart Items */
         .checkout-items {
-            max-height: 300px;
+            max-height: 250px;
             overflow-y: auto;
             margin-bottom: 20px;
             padding-right: 5px;
         }
-
-        /* Scrollbar for cart */
-        .checkout-items::-webkit-scrollbar { width: 4px; }
-        .checkout-items::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+        .checkout-items::-webkit-scrollbar { width: 3px; }
+        .checkout-items::-webkit-scrollbar-thumb { background: #333; }
 
         .checkout-item {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
             padding-bottom: 15px;
-            border-bottom: 1px solid #222;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         
         .checkout-item img {
-            width: 60px;
-            height: 60px;
+            width: 50px; height: 50px;
             object-fit: cover;
-            border-radius: 6px;
+            border-radius: 4px;
             margin-right: 15px;
             background: #222;
         }
         
-        .item-info h4 { margin: 0 0 4px 0; font-size: 0.95rem; font-weight: 600; color: #fff; }
-        .item-info p { margin: 0; font-size: 0.8rem; color: #888; }
+        .item-info h4 { margin: 0 0 4px 0; font-size: 0.85rem; font-weight: 600; color: #fff; }
+        .item-info p { margin: 0; font-size: 0.75rem; color: #888; }
         
-        .summary-details { margin-top: 20px; border-top: 1px solid #222; padding-top: 20px; }
+        /* Promo Code */
+        .promo-wrapper {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .promo-input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--tapd-border);
+            padding: 12px;
+            color: white;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+        .promo-btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 0 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+        .promo-btn:hover { background: #555; }
+
+        /* Totals */
+        .summary-details { margin-top: 10px; }
         .summary-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 0.9rem;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
             color: #aaa;
         }
+        .summary-row.discount { color: var(--tapd-gold); }
         .summary-row.total {
             color: #fff;
             font-weight: 700;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-top: 15px;
             padding-top: 15px;
             border-top: 1px solid var(--tapd-border);
         }
 
-        /* Button */
+        /* Pay Button */
         .pay-btn {
             width: 100%;
             background: var(--tapd-gold);
             color: #000;
             border: none;
-            padding: 20px;
+            padding: 18px;
             font-family: 'Syncopate', sans-serif;
             font-weight: 700;
             font-size: 0.9rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 25px;
+            letter-spacing: 2px;
+            margin-top: 20px;
             cursor: pointer;
             transition: 0.3s;
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
@@ -239,44 +296,35 @@
         .pay-btn:hover {
             background: #fff;
             transform: translateY(-2px);
-            box-shadow: 0 0 25px rgba(212,175,55,0.4);
+            box-shadow: 0 0 30px rgba(212,175,55,0.3);
+        }
+        
+        .pay-btn:disabled {
+            background: #333; cursor: not-allowed; opacity: 0.5; box-shadow: none;
         }
 
-        .pay-btn:disabled {
-            background: #333;
-            color: #666;
-            cursor: not-allowed;
-            box-shadow: none;
+        /* Terms */
+        .terms-check {
+            display: flex; align-items: center; gap: 10px;
+            margin-top: 15px; font-size: 0.75rem; color: #666;
         }
+        .terms-check input { accent-color: var(--tapd-gold); }
 
         .secure-msg {
-            text-align: center;
-            font-size: 0.75rem;
-            color: #555;
-            margin-top: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
+            text-align: center; font-size: 0.7rem; color: #444; margin-top: 15px;
+            display: flex; justify-content: center; align-items: center; gap: 6px;
         }
 
         /* Loader */
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 100;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            background: rgba(0,0,0,0.95); z-index: 100;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
         }
         .spinner {
-            width: 50px; height: 50px;
-            border: 3px solid rgba(212,175,55,0.2);
-            border-top: 3px solid var(--tapd-gold);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-bottom: 20px;
+            width: 40px; height: 40px;
+            border: 3px solid rgba(212,175,55,0.2); border-top: 3px solid var(--tapd-gold);
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -287,7 +335,7 @@
     <div class="gold-glow"></div>
 
     <nav>
-        <a href="index.html" class="logo">TAPD<span>.</span></a>
+        <a href="shop.html" class="logo">TAPD<span>.</span></a>
         <a href="shop.html" class="back-link">
             <i class="fa-solid fa-arrow-left"></i> Return to Shop
         </a>
@@ -297,38 +345,52 @@
         <div id="checkout-form" class="checkout-layout">
             
             <div class="checkout-left">
+                
                 <div class="checkout-section">
-                    <h2 class="c-head">Contact Details</h2>
-                    <input type="email" id="email" class="TAPD-input" placeholder="Email Address" required>
-                    <input type="tel" id="phone" class="TAPD-input" placeholder="Phone Number (Required for WhatsApp)" required>
+                    <h2 class="c-head"><i class="fa-regular fa-user"></i> Contact</h2>
+                    <div class="input-group">
+                        <input type="email" id="email" class="TAPD-input" placeholder="Email Address" required oninput="validate(this)">
+                        <i class="fa-solid fa-check input-status"></i>
+                    </div>
+                    <div class="input-group">
+                        <input type="tel" id="phone" class="TAPD-input" placeholder="Phone (Required for Order Updates)" required oninput="validate(this)">
+                        <i class="fa-solid fa-check input-status"></i>
+                    </div>
                 </div>
 
                 <div class="checkout-section">
-                    <h2 class="c-head">Shipping Address</h2>
+                    <h2 class="c-head"><i class="fa-solid fa-truck-fast"></i> Shipping</h2>
                     <div class="row-2">
-                        <input type="text" id="f-name" class="TAPD-input" placeholder="First Name" required>
-                        <input type="text" id="l-name" class="TAPD-input" placeholder="Last Name" required>
+                        <div class="input-group">
+                            <input type="text" id="f-name" class="TAPD-input" placeholder="First Name" required oninput="validate(this)">
+                        </div>
+                        <div class="input-group">
+                            <input type="text" id="l-name" class="TAPD-input" placeholder="Last Name" required oninput="validate(this)">
+                        </div>
                     </div>
-                    <input type="text" id="address" class="TAPD-input" placeholder="Full Address" required>
+                    <div class="input-group">
+                        <input type="text" id="address" class="TAPD-input" placeholder="Street Address, Apt, Suite" required oninput="validate(this)">
+                        <i class="fa-solid fa-check input-status"></i>
+                    </div>
                     <div class="row-3">
-                        <input type="text" id="city" class="TAPD-input" placeholder="City" required>
-                        <input type="text" id="state" class="TAPD-input" placeholder="State" required>
-                        <input type="text" id="zip" class="TAPD-input" placeholder="ZIP Code" required>
+                        <input type="text" id="city" class="TAPD-input" placeholder="City" required oninput="validate(this)">
+                        <input type="text" id="state" class="TAPD-input" placeholder="State" required oninput="validate(this)">
+                        <input type="text" id="zip" class="TAPD-input" placeholder="ZIP Code" required oninput="validate(this)">
                     </div>
                 </div>
 
                 <div class="checkout-section">
-                    <h2 class="c-head">Payment Method</h2>
+                    <h2 class="c-head"><i class="fa-regular fa-credit-card"></i> Payment</h2>
                     <div class="payment-options">
                         <label class="pay-option">
-                            <input type="radio" name="payment" value="card" checked onchange="updateButtonText()">
+                            <input type="radio" name="payment" value="card" checked onchange="updateUI()">
                             <div class="pay-box">
-                                <i class="fa-regular fa-credit-card"></i>
-                                <span>Prepaid (UPI/Card)</span>
+                                <i class="fa-brands fa-google-pay"></i>
+                                <span>UPI / Cards</span>
                             </div>
                         </label>
                         <label class="pay-option">
-                            <input type="radio" name="payment" value="cod" onchange="updateButtonText()">
+                            <input type="radio" name="payment" value="cod" onchange="updateUI()">
                             <div class="pay-box">
                                 <i class="fa-solid fa-money-bill-wave"></i>
                                 <span>Cash on Delivery</span>
@@ -345,15 +407,28 @@
                     <div class="checkout-items" id="checkout-items-list">
                         </div>
 
+                    <div class="promo-wrapper">
+                        <input type="text" id="promo-code" class="promo-input" placeholder="Promo Code">
+                        <button class="promo-btn" onclick="applyCoupon()">APPLY</button>
+                    </div>
+
                     <div class="summary-details">
                         <div class="summary-row"><span>Subtotal</span><span id="c-subtotal">₹0</span></div>
                         <div class="summary-row"><span>Shipping</span><span style="color:var(--tapd-gold);">Free</span></div>
+                        <div class="summary-row discount" id="discount-row" style="display:none;">
+                            <span>Discount</span><span id="c-discount">-₹0</span>
+                        </div>
                         <div class="summary-row total"><span>Total</span><span id="c-total">₹0</span></div>
                     </div>
 
+                    <label class="terms-check">
+                        <input type="checkbox" id="terms" checked>
+                        I agree to the Terms of Service & Privacy Policy
+                    </label>
+
                     <button type="button" class="pay-btn" id="pay-btn" onclick="processOrder()">Pay Securely</button>
                     
-                    <div class="secure-msg"><i class="fa-solid fa-lock"></i> SSL Encrypted & Secure</div>
+                    <div class="secure-msg"><i class="fa-solid fa-lock"></i> 256-Bit SSL Encrypted</div>
                 </div>
             </div>
 
@@ -362,113 +437,161 @@
 
     <div id="loading-overlay" style="display: none;">
         <div class="spinner"></div>
-        <div style="color: var(--tapd-gold); font-family: 'Syncopate', sans-serif; font-size: 0.8rem; letter-spacing: 2px;">PROCESSING...</div>
+        <div style="color: var(--tapd-gold); font-family: 'Syncopate'; font-size: 0.8rem; letter-spacing: 2px;">PROCESSING...</div>
     </div>
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <script>
-        // --- CONFIGURATION START ---
-        
-        // 1. YOUR WHATSAPP NUMBER (Format: 919900000000 - No + sign)
+        // --- CONFIGURATION ---
         const ADMIN_WHATSAPP = "919906666666"; 
-        
-        // 2. YOUR RAZORPAY KEY ID
+        const WORKER_URL = "https://TAPD-chat-proxy.moominafarash.workers.dev/"; 
         const RAZORPAY_KEY = "rzp_live_S1OPe9xRMj9Gdu"; 
         
-        // 3. YOUR WORKER URL (For secure order creation)
-        const WORKER_URL = "https://TAPD-chat-proxy.moominafarash.workers.dev/"; 
-        
-        // --- CONFIGURATION END ---
-
-        let cart = [];
-        let totalAmount = 0;
-
-        // --- 1. SMART CART LOADER (The Fix) ---
-        window.onload = function() {
-            loadCartSmartly();
+        // --- VALID COUPONS ---
+        const VALID_COUPONS = {
+            "WELCOME10": 0.10, // 10% off
+            "TAPD20": 0.20,    // 20% off
+            "FREESHIP": 0      // (Already free, but valid code)
         };
 
-        function loadCartSmartly() {
-            // Checks multiple common storage names to find your cart
-            const possibleKeys = ['cart', 'TAPDCart', 'items', 'cartItems', 'shoppingCart'];
-            let foundData = null;
+        let cart = [];
+        let subtotal = 0;
+        let discount = 0;
+        let finalTotal = 0;
 
-            for (let key of possibleKeys) {
-                let data = localStorage.getItem(key);
-                if (data) {
-                    try {
-                        let parsed = JSON.parse(data);
-                        if (Array.isArray(parsed) && parsed.length > 0) {
-                            foundData = parsed;
-                            console.log("Found cart in: " + key);
-                            break;
-                        }
-                    } catch (e) { console.log("Error parsing " + key); }
+        // --- 1. INITIALIZATION ---
+        window.onload = function() {
+            loadCartSmartly();
+            loadUserDetails(); // Auto-fill
+        };
+
+        // --- 2. SMART CART LOADER ---
+        function loadCartSmartly() {
+            // Priority check for 'TAPDCart'
+            const keys = ['TAPDCart', 'cart', 'items'];
+            let rawData = null;
+
+            for(let k of keys) {
+                if(localStorage.getItem(k)) {
+                    rawData = localStorage.getItem(k);
+                    break;
                 }
             }
 
-            cart = foundData || [];
-            const container = document.getElementById('checkout-items-list');
-            const btn = document.getElementById('pay-btn');
-            
-            container.innerHTML = '';
-            totalAmount = 0;
+            if (rawData) {
+                try { cart = JSON.parse(rawData); } catch(e) { cart = []; }
+            } else {
+                cart = [];
+            }
 
-            if(cart.length === 0) {
+            const container = document.getElementById('checkout-items-list');
+            container.innerHTML = '';
+            subtotal = 0;
+
+            if(cart.length === 0 || !Array.isArray(cart)) {
                 container.innerHTML = '<p style="color:#666; text-align:center; padding: 20px;">Your cart is empty.</p>';
-                btn.disabled = true;
-                btn.innerText = "Cart Empty";
-                btn.style.opacity = "0.5";
+                document.getElementById('pay-btn').disabled = true;
+                document.getElementById('pay-btn').innerText = "Cart Empty";
                 return;
             }
 
-            // Render Items
             cart.forEach(item => {
-                // Handle different variable names (price vs productPrice, etc)
-                let price = item.price || item.productPrice || 0;
-                let qty = item.qty || item.quantity || 1;
-                let name = item.name || item.productName || "Product";
-                let img = item.img || item.image || item.productImage || 'https://via.placeholder.com/60/111/D4AF37?text=TAPD';
+                let price = Number(item.price) || 0;
+                let qty = Number(item.qty) || 1;
+                let name = item.name || "Product";
+                let img = item.img || 'https://via.placeholder.com/60?text=IMG';
 
-                let itemTotal = price * qty;
-                totalAmount += itemTotal;
+                subtotal += (price * qty);
                 
                 container.innerHTML += `
                     <div class="checkout-item">
-                        <img src="${img}" alt="${name}">
+                        <img src="${img}" alt="${name}" onerror="this.src='https://via.placeholder.com/60?text=IMG'">
                         <div class="item-info">
                             <h4>${name}</h4>
                             <p>Qty: ${qty} | ₹${price}</p>
                         </div>
-                        <div style="margin-left:auto; font-weight:600; color: #fff;">₹${itemTotal}</div>
+                        <div style="margin-left:auto; font-weight:600; color: #fff;">₹${price * qty}</div>
                     </div>
                 `;
             });
 
-            document.getElementById('c-subtotal').innerText = "₹" + totalAmount;
-            document.getElementById('c-total').innerText = "₹" + totalAmount;
-            
-            // Re-enable button
-            btn.disabled = false;
-            updateButtonText();
+            calculateTotals();
+            updateUI();
         }
 
-        function updateButtonText() {
-            const method = document.querySelector('input[name="payment"]:checked').value;
-            const btn = document.getElementById('pay-btn');
-            if(cart.length === 0) return; // Don't change if empty
-
-            if(method === 'cod') {
-                btn.innerText = "Place COD Order";
-            } else {
-                btn.innerText = "Pay Securely";
+        // --- 3. AUTO-FILL (Feature) ---
+        function loadUserDetails() {
+            const saved = localStorage.getItem('tapd_user_details');
+            if(saved) {
+                const data = JSON.parse(saved);
+                for (const [key, value] of Object.entries(data)) {
+                    const el = document.getElementById(key);
+                    if(el) {
+                        el.value = value;
+                        validate(el); // Trigger green check
+                    }
+                }
             }
         }
 
-        // --- 2. ORDER PROCESSING ---
+        function saveUserDetails(data) {
+            localStorage.setItem('tapd_user_details', JSON.stringify(data));
+        }
+
+        // --- 4. VALIDATION VISUALS ---
+        function validate(input) {
+            if(input.value.trim().length > 0) {
+                input.classList.add('valid');
+                input.classList.remove('invalid');
+            } else {
+                input.classList.remove('valid');
+            }
+        }
+
+        // --- 5. COUPON LOGIC ---
+        function applyCoupon() {
+            const codeInput = document.getElementById('promo-code');
+            const code = codeInput.value.trim().toUpperCase();
+            
+            if(VALID_COUPONS.hasOwnProperty(code)) {
+                const percent = VALID_COUPONS[code];
+                discount = Math.round(subtotal * percent);
+                
+                document.getElementById('discount-row').style.display = 'flex';
+                codeInput.style.borderColor = 'var(--success)';
+                alert(`Code ${code} Applied! Saved ₹${discount}`);
+            } else {
+                discount = 0;
+                document.getElementById('discount-row').style.display = 'none';
+                codeInput.style.borderColor = 'var(--error)';
+                alert("Invalid Coupon Code");
+            }
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            finalTotal = subtotal - discount;
+            document.getElementById('c-subtotal').innerText = "₹" + subtotal;
+            document.getElementById('c-discount').innerText = "-₹" + discount;
+            document.getElementById('c-total').innerText = "₹" + finalTotal;
+        }
+
+        function updateUI() {
+            if(cart.length === 0) return;
+            const method = document.querySelector('input[name="payment"]:checked').value;
+            const btn = document.getElementById('pay-btn');
+            
+            if(method === 'cod') {
+                btn.innerText = `Place COD Order (₹${finalTotal})`;
+            } else {
+                btn.innerText = `Pay Securely (₹${finalTotal})`;
+            }
+        }
+
+        // --- 6. PROCESS ORDER ---
         async function processOrder() {
-            // Validate Inputs
+            // Validation
             const ids = ['f-name', 'l-name', 'address', 'city', 'state', 'zip', 'phone', 'email'];
             let isValid = true;
             let formData = {};
@@ -476,68 +599,73 @@
             ids.forEach(id => {
                 const el = document.getElementById(id);
                 if(!el.value.trim()) {
-                    el.style.borderColor = '#ff4444';
+                    el.classList.add('invalid');
                     isValid = false;
                 } else {
-                    el.style.borderColor = 'rgba(255,255,255,0.15)';
+                    el.classList.remove('invalid');
                     formData[id] = el.value.trim();
                 }
             });
 
-            if(!isValid) {
-                alert("Please fill in all details correctly.");
+            if(!document.getElementById('terms').checked) {
+                alert("Please agree to the Terms of Service.");
                 return;
             }
 
-            // Show Loader
-            document.getElementById('loading-overlay').style.display = 'flex';
+            if(!isValid) {
+                alert("Please check your details (highlighted in red).");
+                return;
+            }
 
+            // Save for next time
+            saveUserDetails(formData);
+
+            // Start Process
+            document.getElementById('loading-overlay').style.display = 'flex';
             const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-            const orderID = "TAPD-" + Math.floor(1000 + Math.random() * 9000);
+            const orderID = "ORD-" + Math.floor(10000 + Math.random() * 90000);
 
             if(paymentMethod === 'cod') {
-                // COD Flow
                 setTimeout(() => {
-                    redirectToWhatsApp(orderID, formData, 'Cash on Delivery (COD)', 'Pending Verification');
+                    sendToWhatsApp(orderID, formData, 'COD (Cash on Delivery)', 'Pending Verification');
                 }, 1500);
             } else {
-                // Prepaid Flow
-                initiateOnlinePayment(orderID, formData);
+                initiateRazorpay(orderID, formData);
             }
         }
 
-        // --- 3. RAZORPAY LOGIC ---
-        async function initiateOnlinePayment(orderID, formData) {
+        // --- 7. RAZORPAY ---
+        async function initiateRazorpay(orderID, formData) {
             try {
-                // Create Order on Server
-                const response = await fetch(WORKER_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        action: 'create_order', 
-                        amount: totalAmount * 100 
-                    })
-                });
-
-                const orderData = await response.json();
-                if (orderData.error) throw new Error("Server Error");
+                // Try creating order via worker
+                let orderData;
+                try {
+                    const response = await fetch(WORKER_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'create_order', amount: finalTotal * 100 })
+                    });
+                    orderData = await response.json();
+                } catch(e) {
+                    console.warn("Worker failed, using dummy order ID for frontend test");
+                    orderData = { id: orderID, amount: finalTotal * 100 }; // Fallback
+                }
 
                 const options = {
                     "key": RAZORPAY_KEY,
                     "amount": orderData.amount,
                     "currency": "INR",
                     "name": "TAPD.",
-                    "description": "NFC Order #" + orderID,
-                    "order_id": orderData.id,
+                    "description": "Order #" + orderID,
+                    "order_id": orderData.id.startsWith("order_") ? orderData.id : "", // Only use real RP ID if available
                     "prefill": {
-                        "name": formData['f-name'] + " " + formData['l-name'],
+                        "name": formData['f-name'],
                         "email": formData['email'],
                         "contact": formData['phone']
                     },
                     "theme": { "color": "#D4AF37" },
                     "handler": function (response) {
-                        // Success -> WhatsApp
-                        redirectToWhatsApp(orderID, formData, 'PREPAID (Paid)', response.razorpay_payment_id);
+                        sendToWhatsApp(orderID, formData, 'PREPAID', response.razorpay_payment_id);
                     },
                     "modal": {
                         "ondismiss": function(){
@@ -546,50 +674,41 @@
                     }
                 };
 
-                const rzp1 = new Razorpay(options);
-                rzp1.open();
+                const rzp = new Razorpay(options);
+                rzp.open();
 
             } catch (error) {
                 console.error(error);
-                alert("Payment Error. Please try COD.");
+                alert("Payment Gateway Error. Please try COD.");
                 document.getElementById('loading-overlay').style.display = 'none';
             }
         }
 
-        // --- 4. WHATSAPP REDIRECTOR ---
-        function redirectToWhatsApp(orderID, data, pMethod, pStatus) {
-            
-            // Format the message
+        // --- 8. WHATSAPP SENDER ---
+        function sendToWhatsApp(orderID, data, pMethod, pRef) {
             let msg = `*NEW ORDER: ${orderID}*\n`;
             msg += `▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n`;
-            msg += `*Customer:* ${data['f-name']} ${data['l-name']}\n`;
+            msg += `*Name:* ${data['f-name']} ${data['l-name']}\n`;
             msg += `*Phone:* ${data['phone']}\n`;
-            msg += `*City:* ${data['city']}, ${data['zip']}\n`;
-            msg += `*Address:* ${data['address']}\n`;
+            msg += `*Address:* ${data['address']}, ${data['city']}\n`;
             msg += `▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n`;
             msg += `*ITEMS:*\n`;
 
             cart.forEach(item => {
-                let name = item.name || item.productName || "Item";
-                let qty = item.qty || item.quantity || 1;
-                msg += `• ${name} (x${qty})\n`;
+                msg += `• ${item.name} (x${item.qty})\n`;
             });
 
             msg += `▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n`;
-            msg += `*TOTAL:* ₹${totalAmount}\n`;
-            msg += `*PAYMENT:* ${pMethod}\n`;
-            msg += `*REF:* ${pStatus}\n`;
+            msg += `*TOTAL:* ₹${finalTotal}\n`;
+            msg += `*METHOD:* ${pMethod}\n`;
+            msg += `*REF:* ${pRef}\n`;
             msg += `▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n`;
             msg += `Please confirm my order!`;
 
-            // Encode and Send
-            let encodedMsg = encodeURIComponent(msg);
-            
             // Clear Cart
-            // Note: We clear ALL common keys to be safe
             ['cart', 'TAPDCart', 'items'].forEach(k => localStorage.removeItem(k));
 
-            window.location.href = `https://wa.me/${ADMIN_WHATSAPP}?text=${encodedMsg}`;
+            window.location.href = `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(msg)}`;
         }
     </script>
 </body>

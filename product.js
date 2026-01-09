@@ -1,3 +1,5 @@
+/* --- product.js | TAPD. Product Page (With Premium Popup) --- */
+
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
@@ -17,12 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
             let data = doc.data();
             currentProduct = data;
             currentProduct.id = doc.id;
-            
-            // Fix: Map 'title' to 'name' if needed, just like Shop page
             currentProduct.name = data.title || data.name || "Unnamed Product"; 
 
             renderProductPage(currentProduct);
-            checkCartState(currentProduct.id); // Check by ID, not title
+            checkCartState(currentProduct.id);
         } else {
             document.getElementById('p-title').textContent = "Product Not Found";
         }
@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const mainImg = document.getElementById('main-image');
         const thumbStrip = document.getElementById('thumb-strip');
         
-        // Handle Images Array vs Single String
         let images = [];
         if(p.images && Array.isArray(p.images)) images = p.images;
         else if(p.image) images = [p.image];
@@ -67,18 +66,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if(spinner) spinner.style.display = 'none';
     }
 
-    // 2. ADD TO CART (Fixed to match Shop Page)
+    // 2. ADD TO CART
     window.startAddToCart = function() {
         if(!currentProduct) return;
 
-        let cart = JSON.parse(localStorage.getItem('TAPDCart')) || []; // CHANGED KEY
+        let cart = JSON.parse(localStorage.getItem('TAPDCart')) || []; 
         
-        // Use the first image
         let img = (currentProduct.images && currentProduct.images.length > 0) 
             ? currentProduct.images[0] 
             : (currentProduct.image || 'https://via.placeholder.com/300');
 
-        // Check if exists
         let existingItem = cart.find(item => item.id === currentProduct.id);
         
         if(existingItem) {
@@ -86,28 +83,93 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             cart.push({
                 id: currentProduct.id,
-                name: currentProduct.name, // Ensure consistent naming
+                name: currentProduct.name,
                 price: Number(currentProduct.price),
                 img: img,
                 qty: 1
             });
         }
 
-        localStorage.setItem('TAPDCart', JSON.stringify(cart)); // CHANGED KEY
+        localStorage.setItem('TAPDCart', JSON.stringify(cart)); 
         
         cartQuantity = (existingItem ? existingItem.qty : 1);
         renderQuantityControl(cartQuantity);
         
-        // Optional: Show Toast
-        if(window.showToast) window.showToast("Added to Bag");
-        else alert("Added to Bag");
+        // TRIGGER PREMIUM TOAST
+        showPremiumToast(currentProduct.name, "Added to your legacy.");
     };
 
-    // 3. CHECK STATE (Fixed Key)
-    function checkCartState(id) {
-        let cart = JSON.parse(localStorage.getItem('TAPDCart')) || []; // CHANGED KEY
-        const existingItem = cart.find(item => item.id === id);
+    // 3. PREMIUM POPUP FUNCTION
+    function showPremiumToast(title, subtitle) {
+        // Remove existing if any
+        const existing = document.getElementById('premium-toast');
+        if(existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'premium-toast';
         
+        // Glassmorphism Style injected directly
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(15, 15, 15, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6), 0 0 20px rgba(212, 175, 55, 0.1);
+            padding: 15px 25px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 9999;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+            opacity: 0;
+            min-width: 300px;
+        `;
+
+        toast.innerHTML = `
+            <div style="
+                width: 35px; height: 35px; 
+                background: #D4AF37; 
+                border-radius: 50%; 
+                display: flex; justify-content: center; align-items: center;
+                color: black; font-size: 1.2rem;
+            ">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <div>
+                <div style="color: #D4AF37; font-family: 'Syncopate', sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 2px;">
+                    ADDED TO BAG
+                </div>
+                <div style="color: #ccc; font-family: 'Inter', sans-serif; font-size: 0.85rem;">
+                    ${title}
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(toast);
+
+        // Animate In
+        setTimeout(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+        }, 10);
+
+        // Animate Out
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(-50%) translateY(50px)';
+            setTimeout(() => toast.remove(), 500);
+        }, 3000);
+    }
+
+    // 4. CHECK STATE
+    function checkCartState(id) {
+        let cart = JSON.parse(localStorage.getItem('TAPDCart')) || []; 
+        const existingItem = cart.find(item => item.id === id);
         if (existingItem) {
             cartQuantity = existingItem.qty;
             renderQuantityControl(cartQuantity);
@@ -125,9 +187,9 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // 4. UPDATE QUANTITY (Fixed Key)
+    // 5. UPDATE QTY
     window.updatePageQuantity = function(change) {
-        let cart = JSON.parse(localStorage.getItem('TAPDCart')) || []; // CHANGED KEY
+        let cart = JSON.parse(localStorage.getItem('TAPDCart')) || []; 
         let itemIndex = cart.findIndex(item => item.id === currentProduct.id);
 
         if (itemIndex > -1) {
@@ -135,14 +197,13 @@ document.addEventListener('DOMContentLoaded', () => {
             cartQuantity = cart[itemIndex].qty;
 
             if (cart[itemIndex].qty <= 0) {
-                cart.splice(itemIndex, 1); // Remove item
+                cart.splice(itemIndex, 1);
                 cartQuantity = 0;
                 document.getElementById('add-btn-container').innerHTML = `<button class="btn-bag" id="btn-add-bag" onclick="startAddToCart()">Add to Bag</button>`;
             } else {
                 document.querySelector('.qty-display').textContent = cartQuantity;
             }
-            
-            localStorage.setItem('TAPDCart', JSON.stringify(cart)); // Save
+            localStorage.setItem('TAPDCart', JSON.stringify(cart)); 
         }
     }
 
@@ -159,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'customize.html';
     };
 
-    // Reviews (Static for now)
+    // Reviews
     const reviewsData = [
         { name: "Rahul M.", text: "Absolutely insane quality.", rating: 5 },
         { name: "Sarah J.", text: "Works perfectly with my iPhone.", rating: 5 },

@@ -1,6 +1,6 @@
-/* --- shop.js | FIXED INITIALIZATION --- */
+/* --- shop.js | FIXED INITIALIZATION & PREMIUM LAYOUT --- */
 
-// 1. FIREBASE CONFIGURATION
+// 1. FIREBASE CONFIGURATION (Prevents "No App" Error)
 const firebaseConfig = {
     apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
     authDomain: "tapt-337b8.firebaseapp.com",
@@ -12,7 +12,7 @@ const firebaseConfig = {
     measurementId: "G-2CB8QXYNJY"
 };
 
-// 2. INITIALIZE FIREBASE (Only if not already active)
+// 2. INITIALIZE FIREBASE 
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
@@ -27,26 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("TAPD Shop Initialized");
     fetchProducts();
     updateCartCount();
-    initScrollAnimations(); // NEW: Trigger animations
 });
-
-// --- SCROLL ANIMATIONS ---
-function initScrollAnimations() {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('active');
-            }
-        });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-}
 
 // --- FETCH PRODUCTS ---
 function fetchProducts() {
     const grid = document.getElementById('shop-grid');
-    if(grid) grid.innerHTML = '<div class="loading-text" style="grid-column: 1/-1; text-align:center; color:#666;">Loading Legacy...</div>';
+    if(grid) grid.innerHTML = '<div class="loading-text" style="text-align:center; color:#666; width:100%;">Loading Legacy...</div>';
 
     store.collection('products').get().then((querySnapshot) => {
         products = []; 
@@ -54,7 +40,9 @@ function fetchProducts() {
 
         querySnapshot.forEach((doc) => {
             let data = doc.data();
-            let pImage = 'https://via.placeholder.com/300x300?text=No+Image';
+            let pImage = 'https://via.placeholder.com/600x400?text=No+Image';
+            
+            // Image Logic
             if (data.images && Array.isArray(data.images) && data.images.length > 0) {
                 pImage = data.images[0]; 
             } else if (data.image) {
@@ -67,7 +55,7 @@ function fetchProducts() {
                 price: Number(data.price) || 0,
                 category: data.category || 'custom',
                 image: pImage,
-                desc: data.description || ''
+                desc: data.description || 'Define your connection with premium hardware.'
             });
         });
 
@@ -75,46 +63,59 @@ function fetchProducts() {
         
     }).catch((error) => {
         console.error("Error:", error);
-        grid.innerHTML = `<p style="color:red; text-align:center;">Error loading items. Check Console.</p>`;
+        grid.innerHTML = `<p style="color:red; text-align:center;">Error loading items.</p>`;
     });
 }
 
-// --- RENDER GRID ---
+// --- RENDER SHOP (ZIG-ZAG LAYOUT) ---
 function renderShop(filter = 'all') {
     const grid = document.getElementById('shop-grid');
     if (!grid) return;
 
     grid.innerHTML = '';
-    let delayCounter = 0;
+    let visibleIndex = 0; // To handle zig-zag correctly even when filtering
 
     products.forEach(product => {
         if (filter !== 'all' && product.category !== filter) return;
 
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.style.transitionDelay = `${delayCounter * 0.05}s`; 
+        // Determine if this is an even or odd row for Zig-Zag
+        const isReverse = visibleIndex % 2 !== 0 ? 'reverse' : '';
         
-        card.innerHTML = `
-            <div class="p-img-box" onclick="viewProduct('${product.id}')">
-                <img src="${product.image}" alt="${product.name}">
-                <button class="quick-add-btn" onclick="event.stopPropagation(); addToCart('${product.id}')">
-                    <i class="fa-solid fa-plus"></i>
-                </button>
+        const row = document.createElement('div');
+        row.className = `shop-row reveal-row ${isReverse}`;
+        
+        row.innerHTML = `
+            <div class="row-image-container" onclick="viewProduct('${product.id}')">
+                <img src="${product.image}" alt="${product.name}" class="row-image">
             </div>
-            <div class="p-details" onclick="viewProduct('${product.id}')">
-                <div class="p-info">
-                    <h3>${product.name}</h3>
-                    <div class="p-cat">${product.category}</div>
+            
+            <div class="row-content">
+                <div class="row-cat">${product.category}</div>
+                <h2 class="row-title">${product.name}</h2>
+                <p class="row-desc">${product.desc}</p>
+                <div class="row-price">₹${product.price}</div>
+                
+                <div class="row-actions">
+                    <button class="btn-buy" onclick="viewProduct('${product.id}')">View Details</button>
+                    <button class="btn-add" onclick="addToCart('${product.id}')">
+                        <i class="fa-solid fa-plus"></i> Add
+                    </button>
                 </div>
-                <div class="p-price">₹${product.price}</div>
             </div>
         `;
         
-        grid.appendChild(card);
-        setTimeout(() => card.classList.add('reveal'), 50); // Add class for animation
-        setTimeout(() => card.classList.add('active'), 100); // Trigger animation
-        delayCounter++;
+        grid.appendChild(row);
+        visibleIndex++;
     });
+
+    // Re-trigger scroll observer for new elements
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('active');
+        });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.reveal-row').forEach(el => observer.observe(el));
 }
 
 function filterProducts(category, btn) {
@@ -125,14 +126,12 @@ function filterProducts(category, btn) {
 
 function searchProducts() {
     const term = document.getElementById('shop-search').value.toLowerCase();
-    const cards = document.querySelectorAll('.product-card');
-    cards.forEach(card => {
-        const title = card.querySelector('h3').innerText.toLowerCase();
-        if(title.includes(term)) {
-            card.style.display = 'flex';
-        } else {
-            card.style.display = 'none';
-        }
+    // Re-render handled differently for search in this layout? 
+    // Simpler to just filter the DOM nodes for instant feel
+    const rows = document.querySelectorAll('.shop-row');
+    rows.forEach(row => {
+        const title = row.querySelector('.row-title').innerText.toLowerCase();
+        row.style.display = title.includes(term) ? 'flex' : 'none';
     });
 }
 

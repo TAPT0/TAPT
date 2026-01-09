@@ -291,3 +291,39 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cur
     z-index: 10;
     pointer-events: none;
 }
+/* --- FORCE HOLE & RING ON TOP --- */
+
+.card-stage {
+    position: relative; /* Essential for positioning the hole inside */
+}
+
+.hw-hole {
+    position: absolute;
+    top: 15px; /* Adjust distance from top edge */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    background-color: #0a0a0a; /* Dark hole color matches bg */
+    border-radius: 50%;
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.8);
+    z-index: 999; /* Super high to sit on top of Canvas */
+    pointer-events: none; /* Let clicks pass through */
+    display: none; /* JS toggles this */
+}
+
+.hw-ring {
+    position: absolute;
+    top: -12px; /* Ring sticks out slightly above */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 35px;
+    height: 35px;
+    border: 4px solid #C0C0C0; /* Silver */
+    border-radius: 50%;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+    z-index: 998; /* Just below the hole cutout */
+    pointer-events: none;
+    clip-path: polygon(0 0, 100% 0, 100% 60%, 0 60%); /* Cut bottom */
+    display: none; /* JS toggles this */
+}

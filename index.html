@@ -26,9 +26,10 @@
         body {
             background-color: var(--bg);
             color: white;
-            overflow-x: hidden; /* Critical for mobile 3D elements */
+            overflow-x: hidden;
             margin: 0;
             font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased; /* Crisper text on Mac/iOS */
         }
 
         /* Scrollbar Styling */
@@ -48,7 +49,7 @@
             top: 0;
             z-index: 100;
             backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px); /* Safari support */
+            -webkit-backdrop-filter: blur(15px);
             border-bottom: 1px solid var(--border);
             background: rgba(5, 5, 5, 0.85);
             box-sizing: border-box;
@@ -69,9 +70,9 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            padding: 120px 20px 60px; /* Adjusted padding for mobile top bar */
+            padding: 120px 20px 60px;
             overflow: hidden;
-            perspective: 1200px; /* Deeper perspective for premium feel */
+            perspective: 1200px; /* Deep perspective for PC */
         }
 
         .hero-content {
@@ -91,9 +92,10 @@
             margin-bottom: 50px;
             position: relative;
             transform-style: preserve-3d;
-            /* Entrance: Fly in from bottom with rotation */
+            /* Entrance Animation */
             animation: cardEntrance 2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
             opacity: 0;
+            will-change: transform; /* GPU Optimization */
         }
 
         @keyframes cardEntrance {
@@ -107,14 +109,14 @@
             }
         }
 
-        /* Continuous Premium Float */
+        /* Continuous Premium Float (PC) */
         .hero-card-float {
             width: 100%; height: 100%;
             transform-style: preserve-3d;
             animation: premiumFloat 8s ease-in-out infinite;
+            will-change: transform; /* GPU Optimization */
         }
 
-        /* A more complex float that rotates slightly on axes */
         @keyframes premiumFloat {
             0%, 100% { transform: translateY(0) rotateX(0deg) rotateY(0deg); }
             25% { transform: translateY(-15px) rotateX(2deg) rotateY(-2deg); }
@@ -128,9 +130,7 @@
             /* Matte Premium Black Gradient */
             background: linear-gradient(135deg, #1a1a1a 0%, #050505 100%);
             border-radius: 16px;
-            /* Subtle light border */
             border: 1px solid rgba(255, 255, 255, 0.15);
-            /* Deep luxurious shadow */
             box-shadow: 
                 0 30px 60px -12px rgba(0, 0, 0, 0.9),
                 inset 0 0 0 1px rgba(255,255,255,0.05);
@@ -141,10 +141,11 @@
             padding: 30px;
             box-sizing: border-box;
             transform-style: preserve-3d;
-            overflow: hidden; /* Clips the shine */
+            overflow: hidden;
+            backface-visibility: hidden; /* Smoother rendering */
         }
 
-        /* Grain Texture Overlay */
+        /* Grain Texture */
         .card-3d::before {
             content: ''; position: absolute; inset: 0;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
@@ -153,7 +154,7 @@
             mix-blend-mode: overlay;
         }
 
-        /* The Moving Shine Animation */
+        /* Moving Shine Animation */
         .card-shine {
             position: absolute;
             top: 0; left: -150%;
@@ -310,21 +311,43 @@
             transform-style: preserve-3d;
         }
 
-        /* --- MOBILE RESPONSIVE --- */
+        /* --- MOBILE RESPONSIVE OPTIMIZATIONS --- */
         @media (max-width: 900px) {
+            
+            /* 1. Reset Perspective for Mobile */
             .hero-section {
-                padding-top: 140px; /* More space for header */
-                align-items: flex-start; /* Push content higher */
+                padding-top: 140px; 
+                align-items: flex-start; 
+                perspective: 800px; /* Closer perspective makes 3D pop more on small screens */
             }
 
+            /* 2. Specific Sizing for Mobile Card */
             .hero-card-wrapper {
-                /* Scale down perfectly for mobile width */
-                transform: scale(0.85); 
+                width: 280px;  /* Specific pixel width for mobile stability */
+                height: 177px;
                 margin-bottom: 30px;
+                animation: cardEntranceMobile 1.5s ease-out forwards;
             }
 
+            /* 3. Aggressive Mobile Float Animation 
+               (Moves more so it looks "sexy" on small screens) */
+            .hero-card-float {
+                animation: mobileFloat 6s ease-in-out infinite;
+            }
+
+            @keyframes mobileFloat {
+                0%, 100% { transform: translateY(0) rotateY(0deg) rotateX(0deg); }
+                50% { transform: translateY(-20px) rotateY(15deg) rotateX(5deg); } /* Deeper rotation */
+            }
+
+            @keyframes cardEntranceMobile {
+                0% { opacity: 0; transform: translateY(50px) scale(0.8); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+            }
+
+            /* 4. Text Adjustments */
             .hero-title {
-                font-size: 2rem; /* Readable on mobile */
+                font-size: 2rem; 
             }
             
             .hero-subtitle {
@@ -332,18 +355,25 @@
                 padding: 0 10px;
             }
 
-            .nav-links { display: none; } /* Hide mid links on mobile */
-            
+            /* 5. Layout Stacking */
+            .nav-links { display: none; }
             .grid-3 { grid-template-columns: 1fr; }
             .showcase-grid { grid-template-columns: 1fr; gap: 30px; }
 
             .section-title { font-size: 1.8rem; }
             .info-card { padding: 30px; }
+            
+            /* Fix showcase scaling */
+            .showcase-panel .hero-card-wrapper {
+                transform: scale(1) !important; /* Reset inherited scale */
+                width: 100%;
+                height: 180px;
+            }
         }
         
-        /* Small phones */
+        /* Ultra Small Screens */
         @media (max-width: 380px) {
-            .hero-card-wrapper { transform: scale(0.75); }
+            .hero-card-wrapper { width: 250px; height: 158px; }
         }
     </style>
 </head>
@@ -455,7 +485,7 @@
 
         <div class="showcase-grid">
             <div class="showcase-panel reveal" onclick="selectMode('card')">
-                <div class="hero-card-wrapper" style="margin:0; transform: scale(0.9);">
+                <div class="hero-card-wrapper" style="margin:0; width:280px; height:180px;">
                     <div class="card-3d" id="tilt-card" style="box-shadow: 0 15px 40px rgba(0,0,0,0.6);">
                         <div class="card-shine"></div>
                         <div style="display:flex; justify-content:flex-end;">
@@ -549,7 +579,7 @@
 
             const revealOnScroll = () => {
                 const windowHeight = window.innerHeight;
-                const elementVisible = 50; // Lower threshold for mobile
+                const elementVisible = 50; 
 
                 reveals.forEach((reveal) => {
                     const elementTop = reveal.getBoundingClientRect().top;

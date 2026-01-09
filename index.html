@@ -8,18 +8,34 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <style>
-        /* BASE STYLES */
+        /* =========================================
+           PREMIUM BASE STYLES
+           ========================================= */
+        :root {
+            --gold: #D4AF37;
+            --bg: #050505;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
         body {
-            background-color: #050505;
+            background-color: var(--bg);
             color: white;
             overflow-x: hidden;
             margin: 0;
+            font-family: 'Inter', sans-serif;
         }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
         /* --- NAV BAR --- */
         nav {
@@ -29,365 +45,444 @@
             align-items: center;
             position: fixed;
             width: 100%;
+            top: 0;
             z-index: 100;
             backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid var(--border);
             background: rgba(5, 5, 5, 0.8);
+            box-sizing: border-box;
         }
 
-        /* --- HERO LAYOUT --- */
-        .hero-layout {
+        /* --- HERO SECTION (ANIMATED) --- */
+        .hero-section {
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            padding: 140px 20px 60px 20px; 
+            justify-content: center;
             position: relative;
-            z-index: 1;
-            text-align: center;
+            padding: 100px 20px;
             overflow: hidden;
+            perspective: 1000px; /* For 3D */
         }
 
-        /* --- 3D SHOWCASE GRID --- */
-        .showcase-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* Default: 2 Columns */
-            gap: 40px;
-            width: 100%;
-            max-width: 1100px;
-            z-index: 5;
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            z-index: 10;
+            max-width: 800px;
         }
 
-        /* =========================================
-           MOBILE "FORCE STACK" FIXES
-           Triggered on any screen smaller than 950px
-           ========================================= */
-        @media (max-width: 950px) {
-            
-            /* 1. FORCE 1 COLUMN LAYOUT */
-            .showcase-grid {
-                display: flex !important;        /* Disable Grid */
-                flex-direction: column !important; /* Force Vertical Stack */
-                gap: 60px !important;            /* Space between items */
-                padding-bottom: 50px;
-            }
+        /* The Giant 3D Hero Card Animation */
+        .hero-card-wrapper {
+            width: 340px;
+            height: 215px;
+            margin-bottom: 40px;
+            position: relative;
+            transform-style: preserve-3d;
+            /* The Entrance Animation */
+            animation: cardEntrance 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 0;
+        }
 
-            /* 2. NAV BAR CLEANUP */
-            nav {
-                padding: 15px 20px !important;
+        @keyframes cardEntrance {
+            0% { 
+                transform: translateY(200px) rotateX(40deg) rotateY(-30deg) scale(0.8); 
+                opacity: 0; 
             }
-            .nav-links {
-                display: none !important; /* Hide text links */
-            }
-            .logo {
-                font-size: 1.2rem !important;
-            }
-            /* Fix the button size */
-            nav .btn-primary {
-                width: auto !important;
-                padding: 10px 20px !important;
-                font-size: 0.75rem !important;
-                margin: 0 !important;
-            }
-
-            /* 3. HERO TEXT SPACING */
-            .hero-layout {
-                padding-top: 130px !important; 
-                justify-content: flex-start !important;
-            }
-            .hero-title {
-                font-size: 2.2rem !important;
-                margin-top: 10px !important;
-            }
-
-            /* 4. FLUID CARD SIZING */
-            .home-card {
-                width: 80vw !important;
-                max-width: 320px !important;
-                height: auto !important;
-                aspect-ratio: 1.58/1 !important;
-            }
-            .home-keychain {
-                width: 60vw !important;
-                max-width: 220px !important;
-                height: auto !important;
-                aspect-ratio: 1/1 !important;
+            100% { 
+                transform: translateY(0) rotateX(15deg) rotateY(-15deg) scale(1); 
+                opacity: 1; 
             }
         }
 
-        /* --- REST OF PREMIUM STYLES --- */
-        .ambient-glow {
-            position: absolute;
-            width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(0,0,0,0) 70%);
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-            z-index: -1; pointer-events: none;
-            animation: pulseGlow 5s infinite alternate;
+        /* Continuous Float after entrance */
+        .hero-card-float {
+            width: 100%; height: 100%;
+            animation: heroFloat 6s ease-in-out infinite;
+            transform-style: preserve-3d;
         }
 
-        @keyframes pulseGlow {
-            0% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); }
+        @keyframes heroFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
         }
 
         .hero-title {
-            color: #ffffff;
-            font-size: 4rem; margin-bottom: 10px; line-height: 1;
-            z-index: 10; text-transform: uppercase; letter-spacing: -2px;
-            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+            font-family: 'Syncopate', sans-serif;
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin: 0;
+            text-transform: uppercase;
+            font-weight: 700;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.5s forwards;
         }
 
         .hero-subtitle {
-            color: #888; font-size: 1.1rem; margin-bottom: 60px;
-            max-width: 500px; line-height: 1.6; font-weight: 300;
+            color: #888;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            max-width: 500px;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.8s forwards;
         }
 
-        .showcase-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px;
-            padding: 60px 40px; display: flex; flex-direction: column;
-            align-items: center; transition: 0.4s ease; cursor: pointer;
-            position: relative; overflow: hidden;
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .showcase-panel:hover {
-            border-color: var(--TAPD-gold); background: rgba(212, 175, 55, 0.05);
+        /* --- INFO SECTIONS (NFC & CUSTOMIZE) --- */
+        .info-section {
+            padding: 100px 5%;
+            position: relative;
+            z-index: 5;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .info-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            padding: 40px;
+            border-radius: 16px;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+            opacity: 0; /* Hidden for scroll reveal */
+            transform: translateY(30px);
+        }
+        
+        /* Reveal Class added by JS */
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .info-card:hover {
+            border-color: var(--gold);
+            background: rgba(212, 175, 55, 0.05);
             transform: translateY(-5px);
         }
 
-        .float-anim { animation: float 6s ease-in-out infinite; }
-        .float-anim-delay { animation: float 6s ease-in-out infinite 3s; }
-
-        @keyframes float {
-            0% { transform: translateY(0px) rotateX(0deg); }
-            50% { transform: translateY(-15px) rotateX(2deg); }
-            100% { transform: translateY(0px) rotateX(0deg); }
+        .info-icon {
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 20px;
         }
 
-        .showcase-info { margin-top: 40px; text-align: center; }
-        .showcase-label { font-family: 'Syncopate', sans-serif; font-size: 1.5rem; color: white; font-weight: 700; margin-bottom: 5px; }
-        .showcase-sub { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
-
-        .hero-btn {
-            text-decoration: none; padding: 12px 35px; font-size: 0.85rem;
-            background: transparent; color: white;
-            border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;
-            transition: 0.3s; text-transform: uppercase;
-            font-family: 'Syncopate', sans-serif; font-weight: 700;
-            letter-spacing: 1px; display: inline-block;
-        }
-        .showcase-panel:hover .hero-btn { background: var(--TAPD-gold); color: black; border-color: var(--TAPD-gold); }
-
-        /* 3D Styles - DEFAULT (PC) SIZES */
-        .home-keychain {
-            width: 200px; height: 200px; border-radius: 50%;
-            background: #0a0a0a; border: 1px solid rgba(255,255,255,0.15);
-            position: relative; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8); transform-style: preserve-3d;
-        }
-        .home-keychain::before {
-            content: ''; position: absolute; top: 15px; width: 15px; height: 15px;
-            background: #000; border-radius: 50%; border: 2px solid #333;
+        .info-head {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-weight: 700;
         }
 
-        .home-card {
-            width: 300px; height: 190px; background: #0a0a0a; border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.15); position: relative;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8); transform-style: preserve-3d;
-            display: flex; flex-direction: column; padding: 25px; justify-content: space-between;
+        .info-text {
+            color: #aaa;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* --- SHOWCASE (Existing Grid Styled) --- */
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .showcase-panel {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.4s;
+        }
+
+        .showcase-panel:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
+        }
+
+        /* --- 3D OBJECT STYLES --- */
+        .card-3d {
+            width: 300px; height: 190px;
+            background: #0a0a0a;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            display: flex; flex-direction: column; justify-content: space-between; padding: 25px;
+            transform-style: preserve-3d;
+        }
+        
+        .tag-3d {
+            width: 200px; height: 200px;
+            background: #0a0a0a;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            display: flex; align-items: center; justify-content: center;
+            transform-style: preserve-3d;
+        }
+        
+        .chip {
+            width: 40px; height: 30px;
+            background: linear-gradient(135deg, #d4af37 0%, #a67c00 100%);
+            border-radius: 6px;
+        }
+
+        /* --- MOBILE RESPONSIVE --- */
+        @media (max-width: 900px) {
+            .hero-title { font-size: 2.2rem; }
+            .showcase-grid { grid-template-columns: 1fr; gap: 50px; }
+            .hero-card-wrapper { transform: scale(0.8); margin-bottom: 20px; }
+            .nav-links { display: none; }
+            
+            /* Force card stacking on mobile */
+            .grid-3 { grid-template-columns: 1fr; }
+            
+            /* Adjust hero spacing */
+            .hero-section { padding-top: 120px; align-items: flex-start; }
         }
     </style>
 </head>
 <body>
 
     <div class="noise-overlay"></div>
+    
+    <div style="position:fixed; top:50%; left:50%; width:800px; height:800px; background:radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%); transform:translate(-50%,-50%); pointer-events:none; z-index:-1;"></div>
 
     <nav>
         <div class="logo">TAPD<span>.</span></div>
         <div class="nav-links">
-            <a href="shop" style="color: white;">Shop</a>
-            <a href="customize" style="color: white;">Create</a>
+            <a href="shop" style="color: white; text-decoration:none; margin-right:20px;">Shop</a>
+            <a href="customize" style="color: white; text-decoration:none;">Create</a>
         </div>
-        <a href="shop" class="btn-primary" style="text-decoration:none;">Shop All</a>
+        <a href="shop" class="btn-primary" style="text-decoration:none; padding:10px 20px; border:1px solid white; border-radius:5px; font-size:0.8rem; text-transform:uppercase;">Shop All</a>
     </nav>
 
-    <div class="hero-layout"> 
-        
-        <div class="ambient-glow"></div>
-
-        <h1 class="hero-title section-title">
-            Define Your <span class="gold-text">Legacy</span>
-        </h1>
-        <p class="hero-subtitle">
-            The ultimate tool for the digital age. Instantly share music, socials, and conTAPD info with a single tap.
-        </p>
-
-        <div class="showcase-grid">
+    <section class="hero-section">
+        <div class="hero-content">
             
-            <div class="showcase-panel" onclick="selectMode('card')">
-                <div class="card-stage float-anim" id="pc-stage-card">
-                    <div class="home-card skin-black">
-                        <div style="display:flex; justify-content:space-between;">
+            <div class="hero-card-wrapper">
+                <div class="hero-card-float">
+                    <div class="card-3d">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div class="chip"></div>
-                            <i class="fa-solid fa-wifi" style="color:rgba(255,255,255,0.3); transform: rotate(90deg);"></i>
+                            <i class="fa-solid fa-wifi" style="transform: rotate(90deg); color:rgba(255,255,255,0.3);"></i>
                         </div>
                         <div>
-                            <div style="font-family:'Syncopate'; font-size:1rem; color:white; letter-spacing:1px;">AAHIL</div>
-                            <div style="color:var(--TAPD-gold); font-size:0.7rem; margin-top:5px; letter-spacing:1px;">FOUNDER</div>
+                            <div style="font-family:'Syncopate'; letter-spacing:2px; font-size:1.1rem;">TAPD.</div>
+                            <div style="font-size:0.6rem; color:#666; margin-top:5px;">PREMIUM NFC</div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="showcase-info">
-                    <div class="showcase-label">The Card</div>
-                    <div class="showcase-sub">Classic. Professional. Timeless.</div>
-                    <a href="customize.html" class="hero-btn">Customize</a>
-                </div>
             </div>
 
-            <div class="showcase-panel" onclick="selectMode('keychain')">
-                <div class="card-stage float-anim-delay" id="pc-stage-tag">
-                    <div class="home-keychain skin-black">
-                        <div style="text-align:center;">
-                            <i class="fa-brands fa-spotify" style="font-size:3.5rem; color:#1DB954; margin-bottom:15px; filter: drop-shadow(0 0 10px rgba(29,185,84,0.4));"></i>
-                            <div style="font-family:'Syncopate'; font-size:0.8rem; color:white; letter-spacing:2px;">PLAYLIST</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="showcase-info">
-                    <div class="showcase-label">The Tag</div>
-                    <div class="showcase-sub">For Keys. For Cars. For Vibes.</div>
-                    <a href="customize.html" class="hero-btn">Customize</a>
-                </div>
+            <h1 class="hero-title">Define Your <span style="color:var(--gold);">Legacy</span></h1>
+            <p class="hero-subtitle">
+                The last card you'll ever need. Share your socials, music, and contact info instantly with a single tap. No apps required.
+            </p>
+            
+            <div style="margin-top: 40px; opacity:0; animation: fadeUp 1s ease 1s forwards;">
+                <a href="#how-it-works" style="color:#666; text-decoration:none; border-bottom:1px solid #333; padding-bottom:5px; font-size:0.9rem;">How does it work? <i class="fa-solid fa-chevron-down"></i></a>
             </div>
+        </div>
+    </section>
 
+    <section class="info-section" id="how-it-works">
+        <div class="section-header">
+            <h2 class="section-title">The Technology</h2>
+            <p style="color:#888;">Simple. Secure. Seamless.</p>
         </div>
 
-    </div>
+        <div class="grid-3">
+            <div class="info-card reveal">
+                <i class="fa-solid fa-mobile-screen-button info-icon"></i>
+                <div class="info-head">Zero Apps Needed</div>
+                <div class="info-text">The other person doesn't need an app or a TAPD card. Just tap your card to their phone, and your profile opens instantly in their browser.</div>
+            </div>
+            <div class="info-card reveal">
+                <i class="fa-solid fa-bolt info-icon"></i>
+                <div class="info-head">Instant Transfer</div>
+                <div class="info-text">Powered by NFC (Near Field Communication). It's the same tech used in Apple Pay. It works within milliseconds.</div>
+            </div>
+            <div class="info-card reveal">
+                <i class="fa-solid fa-infinity info-icon"></i>
+                <div class="info-head">Infinite Updates</div>
+                <div class="info-text">Changed your number? Got a new Instagram? Update your digital profile anytime. Your physical card stays the same.</div>
+            </div>
+        </div>
+    </section>
 
-    <div class="preloader">
-        <div class="loader-text">TAPD.</div>
-    </div>
+    <section class="info-section" style="background: rgba(255,255,255,0.02);">
+        <div class="section-header">
+            <h2 class="section-title">Create Your Own</h2>
+            <p style="color:#888;">Design your legacy in 3 steps.</p>
+        </div>
 
-    <div class="cursor-dot" data-cursor-dot></div>
-    <div class="cursor-outline" data-cursor-outline></div>
+        <div class="grid-3">
+            <div class="info-card reveal">
+                <div style="font-family:'Syncopate'; font-size:3rem; color:#333; margin-bottom:10px;">01</div>
+                <div class="info-head">Upload Image</div>
+                <div class="info-text">Choose your favorite photo, logo, or artwork. Our studio tool creates a sleek mask for your card or keychain.</div>
+            </div>
+            <div class="info-card reveal">
+                <div style="font-family:'Syncopate'; font-size:3rem; color:#333; margin-bottom:10px;">02</div>
+                <div class="info-head">Add Details</div>
+                <div class="info-text">Type your name, designation, or a custom phrase. Drag, drop, and style it to fit your vibe perfectly.</div>
+            </div>
+            <div class="info-card reveal">
+                <div style="font-family:'Syncopate'; font-size:3rem; color:#333; margin-bottom:10px;">03</div>
+                <div class="info-head">We Build It</div>
+                <div class="info-text">We print your design on premium matte PVC with embedded NFC chips and ship it to your doorstep.</div>
+            </div>
+        </div>
+        
+        <div style="text-align:center; margin-top:50px;">
+            <a href="customize.html" class="btn-primary" style="background:var(--gold); color:black; padding:15px 40px; text-decoration:none; font-weight:bold; border-radius:30px; display:inline-block; transition:0.3s;">START DESIGNING</a>
+        </div>
+    </section>
+
+    <section class="info-section">
+        <div class="section-header">
+            <h2 class="section-title">Select Form Factor</h2>
+        </div>
+
+        <div class="showcase-grid">
+            <div class="showcase-panel reveal" onclick="selectMode('card')">
+                <div class="card-3d" id="tilt-card">
+                    <div style="display:flex; justify-content:space-between;">
+                        <div class="chip"></div>
+                        <i class="fa-solid fa-wifi" style="color:rgba(255,255,255,0.3); transform: rotate(90deg);"></i>
+                    </div>
+                    <div>
+                        <div style="font-family:'Syncopate'; font-size:1rem;">YOUR NAME</div>
+                        <div style="color:var(--gold); font-size:0.7rem; margin-top:5px;">CEO / FOUNDER</div>
+                    </div>
+                </div>
+                <div style="text-align:center; margin-top:30px;">
+                    <div class="info-head">The Card</div>
+                    <div class="info-text">Professional. Sleek. Fits in your wallet.</div>
+                </div>
+            </div>
+
+            <div class="showcase-panel reveal" onclick="selectMode('keychain')">
+                <div class="tag-3d" id="tilt-tag">
+                    <div style="text-align:center;">
+                        <i class="fa-brands fa-spotify" style="font-size:3.5rem; color:#1DB954; margin-bottom:10px;"></i>
+                        <div style="font-family:'Syncopate'; font-size:0.8rem;">PLAYLIST</div>
+                    </div>
+                </div>
+                <div style="text-align:center; margin-top:30px;">
+                    <div class="info-head">The Tag</div>
+                    <div class="info-text">Versatile. Fun. Hangs on your keys.</div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <footer class="TAPD-footer">
-    <div class="footer-content">
-        <div class="footer-brand">
-            <h2 class="footer-logo">TAPD.</h2>
-            <p class="footer-tagline">The future of connection.</p>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h2 class="footer-logo">TAPD.</h2>
+                <p class="footer-tagline">The future of connection.</p>
+            </div>
+    
+            <div class="footer-links-group">
+                <ul class="footer-nav">
+                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Explore</span></li>
+                    <li><a href="shop.html" class="footer-link">Shop</a></li>
+                    <li><a href="customize.html" class="footer-link">Customize</a></li>
+                    <li><a href="about.html" class="footer-link">About Us</a></li>
+                </ul>
+                <ul class="footer-nav">
+                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Legal</span></li>
+                    <li><a href="legal.html#shipping" class="footer-link">Shipping Policy</a></li>
+                    <li><a href="legal.html#refunds" class="footer-link">Refunds & Returns</a></li>
+                    <li><a href="legal.html#terms" class="footer-link">Terms of Service</a></li>
+                </ul>
+                <ul class="footer-nav">
+                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Connect</span></li>
+                    <li><a href="contact.html" class="footer-link">ConTAPD Us</a></li>
+                    <li><a href="https://instagram.com/TAPD_.t" target="_blank" class="footer-link">Instagram ↗</a></li>
+                </ul>
+            </div>
         </div>
-
-        <div class="footer-links-group">
-            
-            <ul class="footer-nav">
-                <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Explore</span></li>
-                <li><a href="shop" class="footer-link">Shop</a></li>
-                <li><a href="customize" class="footer-link">Customize</a></li>
-                <li><a href="about" class="footer-link">About Us</a></li>
-            </ul>
-            
-            <ul class="footer-nav">
-                <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Legal</span></li>
-                <li><a href="legal#shipping" class="footer-link">Shipping Policy</a></li>
-                <li><a href="legal#refunds" class="footer-link">Refunds & Returns</a></li>
-                <li><a href="legal#terms" class="footer-link">Terms of Service</a></li>
-                <li><a href="legal#privacy" class="footer-link">Privacy Policy</a></li>
-            </ul>
-
-            <ul class="footer-nav">
-                <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Connect</span></li>
-                <li><a href="conTAPD" class="footer-link">ConTAPD Us</a></li>
-                <li><a href="https://instagram.com/TAPD_.t" target="_blank" class="footer-link">Instagram ↗</a></li>
-                <li><a href="https://wa.me/9103463033" target="_blank" class="footer-link">WhatsApp ↗</a></li>
-            </ul>
+        <div class="footer-bottom">
+            <p>&copy; 2026 TAPD. Hardware.</p>
+            <p class="fade-text">Designed for the bold.</p>
         </div>
-    </div>
-
-    <div class="footer-bottom">
-        <p>&copy; 2026 TAPD. Hardware.</p>
-        <p class="fade-text">Designed for the bold.</p>
-    </div>
-</footer>
-
+    </footer>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script>
-      const firebaseConfig = {
-
-  apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
-
-  authDomain: "tapt-337b8.firebaseapp.com",
-
-  databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
-
-  projectId: "tapt-337b8",
-
-  storageBucket: "tapt-337b8.firebasestorage.app",
-
-  messagingSenderId: "887956121124",
-
-  appId: "1:887956121124:web:6856680bf75aa3bacddab1",
-
-  measurementId: "G-2CB8QXYNJY"
-
-};
-
-      firebase.initializeApp(firebaseConfig);
-    </script>
-
-    <script src="script.js"></script>
     
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
+            authDomain: "tapt-337b8.firebaseapp.com",
+            databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
+            projectId: "tapt-337b8",
+            storageBucket: "tapt-337b8.firebasestorage.app",
+            messagingSenderId: "887956121124",
+            appId: "1:887956121124:web:6856680bf75aa3bacddab1",
+            measurementId: "G-2CB8QXYNJY"
+        };
+        firebase.initializeApp(firebaseConfig);
+
         function selectMode(mode) {
             sessionStorage.setItem('defaultMode', mode);
             window.location.href = 'customize.html';
         }
 
+        // --- SCROLL REVEAL ANIMATION ---
         document.addEventListener('DOMContentLoaded', () => {
-            function addTiltEffect(panelSelector, objectSelector) {
-                const panels = document.querySelectorAll(panelSelector);
-                panels.forEach(panel => {
-                    const object3D = panel.querySelector(objectSelector);
-                    if(!object3D) return;
+            const reveals = document.querySelectorAll('.reveal');
 
-                    // PC
-                    panel.addEventListener('mousemove', (e) => {
-                        const rect = panel.getBoundingClientRect();
-                        const x = e.clientX - rect.left;
-                        const y = e.clientY - rect.top;
-                        const xRot = -((y - rect.height / 2) / 25);
-                        const yRot = (x - rect.width / 2) / 25;
-                        object3D.style.transform = `perspective(1000px) rotateX(${xRot}deg) rotateY(${yRot}deg) scale(1.05)`;
-                    });
-                    panel.addEventListener('mouseleave', () => {
-                        object3D.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
-                    });
+            const revealOnScroll = () => {
+                const windowHeight = window.innerHeight;
+                const elementVisible = 100;
 
-                    // Mobile
-                    panel.addEventListener('touchmove', (e) => {
-                        const touch = e.touches[0];
-                        const rect = panel.getBoundingClientRect();
-                        const x = touch.clientX - rect.left;
-                        const y = touch.clientY - rect.top;
-                        const xRot = -((y - rect.height / 2) / 10);
-                        const yRot = (x - rect.width / 2) / 10;
-                        object3D.style.transform = `perspective(1000px) rotateX(${xRot}deg) rotateY(${yRot}deg) scale(1.05)`;
-                    }, { passive: true });
-                    panel.addEventListener('touchend', () => {
-                        object3D.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
-                    });
+                reveals.forEach((reveal) => {
+                    const elementTop = reveal.getBoundingClientRect().top;
+                    if (elementTop < windowHeight - elementVisible) {
+                        reveal.classList.add('active');
+                    }
                 });
-            }
-            addTiltEffect('.showcase-panel', '.home-card');
-            addTiltEffect('.showcase-panel', '.home-keychain');
+            };
+
+            window.addEventListener('scroll', revealOnScroll);
+            revealOnScroll(); // Trigger once on load
         });
     </script>
-
 </body>
 </html>

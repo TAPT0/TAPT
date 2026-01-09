@@ -1,28 +1,22 @@
-/* --- shop.js | TAPD. Shop Page (No Description) --- */
+/* --- shop.js | TAPD. Shop Page (With Product Redirect) --- */
 
-// 1. SETUP CONNECTION
-// We use 'store' instead of 'db' to prevent conflicts
 const store = firebase.firestore();
 let products = [];
 
-// 2. STARTUP
 document.addEventListener('DOMContentLoaded', () => {
     fetchProducts();
     updateCartCount();
 });
 
-// 3. FETCH DATA 
 function fetchProducts() {
     const grid = document.getElementById('shop-grid');
     if(grid) grid.innerHTML = '<p style="color:#666; text-align:center; width:100%;">Loading Legacy...</p>';
 
     store.collection('products').get().then((querySnapshot) => {
-        products = []; // Clear list
+        products = []; 
         
         querySnapshot.forEach((doc) => {
             let data = doc.data();
-            
-            // --- DATA MAPPING ---
             let pName = data.title || data.name || "Unnamed Product";
             
             // Image Logic
@@ -41,7 +35,7 @@ function fetchProducts() {
                 price: Number(data.price) || 0,
                 category: data.category || 'custom',
                 image: pImage,
-                desc: data.description || 'Premium Hardware' // Kept in data, but won't render
+                desc: data.description || 'Premium Hardware'
             });
         });
 
@@ -53,8 +47,6 @@ function fetchProducts() {
     });
 }
 
-
-// 4. RENDER TO GRID (Description Removed)
 function renderShop(filter = 'all') {
     const grid = document.getElementById('shop-grid');
     if (!grid) return;
@@ -72,15 +64,16 @@ function renderShop(filter = 'all') {
             const card = document.createElement('div');
             card.className = 'product-card';
             
-            // REMOVED THE DESCRIPTION LINE FROM HTML BELOW
+            // ADDED: onclick="viewProduct(...)" to image and details
+            // ADDED: event.stopPropagation() to the button so it doesn't redirect when adding to cart
             card.innerHTML = `
-                <div class="p-img-box">
+                <div class="p-img-box" onclick="viewProduct('${product.id}')" style="cursor:pointer;">
                     <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x300?text=TAPD'">
-                    <button class="add-btn" onclick="addToCart('${product.id}')">
+                    <button class="add-btn" onclick="event.stopPropagation(); addToCart('${product.id}')">
                         ADD TO BAG
                     </button>
                 </div>
-                <div class="p-details">
+                <div class="p-details" onclick="viewProduct('${product.id}')" style="cursor:pointer;">
                     <div class="p-info">
                         <h3>${product.name}</h3>
                     </div>
@@ -92,7 +85,12 @@ function renderShop(filter = 'all') {
     });
 }
 
-// 5. ADD TO CART
+// --- NEW: REDIRECT FUNCTION ---
+function viewProduct(id) {
+    // This looks for a file named "product.html" and passes the ID
+    window.location.href = `product.html?id=${id}`;
+}
+
 function addToCart(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
@@ -117,7 +115,6 @@ function addToCart(productId) {
     showToast(`${product.name} added to bag`);
 }
 
-// 6. UPDATE ICON
 function updateCartCount() {
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
     let totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
@@ -129,7 +126,6 @@ function updateCartCount() {
     }
 }
 
-// 7. TOAST MSG
 function showToast(message) {
     if(document.querySelector('.toast-msg')) return; 
 
@@ -146,7 +142,6 @@ function showToast(message) {
     setTimeout(() => toast.remove(), 2500);
 }
 
-// 8. FILTER HELPER
 function filterProducts(category, btn) {
     const buttons = document.querySelectorAll('.filter-btn');
     if(buttons.length > 0 && btn) {

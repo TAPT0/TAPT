@@ -1,0 +1,437 @@
+/* --- FIREBASE CONFIGURATION & SETUP --- */
+const firebaseConfig = {
+    apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
+    authDomain: "tapt-337b8.firebaseapp.com",
+    databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
+    projectId: "tapt-337b8",
+    storageBucket: "tapt-337b8.firebasestorage.app",
+    messagingSenderId: "887956121124",
+    appId: "1:887956121124:web:6856680bf75aa3bacddab1",
+    measurementId: "G-2CB8QXYNJY"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+let allProductsCache = {};
+let tempEditImages = [];
+let unsubscribeProducts = null;
+let unsubscribeOrders = null;
+let unsubscribeCoupons = null;
+
+/* --- AUTHENTICATION --- */
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        console.log("Logged in as:", user.email);
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('dashboard-ui').style.display = 'flex';
+        loadAllData();
+    } else {
+        console.log("No user.");
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('dashboard-ui').style.display = 'none';
+    }
+});
+
+function checkAdmin() {
+    const email = document.getElementById('admin-email').value;
+    const pass = document.getElementById('admin-pass').value;
+    if(!email || !pass) { alert("Please enter both email and password."); return; }
+    auth.signInWithEmailAndPassword(email, pass)
+        .then(() => showToast("Login Successful"))
+        .catch((error) => alert("Login Failed: " + error.message));
+}
+
+function logout() {
+    auth.signOut().then(() => {
+        if(unsubscribeProducts) unsubscribeProducts();
+        if(unsubscribeOrders) unsubscribeOrders();
+        if(unsubscribeCoupons) unsubscribeCoupons();
+        location.reload();
+    });
+}
+
+/* --- NAVIGATION & UTILS --- */
+function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(event) event.currentTarget.classList.add('active');
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function loadAllData() {
+    loadProducts();
+    loadOrders();
+    loadCoupons();
+}
+
+/* --- HELPERS --- */
+const compressImage = (file, maxWidth, quality) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+                height *= maxWidth / width;
+                width = maxWidth;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            resolve(dataUrl);
+        };
+        img.onerror = (error) => reject(error);
+    };
+    reader.onerror = (error) => reject(error);
+});
+
+function previewImages(input, divId) {
+    const container = document.getElementById(divId);
+    container.innerHTML = "";
+    if (input.files) {
+        Array.from(input.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.classList.add("img-thumb");
+                const div = document.createElement("div");
+                div.className = "img-thumb-container";
+                div.appendChild(img);
+                container.appendChild(div);
+            }
+            reader.readAsDataURL(file);
+        });
+    }
+}
+
+/* --- PRODUCT MANAGEMENT --- */
+async function uploadProduct() {
+    const title = document.getElementById('p-title').value;
+    const desc = document.getElementById('p-desc').value;
+    const price = document.getElementById('p-price').value;
+    const category = document.getElementById('p-category').value;
+    const type = document.getElementById('p-type').value; 
+    const designJson = document.getElementById('p-design-json').value;
+    
+    const files = document.getElementById('p-images').files;
+    const statusText = document.getElementById('upload-status');
+
+    if(!title || !price || files.length === 0) {
+        alert("Please fill all fields and select at least 1 image");
+        return;
+    }
+
+    statusText.textContent = "Compressing images...";
+    let imageUrls = [];
+
+    for(let i=0; i<files.length; i++) {
+        try {
+            const base64String = await compressImage(files[i], 800, 0.7);
+            imageUrls.push(base64String);
+        } catch(err) {
+            console.error("Compression Error", err);
+            statusText.textContent = "Error processing image.";
+            return;
+        }
+    }
+
+    statusText.textContent = "Saving...";
+    
+    db.collection("products").add({
+        title: title,
+        description: desc,
+        price: parseFloat(price),
+        category: category,
+        type: type, 
+        images: imageUrls,
+        designTemplate: designJson, 
+        createdAt: new Date().toISOString()
+    }).then(() => {
+        statusText.textContent = "";
+        showToast("Product Added!");
+        document.getElementById('p-title').value = "";
+        document.getElementById('p-desc').value = "";
+        document.getElementById('p-price').value = "";
+        document.getElementById('p-design-json').value = ""; 
+        document.getElementById('p-images').value = "";
+        document.getElementById('add-preview').innerHTML = "";
+    }).catch((error) => {
+        statusText.textContent = "Error: " + error.message;
+    });
+}
+
+function loadProducts() {
+    const container = document.getElementById('products-list-container');
+    container.innerHTML = "<p style='color:#666;'>Loading inventory...</p>";
+    
+    unsubscribeProducts = db.collection("products").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
+        container.innerHTML = "";
+        allProductsCache = {}; 
+
+        if(snapshot.empty) {
+            container.innerHTML = "<p style='color:#666;'>No products found.</p>";
+            return;
+        }
+        
+        snapshot.forEach((doc) => {
+            const p = doc.data();
+            const key = doc.id;
+            allProductsCache[key] = p;
+
+            const img = (p.images && p.images.length > 0) ? p.images[0] : '';
+            
+            const div = document.createElement('div');
+            div.className = 'inventory-item';
+            div.innerHTML = `
+                <div class="inv-left">
+                    <img src="${img}" class="inv-img">
+                    <div class="inv-info">
+                        <strong>${p.title}</strong>
+                        <span>₹${p.price} | ${p.type ? p.type.toUpperCase() : 'CARD'}</span>
+                    </div>
+                </div>
+                <div class="inv-actions">
+                    <button class="btn-sm btn-edit" onclick="openEditModal('${key}')">MANAGE</button>
+                    <button class="btn-sm btn-del" onclick="deleteProduct('${key}')">DELETE</button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }, (error) => {
+        console.error("Product Load Error:", error);
+        container.innerHTML = "<p style='color:red'>Error loading products. Check permissions.</p>";
+    });
+}
+
+function deleteProduct(key) {
+    if(confirm("Delete this product permanently?")) {
+        db.collection("products").doc(key).delete();
+    }
+}
+
+/* --- EDIT PRODUCT --- */
+function openEditModal(key) {
+    const product = allProductsCache[key];
+    if(!product) return;
+
+    document.getElementById('edit-key').value = key;
+    document.getElementById('edit-title').value = product.title || "";
+    document.getElementById('edit-desc').value = product.description || "";
+    document.getElementById('edit-price').value = product.price || "";
+    document.getElementById('edit-type').value = product.type || "card";
+    document.getElementById('edit-category').value = product.category || "custom";
+    document.getElementById('edit-design-json').value = product.designTemplate || ""; 
+    
+    tempEditImages = product.images ? [...product.images] : [];
+    renderEditImages();
+    
+    document.getElementById('edit-new-images').value = "";
+    document.getElementById('edit-new-preview').innerHTML = "";
+
+    document.getElementById('edit-modal').classList.add('open');
+}
+
+function closeEditModal() {
+    document.getElementById('edit-modal').classList.remove('open');
+}
+
+function renderEditImages() {
+    const container = document.getElementById('edit-current-images');
+    container.innerHTML = "";
+    
+    tempEditImages.forEach((imgBase64, index) => {
+        const div = document.createElement("div");
+        div.className = "img-thumb-container";
+        
+        const img = document.createElement("img");
+        img.src = imgBase64;
+        img.className = "img-thumb";
+        
+        const btn = document.createElement("button");
+        btn.className = "img-del-btn";
+        btn.innerHTML = "&times;";
+        btn.onclick = () => {
+            tempEditImages.splice(index, 1);
+            renderEditImages();
+        };
+
+        div.appendChild(img);
+        div.appendChild(btn);
+        container.appendChild(div);
+    });
+}
+
+async function saveProductChanges() {
+    const key = document.getElementById('edit-key').value;
+    const newFiles = document.getElementById('edit-new-images').files;
+    
+    if(newFiles.length > 0) {
+        showToast("Compressing new images...");
+        for(let i=0; i<newFiles.length; i++) {
+            try {
+                const base64 = await compressImage(newFiles[i], 800, 0.7);
+                tempEditImages.push(base64);
+            } catch(err) { console.error(err); }
+        }
+    }
+
+    const updatedData = {
+        title: document.getElementById('edit-title').value,
+        description: document.getElementById('edit-desc').value,
+        price: parseFloat(document.getElementById('edit-price').value),
+        type: document.getElementById('edit-type').value,
+        category: document.getElementById('edit-category').value,
+        images: tempEditImages,
+        designTemplate: document.getElementById('edit-design-json').value, 
+        updatedAt: new Date().toISOString()
+    };
+
+    db.collection("products").doc(key).update(updatedData).then(() => {
+        showToast("Product Updated!");
+        closeEditModal();
+    });
+}
+
+/* --- COUPONS --- */
+function createCoupon() {
+    const code = document.getElementById('c-code').value.toUpperCase().trim();
+    const type = document.getElementById('c-type').value;
+    const value = document.getElementById('c-value').value;
+    if(!code || !value) return alert("Enter details");
+    
+    db.collection("coupons").doc(code).set({ type, value: parseFloat(value) }).then(() => {
+        showToast("Coupon Saved");
+        document.getElementById('c-code').value = "";
+        document.getElementById('c-value').value = "";
+    });
+}
+
+function loadCoupons() {
+    const tbody = document.getElementById('coupons-body');
+    unsubscribeCoupons = db.collection("coupons").onSnapshot((snap) => {
+        tbody.innerHTML = "";
+        snap.forEach((doc) => {
+            const c = doc.data();
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="color:var(--gold); font-weight:bold;">${doc.id}</td>
+                <td>${c.type === 'percentage' ? c.value + '%' : '₹' + c.value} OFF</td>
+                <td><button onclick="deleteCoupon('${doc.id}')" style="color:#f55;background:none;border:none;cursor:pointer;font-weight:bold;">DELETE</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    });
+}
+
+function deleteCoupon(id) {
+    if(confirm("Delete coupon?")) db.collection("coupons").doc(id).delete();
+}
+
+/* --- ORDERS (WITH DESIGN DOWNLOAD) --- */
+function loadOrders() {
+    const container = document.getElementById('orders-list-container');
+    container.innerHTML = '<p style="color:var(--gold);">Loading orders...</p>';
+
+    unsubscribeOrders = db.collection("orders").orderBy("date", "desc").limit(20).onSnapshot((snapshot) => {
+        container.innerHTML = "";
+        
+        if (snapshot.empty) {
+            container.innerHTML = "<p>No orders found.</p>";
+            return;
+        }
+
+        snapshot.forEach((doc) => {
+            const order = doc.data();
+            const orderId = doc.id;
+            const customerName = order.customer ? (order.customer['f-name'] || order.shipping.first) : 'Guest';
+            
+            // Generate Items HTML with Download Button for custom designs
+            let itemsHtml = "";
+            order.items.forEach(item => {
+                let downloadBtn = '';
+                // If item has a long base64 image (likely a custom design), add download button
+                if (item.img && item.img.startsWith('data:image')) {
+                    downloadBtn = `
+                        <a href="${item.img}" download="Design_${orderId}_${item.name.replace(/\s+/g, '_')}.png" 
+                           style="display:flex; align-items:center; gap:5px; background:var(--gold); color:black; padding:8px 12px; text-decoration:none; font-weight:bold; font-size:0.75rem; border-radius:4px; margin-left:auto;">
+                           <i class="fa-solid fa-download"></i> DOWNLOAD DESIGN
+                        </a>
+                    `;
+                }
+
+                itemsHtml += `
+                    <div style="display:flex; gap:15px; margin-top:10px; background:#111; padding:10px; border-radius:6px; align-items:center; border:1px solid #333;">
+                        <img src="${item.img}" style="width:60px; height:60px; object-fit:contain; background:#222; border-radius:4px; border:1px solid #444;">
+                        <div style="flex:1;">
+                            <div style="color:white; font-weight:bold; font-size:0.9rem;">${item.name}</div>
+                            <div style="color:#888; font-size:0.8rem;">Qty: ${item.qty} | ₹${item.price}</div>
+                        </div>
+                        ${downloadBtn}
+                    </div>
+                `;
+            });
+
+            // Build Order Card
+            const orderCard = `
+                <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #333;">
+                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:15px;">
+                        <div>
+                            <span style="color:var(--gold); font-weight:bold; font-family:monospace; font-size:1.1rem;">#${orderId.substring(0,8).toUpperCase()}</span>
+                            <span style="display:block; font-size:0.75rem; color:#666;">${new Date(order.date).toLocaleString()}</span>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="background:${order.method==='cod'?'rgba(255,165,0,0.1)':'rgba(0,255,0,0.1)'}; color:${order.method==='cod'?'orange':'#00ff88'}; padding:4px 8px; border-radius:4px; font-size:0.75rem; border:1px solid ${order.method==='cod'?'rgba(255,165,0,0.3)':'rgba(0,255,0,0.3)'}; font-weight:bold;">
+                                ${order.status || (order.method==='cod'?'PENDING (COD)':'PAID')}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; font-size:0.85rem; color:#ccc; margin-bottom:15px;">
+                        <div>
+                            <strong style="color:white; text-transform:uppercase; font-size:0.75rem;">Customer</strong><br>
+                            ${order.customer['f-name']} ${order.customer['l-name']}<br>
+                            ${order.customer.phone}<br>
+                            ${order.customer.email}
+                        </div>
+                        <div>
+                            <strong style="color:white; text-transform:uppercase; font-size:0.75rem;">Shipping Address</strong><br>
+                            ${order.customer.address}<br>
+                            ${order.customer.city}, ${order.customer.state} - ${order.customer.zip}
+                        </div>
+                    </div>
+
+                    <div style="background:#050505; padding:15px; border-radius:6px; border:1px solid #222;">
+                        <strong style="color:#666; font-size:0.7rem; text-transform:uppercase; display:block; margin-bottom:5px;">Order Items</strong>
+                        ${itemsHtml}
+                    </div>
+
+                    <div style="margin-top:15px; display:flex; justify-content:flex-end; align-items:center; gap:10px; font-size:1.1rem; color:white;">
+                        <span>Total:</span>
+                        <span style="color:var(--gold); font-weight:bold;">₹${order.total}</span> 
+                        <span style="font-size:0.75rem; background:#333; padding:2px 6px; border-radius:4px; color:#aaa; text-transform:uppercase;">${order.method}</span>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += orderCard;
+        });
+    });
+}

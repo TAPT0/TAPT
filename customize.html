@@ -61,6 +61,14 @@
             </div>
 
             <div class="control-group">
+                <label>Base Color</label>
+                <div style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:5px; border:1px solid rgba(255,255,255,0.1);">
+                    <input type="color" id="bg-color-picker" value="#0a0a0a" style="border:none; width:40px; height:40px; cursor:pointer; background:none;">
+                    <span style="font-size:0.8rem; color:#888;">Tap to change color</span>
+                </div>
+            </div>
+
+            <div class="control-group">
                 <label>Add Image / Logo</label>
                 <label for="file-upload" class="upload-trigger">
                     <span id="file-name">Upload Image</span>
@@ -74,7 +82,7 @@
                 
                 <div id="text-tools" style="display:none;">
                     <div class="input-group">
-                        <label>Text</label>
+                        <label>Content</label>
                         <input type="text" id="txt-content" class="TAPD-input">
                     </div>
                     
@@ -90,7 +98,7 @@
                         </div>
                         <div class="slider-group" style="flex:1; align-items:flex-end; display:flex; flex-direction:column;">
                             <label>Color</label>
-                            <input type="color" id="txt-color">
+                            <input type="color" id="txt-color" style="height:40px; width:100%; border:1px solid #333;">
                         </div>
                     </div>
                 </div>
@@ -138,7 +146,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    
     <script src="customize.js"></script>
 
 </body>

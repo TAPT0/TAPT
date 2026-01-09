@@ -568,3 +568,44 @@ nav {
         0 0 0 1px rgba(212, 175, 55, 0.2), /* Tiny Gold Border */
         0 0 40px rgba(212, 175, 55, 0.25) !important; /* The Golden Glow */
 }
+/* =========================================
+   FLIP HINT & TAG FIXES
+   ========================================= */
+
+/* 1. The Subtle Flip Hint Icon */
+.flip-hint {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.2rem;
+    z-index: 20; /* Above everything */
+    pointer-events: none; /* Let clicks pass through to card */
+    animation: pulseHint 3s infinite;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+}
+
+@keyframes pulseHint {
+    0%, 100% { opacity: 0.3; transform: rotate(0deg); }
+    50% { opacity: 0.8; transform: rotate(15deg); }
+}
+
+/* 2. HIDE HINT ON MOBILE (Optional: If you want it cleaner on phone) */
+@media (max-width: 900px) {
+    .flip-hint { bottom: 10px; right: 10px; font-size: 1rem; }
+}
+
+/* 3. FIX FOR ROUND TAGS (Crucial!) */
+.digital-twin.shape-tag, 
+.digital-twin.shape-tag .twin-inner,
+.digital-twin.shape-tag .twin-face, 
+.digital-twin.shape-tag .twin-front, 
+.digital-twin.shape-tag .twin-back {
+    border-radius: 50% !important; /* Force circle on ALL layers */
+}
+
+/* 4. ROUND BACK FACE BORDER */
+.digital-twin.shape-tag .twin-back {
+    border: 1px solid rgba(255,255,255,0.15); /* Ensure border follows circle */
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+}

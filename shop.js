@@ -1,6 +1,6 @@
-/* --- shop.js | FIXED & PREMIUM 3D LOGIC --- */
+/* --- shop.js | FIXED INITIALIZATION & PREMIUM LAYOUT --- */
 
-// 1. FIREBASE CONFIG (Required at top)
+// 1. FIREBASE CONFIGURATION (Must be at the very top)
 const firebaseConfig = {
     apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
     authDomain: "tapt-337b8.firebaseapp.com",
@@ -12,52 +12,62 @@ const firebaseConfig = {
     measurementId: "G-2CB8QXYNJY"
 };
 
+// 2. INITIALIZE FIREBASE (Only if not already active)
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
+// 3. DEFINE SERVICES
 const store = firebase.firestore();
 const auth = firebase.auth();
 let products = [];
 
+// 4. APP LOGIC
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("TAPD Shop Initialized");
     fetchProducts();
     updateCartCount();
 });
 
-// 2. FETCH DATA
+// --- FETCH PRODUCTS ---
 function fetchProducts() {
     const grid = document.getElementById('shop-grid');
-    grid.innerHTML = '<div style="text-align:center; color:#666; width:100%; padding:50px;">Loading Legacy...</div>';
+    if(grid) grid.innerHTML = '<div class="loading-text" style="width:100%; text-align:center; color:#666;">Loading Legacy...</div>';
 
-    store.collection('products').get().then((snap) => {
+    store.collection('products').get().then((querySnapshot) => {
         products = []; 
         grid.innerHTML = ''; 
 
-        snap.forEach((doc) => {
+        querySnapshot.forEach((doc) => {
             let data = doc.data();
-            let pImage = 'https://via.placeholder.com/600x600?text=Product';
-            if (data.images && data.images.length > 0) pImage = data.images[0];
-            else if (data.image) pImage = data.image;
+            
+            // Image Fallback
+            let pImage = 'https://via.placeholder.com/600x400?text=No+Image';
+            if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+                pImage = data.images[0]; 
+            } else if (data.image) {
+                pImage = data.image; 
+            }
 
             products.push({
-                id: doc.id,
+                id: doc.id, 
                 name: data.title || data.name || "Unnamed",
                 price: Number(data.price) || 0,
                 category: data.category || 'custom',
                 image: pImage,
-                desc: data.description || "Transform your networking with premium NFC technology."
+                desc: data.description || "Transform your digital identity into a physical reality. Tap to share music, socials, and payments instantly."
             });
         });
 
         renderShop();
-    }).catch(err => {
-        console.error(err);
-        grid.innerHTML = "<p style='text-align:center; color:red;'>Failed to load products.</p>";
+        
+    }).catch((error) => {
+        console.error("Error:", error);
+        grid.innerHTML = `<p style="color:red; text-align:center;">Error loading items.</p>`;
     });
 }
 
-// 3. RENDER (ZIG-ZAG + 3D TILT PREP)
+// --- RENDER SHOP (ZIG-ZAG) ---
 function renderShop(filter = 'all') {
     const container = document.getElementById('shop-grid');
     if (!container) return;
@@ -66,19 +76,18 @@ function renderShop(filter = 'all') {
     let visibleCount = 0;
 
     products.forEach(product => {
+        // Filter Logic
         if (filter !== 'all' && product.category !== filter) return;
 
+        // Determine Direction (Even = Normal, Odd = Reverse)
         const reverseClass = visibleCount % 2 !== 0 ? 'reverse' : '';
         
         const row = document.createElement('div');
         row.className = `shop-row reveal-row ${reverseClass}`;
         
         row.innerHTML = `
-            <div class="row-image-box" onmousemove="tiltCard(event, this)" onmouseleave="resetCard(this)" onclick="viewProduct('${product.id}')">
-                <div class="tilt-card">
-                    <img src="${product.image}" alt="${product.name}">
-                    <div class="glare"></div>
-                </div>
+            <div class="row-image-container">
+                <img src="${product.image}" alt="${product.name}" class="row-image" onclick="viewProduct('${product.id}')">
             </div>
             
             <div class="row-content">
@@ -88,10 +97,10 @@ function renderShop(filter = 'all') {
                 <div class="row-price">₹${product.price}</div>
                 
                 <div class="row-actions">
-                    <button class="btn-buy" onclick="viewProduct('${product.id}')">
+                    <button class="btn-view-details" onclick="viewProduct('${product.id}')">
                         VIEW DETAILS
                     </button>
-                    <button class="btn-add-round" onclick="addToCart('${product.id}')" title="Add to Bag">
+                    <button class="btn-quick-add" onclick="addToCart('${product.id}')" title="Add to Bag">
                         <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
@@ -102,49 +111,16 @@ function renderShop(filter = 'all') {
         visibleCount++;
     });
 
-    initScrollObserver();
+    // Re-trigger animations for new elements
+    setTimeout(() => {
+        document.querySelectorAll('.reveal-row').forEach(el => el.classList.add('active'));
+    }, 100);
 }
 
-// 4. 3D TILT LOGIC (Vanilla JS)
-function tiltCard(e, container) {
-    const card = container.querySelector('.tilt-card');
-    const glare = container.querySelector('.glare');
-    const box = container.getBoundingClientRect();
-    
-    // Calculate mouse position relative to center of card
-    const x = e.clientX - box.left - box.width / 2;
-    const y = e.clientY - box.top - box.height / 2;
-    
-    // Rotation intensity
-    const rotateX = -y / 15; // Invert Y for correct tilt
-    const rotateY = x / 15;
-    
-    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    
-    // Glare movement
-    glare.style.transform = `translate(${x}px, ${y}px)`;
-}
-
-function resetCard(container) {
-    const card = container.querySelector('.tilt-card');
-    card.style.transform = `rotateX(0) rotateY(0)`;
-}
-
-function initScrollObserver() {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if(entry.isIntersecting) entry.target.classList.add('active');
-        });
-    }, { threshold: 0.1 });
-    
-    document.querySelectorAll('.reveal-row').forEach(el => observer.observe(el));
-}
-
-// 5. STANDARD LOGIC (Filter, Search, Cart, Drawers)
-function filterProducts(cat, btn) {
+function filterProducts(category, btn) {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    renderShop(cat);
+    renderShop(category);
 }
 
 function searchProducts() {
@@ -156,74 +132,126 @@ function searchProducts() {
     });
 }
 
-function viewProduct(id) { window.location.href = `product.html?id=${id}`; }
+function viewProduct(id) {
+    window.location.href = `product.html?id=${id}`;
+}
 
-function addToCart(id) {
-    const product = products.find(p => p.id === id);
-    if(!product) return;
+// --- CART LOGIC ---
+function addToCart(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
-    let item = cart.find(i => i.id === id);
-    if(item) item.qty++;
-    else cart.push({ id: product.id, name: product.name, price: product.price, img: product.image, qty: 1 });
+    let existingItem = cart.find(item => item.id === productId);
+
+    if (existingItem) {
+        existingItem.qty += 1;
+    } else {
+        cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            img: product.image,
+            qty: 1
+        });
+    }
+
     localStorage.setItem('TAPDCart', JSON.stringify(cart));
     updateCartCount();
-    toggleCart(); 
+    showToast(`${product.name} Added`);
+    
+    // Auto-open drawer
+    const drawer = document.getElementById('cart-drawer');
+    if(!drawer.classList.contains('open')) toggleCart();
+    else renderCartContents();
 }
 
 function updateCartCount() {
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
-    let total = cart.reduce((a, c) => a + c.qty, 0);
+    let total = cart.reduce((acc, item) => acc + item.qty, 0);
     const badge = document.getElementById('cart-count');
-    if(badge) { badge.innerText = total; badge.style.display = total > 0 ? 'flex' : 'none'; }
-}
-
-function toggleCart() {
-    const drawer = document.getElementById('cart-drawer');
-    const overlay = document.querySelector('.cart-overlay');
-    if(drawer.classList.contains('open')) {
-        drawer.classList.remove('open');
-        overlay.style.display = 'none';
-    } else {
-        renderCartItems();
-        drawer.classList.add('open');
-        overlay.style.display = 'block';
+    if(badge) {
+        badge.innerText = total;
+        badge.style.display = total > 0 ? 'flex' : 'none';
     }
 }
 
-function renderCartItems() {
+// --- DRAWER UI ---
+function toggleCart() {
+    const drawer = document.getElementById('cart-drawer');
+    const overlay = document.querySelector('.cart-overlay');
+    
+    if (drawer.classList.contains('open')) {
+        drawer.classList.remove('open');
+        if(overlay) overlay.style.display = 'none';
+    } else {
+        renderCartContents();
+        drawer.classList.add('open');
+        if(overlay) overlay.style.display = 'block';
+    }
+}
+
+function renderCartContents() {
     const container = document.getElementById('cart-items-container');
+    const subtotalEl = document.getElementById('cart-subtotal');
     const totalEl = document.getElementById('cart-total');
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
     let total = 0;
+
     container.innerHTML = '';
-    
-    if(cart.length === 0) {
-        container.innerHTML = "<p style='color:#666; text-align:center;'>Bag is empty.</p>";
+
+    if (cart.length === 0) {
+        container.innerHTML = '<p style="color:#666; text-align:center; margin-top:50px;">Your bag is empty.</p>';
+        if(subtotalEl) subtotalEl.innerText = "₹0";
         if(totalEl) totalEl.innerText = "₹0";
         return;
     }
 
-    cart.forEach((item, idx) => {
-        total += item.price * item.qty;
-        container.innerHTML += `
-            <div style="display:flex; gap:15px; margin-bottom:15px; align-items:center; background:#111; padding:10px; border-radius:8px;">
-                <img src="${item.img}" style="width:50px; height:50px; object-fit:cover; border-radius:4px;">
-                <div style="flex:1;">
-                    <div style="color:white; font-size:0.9rem;">${item.name}</div>
-                    <div style="color:var(--gold); font-size:0.8rem;">₹${item.price} x ${item.qty}</div>
+    cart.forEach((item, index) => {
+        let price = Number(item.price);
+        let qty = Number(item.qty);
+        total += price * qty;
+
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+            <img src="${item.img}" alt="${item.name}">
+            <div style="flex:1;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <h4 style="margin:0; font-size:0.9rem; color:white;">${item.name}</h4>
+                    <span onclick="removeCartItem(${index})" style="color:#666; cursor:pointer; font-size:1.2rem;">&times;</span>
                 </div>
-                <div style="color:#ff4444; cursor:pointer;" onclick="removeItem(${idx})">&times;</div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <p style="color:var(--gold); font-size:0.85rem; margin:0;">₹${price}</p>
+                    <div style="display:flex; align-items:center; gap:10px; background:#222; border-radius:4px; padding:2px 8px;">
+                        <span onclick="updateDrawerQty(${index}, -1)" style="cursor:pointer; color:white;">-</span>
+                        <span style="font-size:0.8rem; color:white;">${qty}</span>
+                        <span onclick="updateDrawerQty(${index}, 1)" style="cursor:pointer; color:white;">+</span>
+                    </div>
+                </div>
             </div>
         `;
+        container.appendChild(div);
     });
+
+    if(subtotalEl) subtotalEl.innerText = "₹" + total;
     if(totalEl) totalEl.innerText = "₹" + total;
 }
 
-function removeItem(idx) {
-    let cart = JSON.parse(localStorage.getItem('TAPDCart'));
-    cart.splice(idx, 1);
+function updateDrawerQty(index, change) {
+    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+    cart[index].qty += change;
+    if (cart[index].qty <= 0) cart.splice(index, 1);
     localStorage.setItem('TAPDCart', JSON.stringify(cart));
-    renderCartItems();
+    renderCartContents();
+    updateCartCount();
+}
+
+function removeCartItem(index) {
+    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+    cart.splice(index, 1);
+    localStorage.setItem('TAPDCart', JSON.stringify(cart));
+    renderCartContents();
     updateCartCount();
 }
 
@@ -233,8 +261,36 @@ function closeAllDrawers() {
     document.querySelector('.cart-overlay').style.display = 'none';
 }
 
+function showToast(msg) {
+    const toast = document.createElement('div');
+    toast.innerText = msg;
+    toast.style.cssText = `
+        position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+        background: #D4AF37; color: #000; padding: 12px 25px; 
+        font-family: sans-serif; font-weight: 700; border-radius: 50px;
+        z-index: 9999; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+}
+
 function toggleAccount() {
     const drawer = document.getElementById('account-drawer');
     const overlay = document.querySelector('.cart-overlay');
-    if (drawer.classList.contains('open')) { drawer.classList.remove('open'); overlay.style.display = 'none'; } else { drawer.classList.add('open'); overlay.style.display = 'block'; }
+    if (drawer.classList.contains('open')) {
+        drawer.classList.remove('open');
+        if(overlay) overlay.style.display = 'none';
+    } else {
+        drawer.classList.add('open');
+        if(overlay) overlay.style.display = 'block';
+    }
+}
+function toggleLoginModal() {
+    const modal = document.getElementById('auth-modal');
+    // Toggle logic with forced styling to fix Image 7 issue
+    if (modal.style.display === 'block') {
+        modal.style.display = 'none';
+    } else {
+        modal.style.display = 'block';
+    }
 }

@@ -80,14 +80,77 @@ nav {
 .filter-btn.active, .filter-btn:hover { background: var(--gold); color: black; border-color: var(--gold); font-weight: 700; }
 
 /* =========================================
-   PREMIUM PRODUCT SHOWCASE (UPDATED)
+   NEW PREMIUM "OBSIDIAN VAULT" CARD DESIGN
    ========================================= */
-.showcase-container { display: flex; flex-direction: column; gap: 200px; max-width: 1300px; margin: 80px auto 150px; padding: 0 5%; }
 
-.shop-row { display: flex; align-items: center; justify-content: space-between; gap: 100px; opacity: 0; transform: translateY(80px); transition: 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.shop-row.active { opacity: 1; transform: translateY(0); }
-.shop-row.reverse { flex-direction: row-reverse; }
+/* 1. The Container (The Glass Vault) */
+.shop-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 60px;
+    
+    /* NEW: Frame the product */
+    background: linear-gradient(145deg, rgba(30, 30, 30, 0.4) 0%, rgba(5, 5, 5, 0.8) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08); /* Subtle glass edge */
+    border-radius: 40px; /* Premium soft corners */
+    padding: 60px; /* Breathing room inside the box */
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6); /* Deep shadow lifts the box */
+    backdrop-filter: blur(20px); /* Frosted glass effect */
+    
+    /* Spacing between products */
+    margin-bottom: 120px; 
+    
+    /* Animation Base State */
+    opacity: 0; 
+    transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 
+/* 2. Animation Logic (Slide In) */
+.shop-row:nth-child(odd) { transform: translateX(-50px); }
+.shop-row:nth-child(even) { flex-direction: row-reverse; transform: translateX(50px); } /* Auto-reverse layout */
+
+.shop-row.active { opacity: 1; transform: translateX(0); }
+
+/* 3. Text Styling within the Vault */
+.row-content { 
+    flex: 1; 
+    position: relative; 
+    z-index: 2;
+    padding: 0 20px;
+}
+
+/* Metallic Title Text */
+.row-title { 
+    font-family: 'Syncopate'; 
+    font-size: 3rem; 
+    margin: 0 0 20px 0; 
+    font-weight: 700; 
+    line-height: 1; 
+    letter-spacing: -2px;
+    
+    /* Premium Silver Gradient Text */
+    background: linear-gradient(to bottom right, #ffffff 30%, #888888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Mobile Adjustments for the Vault */
+@media (max-width: 900px) {
+    .shop-row {
+        flex-direction: column !important; /* Force stack on mobile */
+        padding: 40px 20px; 
+        gap: 30px;
+        border-radius: 25px;
+    }
+    
+    /* Reset animation for mobile smoothness */
+    .shop-row:nth-child(odd), .shop-row:nth-child(even) { transform: translateY(50px); }
+    .shop-row.active { transform: translateY(0); }
+
+    .row-content { text-align: center; padding: 0; }
+    .row-title { font-size: 2.2rem; }
+}
 /* 3D Container (Increased Size) */
 .row-image-box { 
     flex: 1.2; 

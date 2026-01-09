@@ -186,13 +186,18 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'checkout.html';
     };
 
-    window.goToCustomize = function() {
-        if(!currentProduct) return;
-        const type = (currentProduct.type === 'tag') ? 'keychain' : 'card';
-        sessionStorage.setItem('defaultMode', type);
-        window.location.href = 'customize.html';
-    };
+    /* --- REPLACE IN product.js --- */
 
+window.goToCustomize = function() {
+    if(!currentProduct) return;
+    
+    // Save the type (card/tag) for the shape
+    const type = (currentProduct.type === 'tag') ? 'keychain' : 'card';
+    sessionStorage.setItem('defaultMode', type);
+
+    // THE MAGIC: Pass the Product ID in the URL
+    window.location.href = `customize.html?template=${currentProduct.id}`;
+};
     const reviewContainer = document.getElementById('reviews-container');
     if(reviewContainer) {
         const reviewsData = [

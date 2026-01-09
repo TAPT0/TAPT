@@ -292,26 +292,86 @@ nav {
 .footer-nav li a:hover { color: white; padding-left: 5px; }
 .footer-bottom { text-align: center; margin-top: 80px; padding-top: 30px; border-top: 1px solid #111; color: #444; font-size: 0.8rem; }
 
-/* REVEAL ANIMATION */
-.reveal, .reveal-row { opacity: 0; transform: translateY(50px); transition: 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.reveal.active, .reveal-row.active { opacity: 1; transform: translateY(0); }
+/* REPLACE THE OLD "REVEAL ANIMATION" SECTION WITH THIS: */
 
-/* --- MOBILE LAYOUT --- */
+/* Base State: Invisible and pushed to the sides */
+.shop-row { 
+    opacity: 0; 
+    transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1); /* Smooth cinematic ease */
+}
+
+/* Odd Rows (1, 3, 5...): Slide from Left */
+.shop-row:nth-child(odd) { 
+    transform: translateX(-100px); 
+}
+
+/* Even Rows (2, 4, 6...): Slide from Right */
+.shop-row:nth-child(even) { 
+    transform: translateX(100px); 
+}
+
+/* Active State: Center and Visible */
+.shop-row.active { 
+    opacity: 1; 
+    transform: translateX(0); 
+}
+
+/* Standard Fade Up for other elements (like headers) */
+.reveal { 
+    opacity: 0; 
+    transform: translateY(50px); 
+    transition: 0.8s ease; 
+}
+.reveal.active { 
+    opacity: 1; 
+    transform: translateY(0); 
+}
+
+/* REPLACE THE ENTIRE MOBILE @MEDIA SECTION WITH THIS: */
+
 @media (max-width: 900px) {
-    .hero-title { font-size: 2.8rem; }
-    .showcase-container { gap: 100px; padding: 0 15px; }
-    .shop-row, .shop-row.reverse { flex-direction: column; gap: 40px; }
-    .row-image-box { height: 400px; width: 100%; }
+    .hero-title { font-size: 2.2rem; }
     
-    /* Mobile Card Sizes */
-    .digital-twin.shape-card { width: 340px; height: 215px; } 
-    .digital-twin.shape-tag { width: 240px; height: 240px; }
+    .showcase-container { 
+        gap: 120px; /* More breathing room between products */
+        padding: 0 20px; 
+    }
+
+    /* Keep the Zig-Zag layout even on mobile! */
+    /* This makes it look like PC (Image-Text, then Text-Image) */
+    .shop-row { flex-direction: column; }
+    .shop-row.reverse { flex-direction: column; } /* Stack normally for stability */
+
+    /* Adjust Card Size for Mobile Screen */
+    .row-image-box { 
+        height: 380px; 
+        width: 100%; 
+        margin-bottom: 30px;
+    }
     
+    /* Make the 3D Object fit the screen perfectly */
+    .digital-twin.shape-card { width: 100%; max-width: 340px; height: 215px; } 
+    .digital-twin.shape-tag { width: 220px; height: 220px; }
+
+    /* Fix the Typography - Make it smaller & elegant */
     .row-content { text-align: center; }
-    .row-cat { justify-content: center; }
-    .row-title { font-size: 2.2rem; }
-    .row-price { justify-content: center; }
+    .row-cat { justify-content: center; font-size: 0.7rem; }
+    
+    .row-title { 
+        font-size: 2rem; /* Much smaller than before to fit nicely */
+        margin-bottom: 15px;
+    }
+    
+    .row-desc { 
+        font-size: 0.9rem; 
+        display: block; /* Ensure description is visible */
+        margin-bottom: 25px;
+    }
+    
+    .row-price { justify-content: center; font-size: 1.8rem; margin-bottom: 30px; }
     .row-actions { justify-content: center; }
+
+    /* Layout Adjustments */
     .blueprint-grid { grid-template-columns: 1fr; }
-    .stats-strip { flex-direction: column; gap: 30px; }
+    .stats-strip { flex-direction: column; gap: 40px; }
 }

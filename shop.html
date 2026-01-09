@@ -32,10 +32,8 @@
     </nav>
 
     <header class="shop-hero">
-        <div class="hero-content">
-            <h1 class="hero-title fade-in">Select Your <br><span class="gold-text">Legacy</span></h1>
-            <p class="hero-subtitle fade-in-delay">Premium Hardware. Instant Connection.</p>
-        </div>
+        <h1 class="hero-title fade-in">Select Your <br><span class="gold-text">Legacy</span></h1>
+        <p class="hero-subtitle fade-in-delay">Premium Hardware. Instant Connection.</p>
     </header>
 
     <div class="marquee-strip">
@@ -43,41 +41,6 @@
             PREMIUM HARDWARE • LIFETIME VALIDITY • NO MONTHLY FEES • SHIP WORLDWIDE • PREMIUM HARDWARE • LIFETIME VALIDITY • NO MONTHLY FEES • SHIP WORLDWIDE •
         </div>
     </div>
-
-    <section class="spotlight-section">
-        <div class="spotlight-grid">
-            <div class="spotlight-text reveal">
-                <div class="badge">BEST SELLER</div>
-                <h2>The Matte <br><span style="color:var(--gold)">Black</span></h2>
-                <p>
-                    Our signature card. Finished in a soft-touch matte coating with spot UV detailing. 
-                    The ultimate statement piece for executives.
-                </p>
-                <div class="spotlight-stats">
-                    <div>
-                        <strong>50k+</strong>
-                        <span>Sold</span>
-                    </div>
-                    <div>
-                        <strong>4.9/5</strong>
-                        <span>Rating</span>
-                    </div>
-                </div>
-            </div>
-            <div class="spotlight-visual reveal">
-                <div class="card-3d-spotlight">
-                    <div class="shine"></div>
-                    <div style="display:flex; justify-content:flex-end;">
-                        <i class="fa-solid fa-wifi" style="transform: rotate(90deg); color:rgba(255,255,255,0.4);"></i>
-                    </div>
-                    <div>
-                        <div style="font-family:'Syncopate'; font-size:1.1rem; font-weight:700;">TAPD.</div>
-                        <div style="color:var(--gold); font-size:0.6rem; margin-top:5px; font-weight:700; letter-spacing:1px;">SIGNATURE</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <div class="controls-wrapper fade-in-delay">
         <div class="search-container">
@@ -92,43 +55,9 @@
         </div>
     </div>
 
-    <div class="product-grid" id="shop-grid">
+    <div class="product-showcase-list" id="shop-grid">
         <div class="loading-text">Loading Legacy...</div>
     </div>
-
-    <div class="trust-strip">
-        <div class="logo-scroller">
-            <i class="fa-brands fa-apple trust-icon"></i>
-            <i class="fa-brands fa-android trust-icon"></i>
-            <i class="fa-brands fa-instagram trust-icon"></i>
-            <i class="fa-brands fa-linkedin trust-icon"></i>
-            <i class="fa-brands fa-spotify trust-icon"></i>
-            <i class="fa-brands fa-tiktok trust-icon"></i>
-            <i class="fa-solid fa-envelope trust-icon"></i>
-            <i class="fa-brands fa-apple trust-icon"></i>
-            <i class="fa-brands fa-android trust-icon"></i>
-            <i class="fa-brands fa-instagram trust-icon"></i>
-            <i class="fa-brands fa-linkedin trust-icon"></i>
-        </div>
-    </div>
-
-    <section class="features-section">
-        <div class="feature-card reveal">
-            <i class="fa-solid fa-droplet feature-icon"></i>
-            <h3>Waterproof</h3>
-            <p>Built to survive rain, spills, and life.</p>
-        </div>
-        <div class="feature-card reveal">
-            <i class="fa-solid fa-lock feature-icon"></i>
-            <h3>Secure</h3>
-            <p>Bank-grade encryption for your data.</p>
-        </div>
-        <div class="feature-card reveal">
-            <i class="fa-solid fa-battery-full feature-icon"></i>
-            <h3>No Charging</h3>
-            <p>Powered by the phone it taps.</p>
-        </div>
-    </section>
 
     <div class="drawer" id="account-drawer">
         <div class="drawer-header">
@@ -167,16 +96,6 @@
         <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer; font-size:0.8rem;">Close</button>
     </div>
 
-    <div id="celebration-overlay" class="celebration-overlay">
-        <div class="confetti-container" id="confetti-container"></div>
-        <div class="celebration-card">
-            <div class="check-circle"><i class="fa-solid fa-check"></i></div>
-            <h2 class="celeb-title">CODE APPLIED</h2>
-            <p class="celeb-desc">Discount unlocked.</p>
-            <button class="celeb-btn" onclick="document.getElementById('celebration-overlay').classList.remove('active')">CONTINUE</button>
-        </div>
-    </div>
-
     <div class="cart-overlay" onclick="closeAllDrawers()"></div>
 
     <footer class="TAPD-footer">
@@ -190,7 +109,6 @@
                     <li><span class="nav-head">Explore</span></li>
                     <li><a href="shop.html">Shop</a></li>
                     <li><a href="customize.html">Customize</a></li>
-                    <li><a href="about.html">About Us</a></li>
                 </ul>
                 <ul class="footer-nav">
                     <li><span class="nav-head">Connect</span></li>
@@ -210,6 +128,7 @@
     <script src="shop.js"></script>
     
     <script>
+        // Init Scroll Animation
         document.addEventListener('DOMContentLoaded', () => {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -217,9 +136,14 @@
                         entry.target.classList.add('active');
                     }
                 });
-            }, { threshold: 0.1 });
+            }, { threshold: 0.15 });
 
-            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+            // This will grab elements injected by JS too
+            const observeNewElements = () => {
+                document.querySelectorAll('.reveal-row').forEach(el => observer.observe(el));
+            }
+            // Check periodically or call this inside shop.js render
+            setInterval(observeNewElements, 1000); 
         });
     </script>
 </body>

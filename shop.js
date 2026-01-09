@@ -1,9 +1,10 @@
-/* --- shop.js | TAPD. Shop Page (With Product Redirect) --- */
+/* --- shop.js | DEBUG MODE --- */
 
 const store = firebase.firestore();
 let products = [];
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("Shop Script Loaded");
     fetchProducts();
     updateCartCount();
 });
@@ -43,7 +44,7 @@ function fetchProducts() {
 
     }).catch((error) => {
         console.error("Error getting products: ", error);
-        if(grid) grid.innerHTML = '<p style="color:white; text-align:center;">Error loading products. Check Console.</p>';
+        alert("Database Error: " + error.message);
     });
 }
 
@@ -53,22 +54,15 @@ function renderShop(filter = 'all') {
 
     grid.innerHTML = '';
 
-    if (products.length === 0) {
-        grid.innerHTML = '<p style="color:#666; text-align:center; width:100%;">No products found in database.</p>';
-        return;
-    }
-
     products.forEach(product => {
         if (filter === 'all' || product.category === filter) {
-            
             const card = document.createElement('div');
             card.className = 'product-card';
             
-            // ADDED: onclick="viewProduct(...)" to image and details
-            // ADDED: event.stopPropagation() to the button so it doesn't redirect when adding to cart
+            // Note: We are using event.stopPropagation() on the button
             card.innerHTML = `
                 <div class="p-img-box" onclick="viewProduct('${product.id}')" style="cursor:pointer;">
-                    <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x300?text=TAPD'">
+                    <img src="${product.image}" alt="${product.name}">
                     <button class="add-btn" onclick="event.stopPropagation(); addToCart('${product.id}')">
                         ADD TO BAG
                     </button>
@@ -85,19 +79,35 @@ function renderShop(filter = 'all') {
     });
 }
 
-// --- NEW: REDIRECT FUNCTION ---
+// --- REDIRECT ---
 function viewProduct(id) {
-    // This looks for a file named "product.html" and passes the ID
+    // alert("Redirecting to product: " + id); // Uncomment to test click
     window.location.href = `product.html?id=${id}`;
 }
 
+// --- ADD TO CART (WITH DEBUG ALERTS) ---
 function addToCart(productId) {
+    // 1. Debug: Confirm function call
+    console.log("Add to Cart clicked for ID:", productId);
+
+    // 2. Find Product
     const product = products.find(p => p.id === productId);
-    if (!product) return;
+    
+    if (!product) {
+        alert("ERROR: Product not found in list. ID: " + productId);
+        return;
+    }
 
-    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+    // 3. Get Current Cart
+    let cart = [];
+    try {
+        cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+    } catch (e) {
+        cart = [];
+    }
+
+    // 4. Add Item
     let existingItem = cart.find(item => item.id === productId);
-
     if (existingItem) {
         existingItem.qty += 1;
     } else {
@@ -110,8 +120,15 @@ function addToCart(productId) {
         });
     }
 
+    // 5. Save and Confirm
     localStorage.setItem('TAPDCart', JSON.stringify(cart));
+    
     updateCartCount();
+    
+    // VISUAL CONFIRMATION
+    // Remove the alert below once it starts working
+    alert(`SUCCESS: ${product.name} saved to cart! Total items: ${cart.length}`);
+    
     showToast(`${product.name} added to bag`);
 }
 
@@ -128,7 +145,6 @@ function updateCartCount() {
 
 function showToast(message) {
     if(document.querySelector('.toast-msg')) return; 
-
     const toast = document.createElement('div');
     toast.className = 'toast-msg';
     toast.innerText = message;

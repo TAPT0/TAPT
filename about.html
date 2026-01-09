@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Legacy | TAPD.</title>
+    <title>The Vision | TAPD.</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,52 +52,61 @@
 
         /* --- HERO SECTION --- */
         .about-hero {
-            min-height: 85vh;
+            min-height: 90vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             position: relative;
-            padding: 120px 20px 0;
+            padding: 100px 20px;
             overflow: hidden;
         }
 
-        /* Ambient Background Glow */
+        /* Cinematic Background Glow */
         .hero-glow {
             position: absolute;
             top: 50%; left: 50%;
-            width: 80vw; height: 80vw;
-            background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 60%);
+            width: 60vw; height: 60vw;
+            background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 60%);
             transform: translate(-50%, -50%);
             pointer-events: none;
             z-index: -1;
-            animation: pulseGlow 8s infinite ease-in-out;
+            animation: pulseGlow 10s infinite ease-in-out;
         }
         @keyframes pulseGlow {
-            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+            0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        .hero-label {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 0.9rem;
+            color: var(--gold);
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.2s forwards;
         }
 
         .hero-title {
             font-family: 'Syncopate', sans-serif;
-            font-size: 3.5rem;
+            font-size: 4rem;
             font-weight: 700;
-            line-height: 1.1;
+            line-height: 1;
             text-transform: uppercase;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             opacity: 0;
-            animation: fadeUp 1s ease 0.2s forwards;
+            animation: fadeUp 1s ease 0.4s forwards;
         }
 
         .hero-desc {
             max-width: 600px;
             font-size: 1.1rem;
             color: #aaa;
-            line-height: 1.6;
-            margin-bottom: 50px;
+            line-height: 1.7;
             opacity: 0;
-            animation: fadeUp 1s ease 0.5s forwards;
+            animation: fadeUp 1s ease 0.6s forwards;
         }
 
         @keyframes fadeUp {
@@ -105,186 +114,168 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- 3D SHOWCASE SECTION (Integrated from Home) --- */
-        .showcase-row {
-            display: flex;
-            gap: 50px;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-top: 40px;
-            opacity: 0;
-            animation: fadeUp 1s ease 0.8s forwards;
+        /* --- MARQUEE STRIP --- */
+        .marquee-strip {
+            width: 100%;
+            background: var(--gold);
+            color: black;
+            padding: 12px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            font-family: 'Syncopate', sans-serif;
+            font-weight: 800;
+            font-size: 1rem;
+            transform: rotate(-1deg);
+            margin: 40px 0 80px;
+            box-shadow: 0 0 20px rgba(212,175,55,0.4);
+        }
+        .marquee-content { display: inline-block; animation: scrollText 25s linear infinite; }
+        @keyframes scrollText { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+        /* --- 3D HARDWARE SHOWCASE --- */
+        .hardware-section {
+            padding: 100px 5%;
+            position: relative;
             perspective: 1000px;
         }
 
-        .product-preview {
-            position: relative;
-            width: 280px;
-            height: 180px;
-            transition: 0.5s ease;
-        }
-        
-        /* 3D Card Styles */
-        .card-3d {
-            width: 100%; height: 100%;
-            background: linear-gradient(135deg, #1a1a1a 0%, #050505 100%);
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-            position: relative;
-            display: flex; flex-direction: column; justify-content: space-between; padding: 25px;
-            box-sizing: border-box;
-            transform-style: preserve-3d;
-            animation: floatCard 6s ease-in-out infinite;
-        }
-        
-        .tag-3d {
-            width: 180px; height: 180px;
-            background: linear-gradient(135deg, #1a1a1a 0%, #050505 100%);
-            border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.15);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-            display: flex; align-items: center; justify-content: center;
-            position: relative;
-            transform-style: preserve-3d;
-            animation: floatTag 7s ease-in-out infinite;
-        }
-
-        /* Shine Animation */
-        .shine {
-            position: absolute; top: 0; left: -150%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            transform: skewX(-25deg);
-            animation: shineMove 5s infinite;
-        }
-        @keyframes shineMove {
-            0% { left: -150%; } 100% { left: 150%; }
-        }
-
-        @keyframes floatCard {
-            0%, 100% { transform: translateY(0) rotateY(0deg); }
-            50% { transform: translateY(-15px) rotateY(5deg); }
-        }
-        @keyframes floatTag {
-            0%, 100% { transform: translateY(0) rotateX(0deg); }
-            50% { transform: translateY(-15px) rotateX(5deg); }
-        }
-
-        /* --- STATS SECTION (Updated to match images) --- */
-        .stats-container {
-            padding: 80px 5%;
-            background: linear-gradient(to bottom, #000, #0a0a0a);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .stats-grid {
-            max-width: 1000px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 50px;
-        }
-
-        .stat-box {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-family: 'Inter', sans-serif;
-            font-weight: 700;
-            font-size: 3.5rem;
-            color: white;
-            margin-bottom: 10px;
-            letter-spacing: -1px;
-        }
-
-        .stat-label {
-            font-family: 'Syncopate', sans-serif;
-            color: var(--gold);
-            font-size: 0.85rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            font-weight: 700;
-        }
-
-        /* --- ROADMAP TIMELINE --- */
-        .roadmap-section {
-            padding: 100px 5%;
-            position: relative;
-        }
-        
-        .section-title {
+        .section-title-center {
             text-align: center;
             font-family: 'Syncopate', sans-serif;
             font-size: 2.5rem;
-            color: white;
             margin-bottom: 80px;
         }
 
-        .timeline {
-            max-width: 800px;
-            margin: 0 auto;
+        .showcase-flex {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 80px;
+        }
+
+        .product-wrapper {
             position: relative;
-            padding-left: 30px;
-            border-left: 2px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: 0.8s ease;
         }
+        .product-wrapper.active { opacity: 1; transform: translateY(0); }
 
-        .timeline-item {
+        /* 3D CARD CSS */
+        .card-preview {
+            width: 320px; height: 200px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #050505 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
             position: relative;
-            margin-bottom: 60px;
-            padding-left: 30px;
-            opacity: 0; /* Animated via JS */
-            transform: translateX(-20px);
-            transition: 0.6s ease;
+            transform-style: preserve-3d;
+            animation: floatCard 6s ease-in-out infinite;
+            display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-sizing: border-box;
+        }
+        /* Grain Texture */
+        .card-preview::before {
+            content: ''; position: absolute; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            opacity: 0.3; pointer-events: none; mix-blend-mode: overlay;
+        }
+        /* Shine */
+        .shine {
+            position: absolute; top: 0; left: -150%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+            transform: skewX(-25deg);
+            animation: shineMove 5s infinite;
         }
 
-        .timeline-item.active {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        /* Dot on the line */
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -36px;
-            top: 5px;
-            width: 10px; height: 10px;
-            background: var(--bg);
-            border: 2px solid var(--gold);
+        /* 3D TAG CSS */
+        .tag-preview {
+            width: 200px; height: 200px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #050505 100%);
             border-radius: 50%;
-            box-shadow: 0 0 10px var(--gold);
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            position: relative;
+            transform-style: preserve-3d;
+            animation: floatTag 7s ease-in-out infinite;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .tag-preview::before { /* Grain */
+            content: ''; position: absolute; inset: 0; border-radius: 50%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            opacity: 0.3; pointer-events: none; mix-blend-mode: overlay;
         }
 
-        .year {
+        @keyframes floatCard { 0%,100%{transform:translateY(0) rotateY(0);} 50%{transform:translateY(-15px) rotateY(5deg);} }
+        @keyframes floatTag { 0%,100%{transform:translateY(0) rotateX(0);} 50%{transform:translateY(-15px) rotateX(5deg);} }
+        @keyframes shineMove { 0% {left:-150%;} 100% {left:150%;} }
+
+        .prod-label {
+            margin-top: 30px;
             font-family: 'Syncopate';
-            font-weight: 700;
-            color: var(--gold);
             font-size: 1.2rem;
-            margin-bottom: 10px;
+            color: var(--gold);
+            text-align: center;
+        }
+        .prod-desc {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            text-align: center;
         }
 
-        .timeline-content {
+        /* --- PILLARS SECTION --- */
+        .pillars-section {
+            padding: 100px 5%;
+            background: linear-gradient(to bottom, #050505, #0a0a0a);
+        }
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .pillar-card {
             background: var(--glass);
             border: 1px solid var(--border);
-            padding: 25px;
-            border-radius: 12px;
+            padding: 40px;
+            border-radius: 16px;
+            transition: 0.3s;
         }
+        .pillar-card:hover {
+            border-color: var(--gold);
+            background: rgba(212,175,55,0.03);
+            transform: translateY(-5px);
+        }
+        .pillar-icon { font-size: 2rem; color: var(--gold); margin-bottom: 20px; }
+        .pillar-title { font-family: 'Syncopate'; font-size: 1.1rem; margin-bottom: 10px; font-weight: 700; }
+        .pillar-text { color: #888; font-size: 0.95rem; line-height: 1.6; }
 
-        .timeline-content h3 { margin: 0 0 10px 0; font-size: 1.2rem; }
-        .timeline-content p { color: #aaa; margin: 0; line-height: 1.5; font-size: 0.95rem; }
+        /* --- MANIFESTO SECTION --- */
+        .manifesto-section {
+            padding: 120px 20px;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .manifesto-text {
+            font-size: 1.8rem;
+            line-height: 1.5;
+            color: white;
+            font-weight: 300;
+        }
+        .highlight { color: var(--gold); font-weight: 700; font-family: 'Syncopate'; }
 
         /* --- TEAM SECTION --- */
         .team-section {
             padding: 80px 20px;
             text-align: center;
-            background: radial-gradient(circle at center, #111 0%, #000 70%);
+            border-top: 1px solid var(--border);
         }
-
         .founder-card {
             display: inline-block;
             background: rgba(255,255,255,0.02);
@@ -296,11 +287,7 @@
             overflow: hidden;
             transition: 0.3s;
         }
-        .founder-card:hover {
-            border-color: var(--gold);
-            transform: translateY(-5px);
-        }
-
+        .founder-card:hover { border-color: var(--gold); transform: translateY(-5px); }
         .avatar {
             width: 100px; height: 100px;
             border-radius: 50%;
@@ -311,20 +298,13 @@
             font-size: 2rem; color: #666;
         }
 
-        /* --- MOBILE RESPONSIVE --- */
+        /* --- MOBILE --- */
         @media (max-width: 900px) {
-            .hero-title { font-size: 2.2rem; }
-            .showcase-row { flex-direction: column; gap: 40px; }
-            .stats-grid { flex-direction: column; gap: 40px; }
-            .stat-number { font-size: 3rem; }
-            .roadmap-section { padding: 60px 20px; }
-            .timeline { padding-left: 15px; }
-            .timeline-item { padding-left: 20px; }
-            .timeline-item::before { left: -21px; }
-            
-            /* Mobile 3D Sizing */
-            .product-preview { width: 100%; max-width: 300px; height: 190px; }
-            .tag-3d { width: 160px; height: 160px; }
+            .hero-title { font-size: 2.5rem; }
+            .showcase-flex { flex-direction: column; gap: 60px; }
+            .card-preview { width: 300px; height: 190px; }
+            .tag-preview { width: 180px; height: 180px; }
+            .manifesto-text { font-size: 1.3rem; }
         }
     </style>
 </head>
@@ -341,80 +321,74 @@
 
     <section class="about-hero">
         <div class="hero-glow"></div>
-        <h1 class="hero-title">Redefining <br><span style="color:var(--gold)">Connection</span></h1>
+        <div class="hero-label">THE GENESIS</div>
+        <h1 class="hero-title">The Future <br>Is Contactless</h1>
         <p class="hero-desc">
-            We are not just a card company. We are a technology company building the bridge between the physical and digital worlds.
+            We are building the last networking tool you will ever need. 
+            No paper waste. No apps required. Just pure, seamless connection.
         </p>
+    </section>
 
-        <div class="showcase-row">
-            <div class="product-preview">
-                <div class="card-3d">
+    <div class="marquee-strip">
+        <div class="marquee-content">
+            TAP TO CONNECT • SUSTAINABLE TECH • DEFINE YOUR LEGACY • TAP TO CONNECT • SUSTAINABLE TECH • DEFINE YOUR LEGACY • TAP TO CONNECT • SUSTAINABLE TECH • DEFINE YOUR LEGACY •
+        </div>
+    </div>
+
+    <section class="hardware-section">
+        <h2 class="section-title-center">Engineered for <span style="color:var(--gold)">Impact</span></h2>
+        
+        <div class="showcase-flex">
+            <div class="product-wrapper reveal">
+                <div class="card-preview">
                     <div class="shine"></div>
                     <div style="display:flex; justify-content:flex-end;">
-                        <i class="fa-solid fa-wifi" style="transform: rotate(90deg); color:rgba(255,255,255,0.3);"></i>
+                        <i class="fa-solid fa-wifi" style="transform: rotate(90deg); color:rgba(255,255,255,0.4);"></i>
                     </div>
                     <div>
                         <div style="font-family:'Syncopate'; font-size:1.1rem; font-weight:700;">TAPD.</div>
-                        <div style="color:var(--gold); font-size:0.7rem; margin-top:5px; font-weight:600;">FOUNDER EDITION</div>
+                        <div style="color:var(--gold); font-size:0.6rem; margin-top:5px; font-weight:700; letter-spacing:1px;">FOUNDER EDITION</div>
                     </div>
                 </div>
+                <div class="prod-label">The Card</div>
+                <div class="prod-desc">Premium Matte Finish. Wallet Ready.</div>
             </div>
 
-            <div class="product-preview" style="width:180px; height:180px;">
-                <div class="tag-3d">
+            <div class="product-wrapper reveal">
+                <div class="tag-preview">
                     <div class="shine"></div>
-                    <div style="text-align:center;">
-                        <i class="fa-solid fa-bolt" style="font-size:3rem; color:var(--gold); filter: drop-shadow(0 0 10px rgba(212,175,55,0.4));"></i>
-                    </div>
+                    <i class="fa-solid fa-bolt" style="font-size:3rem; color:var(--gold); filter: drop-shadow(0 0 15px rgba(212,175,55,0.5));"></i>
                 </div>
+                <div class="prod-label">The Tag</div>
+                <div class="prod-desc">Adhesive or Keychain. Always Accessible.</div>
             </div>
         </div>
     </section>
 
-    <div class="stats-container" id="stats-section">
-        <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-number" data-target="150">0+</div>
-                <div class="stat-label">Countries Reached</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number" data-target="1000000">0+</div>
-                <div class="stat-label">Taps & Counting</div>
-            </div>
-        </div>
-    </div>
+    <section class="manifesto-section">
+        <p class="manifesto-text">
+            "The paper business card was invented in the 15th century. It ends now.
+            We aren't just selling a card; we are creating a <span class="highlight">movement</span>. 
+            A shift from temporary exchanges to permanent connections."
+        </p>
+    </section>
 
-    <section class="roadmap-section">
-        <h2 class="section-title">The Roadmap</h2>
-        
-        <div class="timeline">
-            <div class="timeline-item reveal">
-                <div class="year">2023</div>
-                <div class="timeline-content">
-                    <h3>The Inception</h3>
-                    <p>TAPD is founded with a simple mission: kill the paper business card. First prototype developed.</p>
-                </div>
+    <section class="pillars-section">
+        <div class="pillars-grid">
+            <div class="pillar-card reveal">
+                <i class="fa-solid fa-leaf pillar-icon"></i>
+                <div class="pillar-title">Sustainability</div>
+                <div class="pillar-text">One card replaces thousands of paper cards. A permanent solution for a greener future.</div>
             </div>
-            <div class="timeline-item reveal">
-                <div class="year">2024</div>
-                <div class="timeline-content">
-                    <h3>Global Expansion</h3>
-                    <p>Launched worldwide shipping. Reached 50+ countries. Introduced the Custom Studio.</p>
-                </div>
+            <div class="pillar-card reveal">
+                <i class="fa-solid fa-shield-halved pillar-icon"></i>
+                <div class="pillar-title">Durability</div>
+                <div class="pillar-text">Built with waterproof, high-grade PVC materials designed to withstand the daily grind.</div>
             </div>
-            <div class="timeline-item reveal">
-                <div class="year">2025</div>
-                <div class="timeline-content">
-                    <h3>The Ecosystem</h3>
-                    <p>Launching the "TAPD Portal" app for deeper analytics and lead generation for professionals.</p>
-                </div>
-            </div>
-            <div class="timeline-item reveal">
-                <div class="year" style="color:white;">FUTURE</div>
-                <div class="timeline-content" style="border-color:var(--gold);">
-                    <h3 style="color:var(--gold);">Wearables & Integration</h3>
-                    <p>Developing direct integration with smartwatches and AR glasses. The network becomes invisible.</p>
-                </div>
+            <div class="pillar-card reveal">
+                <i class="fa-solid fa-bolt pillar-icon"></i>
+                <div class="pillar-title">Immediacy</div>
+                <div class="pillar-text">Zero friction. Tap to any smartphone and your details transfer in milliseconds.</div>
             </div>
         </div>
     </section>
@@ -424,10 +398,10 @@
             <div class="avatar">
                 <i class="fa-solid fa-fingerprint"></i>
             </div>
-            <h3 style="font-family:'Syncopate'; margin:0 0 5px 0;">HASNAIN LORI</h3>
-            <div style="color:var(--gold); font-size:0.8rem; font-weight:700; letter-spacing:1px; margin-bottom:20px;">CREATOR</div>
+            <h3 style="font-family:'Syncopate'; margin:0 0 5px 0;">AAHIL</h3>
+            <div style="color:var(--gold); font-size:0.8rem; font-weight:700; letter-spacing:1px; margin-bottom:20px;">CREATOR & FOUNDER</div>
             <p style="color:#aaa; font-size:0.95rem; line-height:1.6;">
-                "Technology should feel like magic. With TAPD, we aren't just sharing contact info; we are sharing an experience."
+                "I built TAPD because I believe the first impression is everything. Technology should feel like magic, not a chore."
             </p>
         </div>
     </section>
@@ -463,63 +437,25 @@
     </footer>
 
     <script>
-        // --- 1. COUNTER ANIMATION ---
-        const statsSection = document.getElementById('stats-section');
-        const counters = document.querySelectorAll('.stat-number');
-        let started = false;
+        // Scroll Reveal Animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const reveals = document.querySelectorAll('.reveal');
 
-        const startCounting = () => {
-            counters.forEach(counter => {
-                // Get target from data-target attribute (remove commas for calculation)
-                const rawTarget = counter.getAttribute('data-target');
-                const target = +rawTarget; 
-                
-                const duration = 2500; 
-                const frameRate = 10; 
-                const totalFrames = duration / frameRate;
-                const increment = target / totalFrames;
+            const revealOnScroll = () => {
+                const windowHeight = window.innerHeight;
+                const elementVisible = 50;
 
-                let current = 0;
-                
-                const updateCounter = () => {
-                    current += increment;
-                    if(current < target) {
-                        // Format with commas (e.g. 10,00,000)
-                        counter.innerText = Math.floor(current).toLocaleString() + "+";
-                        setTimeout(updateCounter, frameRate);
-                    } else {
-                        counter.innerText = target.toLocaleString() + "+";
+                reveals.forEach((reveal) => {
+                    const elementTop = reveal.getBoundingClientRect().top;
+                    if (elementTop < windowHeight - elementVisible) {
+                        reveal.classList.add('active');
                     }
-                };
-                updateCounter();
-            });
-        };
+                });
+            };
 
-        // --- 2. SCROLL REVEAL (Timeline & Founder) ---
-        const reveals = document.querySelectorAll('.reveal');
-        const revealOnScroll = () => {
-            const windowHeight = window.innerHeight;
-            const elementVisible = 100;
-
-            reveals.forEach((reveal) => {
-                const elementTop = reveal.getBoundingClientRect().top;
-                if (elementTop < windowHeight - elementVisible) {
-                    reveal.classList.add('active');
-                }
-            });
-
-            // Trigger stats when visible
-            const statsTop = statsSection.getBoundingClientRect().top;
-            if (statsTop < windowHeight - 50 && !started) {
-                startCounting();
-                started = true;
-            }
-        };
-
-        window.addEventListener('scroll', revealOnScroll);
-        // Trigger once on load in case already visible
-        revealOnScroll();
-
+            window.addEventListener('scroll', revealOnScroll);
+            revealOnScroll(); // Trigger on load
+        });
     </script>
 </body>
 </html>

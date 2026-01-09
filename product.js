@@ -11,21 +11,26 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentProduct = null;
     let cartQuantity = 0;
 
-    // Fetch Doc
+    // 1. Fetch Doc
     db.collection("products").doc(productId).get().then((doc) => {
         if (doc.exists) {
-            currentProduct = doc.data();
+            let data = doc.data();
+            currentProduct = data;
             currentProduct.id = doc.id;
+            
+            // Fix: Map 'title' to 'name' if needed, just like Shop page
+            currentProduct.name = data.title || data.name || "Unnamed Product"; 
+
             renderProductPage(currentProduct);
-            checkCartState(currentProduct.title);
+            checkCartState(currentProduct.id); // Check by ID, not title
         } else {
             document.getElementById('p-title').textContent = "Product Not Found";
         }
     });
 
     function renderProductPage(p) {
-        document.title = `${p.title} | TAPT.`;
-        document.getElementById('p-title').textContent = p.title;
+        document.title = `${p.name} | TAPT.`;
+        document.getElementById('p-title').textContent = p.name;
         document.getElementById('p-price').textContent = `₹${p.price}`;
         
         const descContainer = document.getElementById('p-desc');
@@ -35,7 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const mainImg = document.getElementById('main-image');
         const thumbStrip = document.getElementById('thumb-strip');
-        const images = p.images || [];
+        
+        // Handle Images Array vs Single String
+        let images = [];
+        if(p.images && Array.isArray(p.images)) images = p.images;
+        else if(p.image) images = [p.image];
+        else if(p.productImage) images = [p.productImage];
 
         if(images.length > 0) {
             mainImg.src = images[0];
@@ -57,18 +67,49 @@ document.addEventListener('DOMContentLoaded', () => {
         if(spinner) spinner.style.display = 'none';
     }
 
+    // 2. ADD TO CART (Fixed to match Shop Page)
     window.startAddToCart = function() {
         if(!currentProduct) return;
-        window.addToCart(currentProduct.title, currentProduct.price, currentProduct.images ? currentProduct.images[0] : null, currentProduct.id);
-        cartQuantity = 1;
-        renderQuantityControl(1);
+
+        let cart = JSON.parse(localStorage.getItem('TAPDCart')) || []; // CHANGED KEY
+        
+        // Use the first image
+        let img = (currentProduct.images && currentProduct.images.length > 0) 
+            ? currentProduct.images[0] 
+            : (currentProduct.image || 'https://via.placeholder.com/300');
+
+        // Check if exists
+        let existingItem = cart.find(item => item.id === currentProduct.id);
+        
+        if(existingItem) {
+            existingItem.qty += 1;
+        } else {
+            cart.push({
+                id: currentProduct.id,
+                name: currentProduct.name, // Ensure consistent naming
+                price: Number(currentProduct.price),
+                img: img,
+                qty: 1
+            });
+        }
+
+        localStorage.setItem('TAPDCart', JSON.stringify(cart)); // CHANGED KEY
+        
+        cartQuantity = (existingItem ? existingItem.qty : 1);
+        renderQuantityControl(cartQuantity);
+        
+        // Optional: Show Toast
+        if(window.showToast) window.showToast("Added to Bag");
+        else alert("Added to Bag");
     };
 
-    function checkCartState(title) {
-        let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
-        const existingItem = cart.find(item => item.title === title);
+    // 3. CHECK STATE (Fixed Key)
+    function checkCartState(id) {
+        let cart = JSON.parse(localStorage.getItem('TAPDCart')) || []; // CHANGED KEY
+        const existingItem = cart.find(item => item.id === id);
+        
         if (existingItem) {
-            cartQuantity = existingItem.qty || 1;
+            cartQuantity = existingItem.qty;
             renderQuantityControl(cartQuantity);
         }
     }
@@ -84,20 +125,30 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
+    // 4. UPDATE QUANTITY (Fixed Key)
     window.updatePageQuantity = function(change) {
-        cartQuantity += change;
-        if (cartQuantity <= 0) {
-            window.removeFromCart(currentProduct.id);
-            document.getElementById('add-btn-container').innerHTML = `<button class="btn-bag" id="btn-add-bag" onclick="startAddToCart()">Add to Bag</button>`;
-        } else {
-            document.querySelector('.qty-display').textContent = cartQuantity;
-            window.updateQty(currentProduct.id, change);
+        let cart = JSON.parse(localStorage.getItem('TAPDCart')) || []; // CHANGED KEY
+        let itemIndex = cart.findIndex(item => item.id === currentProduct.id);
+
+        if (itemIndex > -1) {
+            cart[itemIndex].qty += change;
+            cartQuantity = cart[itemIndex].qty;
+
+            if (cart[itemIndex].qty <= 0) {
+                cart.splice(itemIndex, 1); // Remove item
+                cartQuantity = 0;
+                document.getElementById('add-btn-container').innerHTML = `<button class="btn-bag" id="btn-add-bag" onclick="startAddToCart()">Add to Bag</button>`;
+            } else {
+                document.querySelector('.qty-display').textContent = cartQuantity;
+            }
+            
+            localStorage.setItem('TAPDCart', JSON.stringify(cart)); // Save
         }
     }
 
     window.buyNow = function() {
         if(!currentProduct) return;
-        if(cartQuantity === 0) window.addToCart(currentProduct.title, currentProduct.price, currentProduct.images ? currentProduct.images[0] : null, currentProduct.id);
+        if(cartQuantity === 0) window.startAddToCart();
         window.location.href = 'checkout.html';
     };
 
@@ -108,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'customize.html';
     };
 
+    // Reviews (Static for now)
     const reviewsData = [
         { name: "Rahul M.", text: "Absolutely insane quality.", rating: 5 },
         { name: "Sarah J.", text: "Works perfectly with my iPhone.", rating: 5 },

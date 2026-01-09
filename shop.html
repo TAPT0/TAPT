@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Shop Collection | TAPD.</title>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    
     <link rel="stylesheet" href="shop.css">
 </head>
 <body>
@@ -17,16 +17,13 @@
     <nav>
         <a href="index.html" class="logo">TAPD<span>.</span></a>
         <div class="nav-right">
-            <a href="customize.html" style="font-size:0.9rem; color:#888; margin-right:15px; text-decoration:none;">Create</a>
-            
-            <a href="track.html" class="nav-icon" title="Track Order" style="text-decoration:none; color:white;">
+            <a href="customize.html" class="nav-link">Create</a>
+            <a href="track.html" class="nav-icon" title="Track Order">
                 <i class="fa-solid fa-truck-fast"></i>
             </a>
-            
             <div class="nav-icon" onclick="toggleAccount()">
                 <i class="fa-regular fa-user"></i>
             </div>
-            
             <div class="cart-trigger" onclick="toggleCart()">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <span id="cart-count">0</span>
@@ -34,13 +31,15 @@
         </div>
     </nav>
 
-    <div class="shop-header">
-        <h1 class="section-title">Select Your <span class="gold-text">Legacy</span></h1>
-    </div>
+    <header class="shop-hero">
+        <h1 class="hero-title fade-in">Select Your <br><span class="gold-text">Legacy</span></h1>
+        <p class="hero-subtitle fade-in-delay">Premium Hardware. Instant Connection.</p>
+    </header>
 
-    <div class="controls-wrapper">
+    <div class="controls-wrapper fade-in-delay">
         <div class="search-container">
-            <input type="text" id="shop-search" placeholder="Search Collection...">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="shop-search" placeholder="Search the collection..." onkeyup="searchProducts()">
         </div>
 
         <div class="filter-container">
@@ -50,17 +49,23 @@
         </div>
     </div>
 
-    <div class="product-grid" id="shop-grid"></div>
-
-    <div class="account-drawer" id="account-drawer">
-        <div class="drawer-header"><h2>My Legacy</h2><button class="close-cart" onclick="toggleAccount()">×</button></div>
-        <div class="drawer-content" id="account-content"></div>
+    <div class="product-grid" id="shop-grid">
+        <div class="loading-text">Loading Legacy...</div>
     </div>
 
-    <div class="cart-drawer" id="cart-drawer">
+    <div class="drawer" id="account-drawer">
+        <div class="drawer-header">
+            <h2>My Legacy</h2>
+            <button class="close-btn" onclick="toggleAccount()">×</button>
+        </div>
+        <div class="drawer-content" id="account-content">
+            </div>
+    </div>
+
+    <div class="drawer" id="cart-drawer">
         <div class="drawer-header">
             <h2>Your Bag</h2>
-            <button class="close-cart" onclick="toggleCart()">×</button>
+            <button class="close-btn" onclick="toggleCart()">×</button>
         </div>
         
         <div class="cart-items" id="cart-items-container"></div>
@@ -75,46 +80,40 @@
                 <span>Subtotal</span>
                 <span class="val" id="cart-subtotal">₹0</span>
             </div>
-            <div class="summary-row" id="discount-row" style="display:none;">
-                <span class="discount-active">Discount</span>
-                <span class="val discount-active" id="cart-discount">-₹0</span>
-            </div>
             <div class="summary-row total">
                 <span>Total</span>
                 <span class="val" id="cart-total">₹0</span>
             </div>
             
-            <button class="checkout-btn" onclick="window.location.href='checkout.html'">Checkout</button>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">
+                CHECKOUT <i class="fa-solid fa-arrow-right"></i>
+            </button>
         </div>
     </div>
-    
+
     <div class="auth-modal" id="auth-modal">
         <h2 style="color:white; font-family:'Syncopate'; margin-bottom:20px;">Access Legacy</h2>
         <button class="auth-btn-google" onclick="loginWithGoogle()">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Continue with Google
         </button>
-        <div class="auth-divider">OR CREATE ACCOUNT</div>
+        <div class="auth-divider">OR</div>
         <input type="email" id="auth-email" class="auth-input" placeholder="Email Address">
-        <input type="tel" id="auth-phone" class="auth-input" placeholder="Phone Number">
         <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
-        <button class="auth-btn-submit" onclick="signupEmail()">Create Account</button>
-        <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Close</button>
+        <button class="auth-btn-submit" onclick="signupEmail()">Enter</button>
+        <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer; font-size:0.8rem;">Close</button>
     </div>
 
-    <div class="cart-overlay" onclick="closeAllDrawers()"></div>
-    
     <div id="celebration-overlay" class="celebration-overlay">
         <div class="confetti-container" id="confetti-container"></div>
         <div class="celebration-card">
-            <div class="check-circle">
-                <i class="fa-solid fa-check"></i>
-            </div>
+            <div class="check-circle"><i class="fa-solid fa-check"></i></div>
             <h2 class="celeb-title">CODE APPLIED</h2>
-            <p class="celeb-desc">Legacy secured. Discount unlocked.</p>
-            <div class="discount-tag" id="celeb-discount-amount">-₹0</div>
-            <button class="celeb-btn" onclick="closeCelebration()">CONTINUE</button>
+            <p class="celeb-desc">Discount unlocked.</p>
+            <button class="celeb-btn" onclick="document.getElementById('celebration-overlay').classList.remove('active')">CONTINUE</button>
         </div>
     </div>
+
+    <div class="cart-overlay" onclick="closeAllDrawers()"></div>
 
     <footer class="TAPD-footer">
         <div class="footer-content">
@@ -122,43 +121,29 @@
                 <h2 class="footer-logo">TAPD.</h2>
                 <p class="footer-tagline">The future of connection.</p>
             </div>
-
             <div class="footer-links-group">
                 <ul class="footer-nav">
-                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Explore</span></li>
-                    <li><a href="shop.html" class="footer-link">Shop</a></li>
-                    <li><a href="customize.html" class="footer-link">Customize</a></li>
-                    <li><a href="about.html" class="footer-link">About Us</a></li>
+                    <li><span class="nav-head">Explore</span></li>
+                    <li><a href="shop.html">Shop</a></li>
+                    <li><a href="customize.html">Customize</a></li>
+                    <li><a href="about.html">About Us</a></li>
                 </ul>
-                
                 <ul class="footer-nav">
-                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Legal</span></li>
-                    <li><a href="legal.html#shipping" class="footer-link">Shipping Policy</a></li>
-                    <li><a href="legal.html#refunds" class="footer-link">Refunds & Returns</a></li>
-                    <li><a href="legal.html#terms" class="footer-link">Terms of Service</a></li>
-                    <li><a href="legal.html#privacy" class="footer-link">Privacy Policy</a></li>
-                </ul>
-
-                <ul class="footer-nav">
-                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Connect</span></li>
-                    <li><a href="contact.html" class="footer-link">Contact Us</a></li>
-                    <li><a href="https://instagram.com/TAPD_.t" target="_blank" class="footer-link">Instagram ↗</a></li>
-                    <li><a href="https://wa.me/9103463033" target="_blank" class="footer-link">WhatsApp ↗</a></li>
+                    <li><span class="nav-head">Connect</span></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="#">Instagram ↗</a></li>
                 </ul>
             </div>
         </div>
-
         <div class="footer-bottom">
             <p>&copy; 2026 TAPD. Hardware.</p>
-            <p class="fade-text">Designed for the bold.</p>
         </div>
     </footer>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="script.js"></script>
+    
     <script src="shop.js"></script>
-    <script src="chatbot.js"></script>
 </body>
 </html>

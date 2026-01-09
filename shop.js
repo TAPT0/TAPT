@@ -1,61 +1,55 @@
-/* --- shop.js | TAPD. Live Database Connection (Synced with Admin) --- */
+/* --- shop.js | FINAL FIX (No Config Conflicts) --- */
 
-// 1. FIREBASE CONFIG (Matches your Admin Panel)
-const firebaseConfig = {
-    apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
-    authDomain: "tapt-337b8.firebaseapp.com",
-    databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
-    projectId: "tapt-337b8",
-    storageBucket: "tapt-337b8.firebasestorage.app",
-    messagingSenderId: "887956121124",
-    appId: "1:887956121124:web:6856680bf75aa3bacddab1",
-    measurementId: "G-2CB8QXYNJY"
-};
-
-// Initialize Firebase safely (prevents "default app already exists" error)
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-
-const db = firebase.firestore();
+// 1. SETUP CONNECTION
+// We use 'store' instead of 'db' to prevent "redeclaration" errors if it exists in HTML
+const store = firebase.firestore();
 let products = [];
 
-// 2. FETCH FROM FIREBASE
+// 2. STARTUP
 document.addEventListener('DOMContentLoaded', () => {
     fetchProducts();
     updateCartCount();
 });
 
+// 3. FETCH DATA (Matches Admin Panel Structure)
 function fetchProducts() {
     const grid = document.getElementById('shop-grid');
     if(grid) grid.innerHTML = '<p style="color:#666; text-align:center; width:100%;">Loading Legacy...</p>';
 
-    // We use "title" because that is what your Admin Panel saves
-    db.collection('products').get().then((querySnapshot) => {
+    store.collection('products').get().then((querySnapshot) => {
         products = []; // Clear list
         
         querySnapshot.forEach((doc) => {
             let data = doc.data();
             
-            // --- DATA MAPPING (The Fix) ---
-            // Admin saves name as 'title'
+            /* --- CRITICAL DATA MAPPING --- */
+            
+            // 1. TITLE: Admin saves as 'title'
             let pName = data.title || data.name || "Unnamed Product";
             
-            // Admin saves images as an array 'images[]'. We take the first one.
+            // 2. IMAGE: Admin saves as an ARRAY called 'images'. We grab the first one.
             let pImage = 'https://via.placeholder.com/300x300?text=No+Image';
+            
             if (data.images && Array.isArray(data.images) && data.images.length > 0) {
-                pImage = data.images[0];
+                pImage = data.images[0]; // Grab first image from array
             } else if (data.image) {
-                pImage = data.image; // Fallback for old data
+                pImage = data.image; // Fallback for old items
+            } else if (data.productImage) {
+                pImage = data.productImage;
             }
+
+            // 3. PRICE & DESC
+            let pPrice = Number(data.price) || 0;
+            let pDesc = data.description || data.desc || 'Premium Hardware';
+            let pCat = data.category || 'custom';
 
             products.push({
                 id: doc.id, 
                 name: pName,
-                price: Number(data.price) || 0,
-                category: data.category || 'custom',
+                price: pPrice,
+                category: pCat,
                 image: pImage,
-                desc: data.description || 'Premium Hardware'
+                desc: pDesc
             });
         });
 
@@ -68,7 +62,7 @@ function fetchProducts() {
 }
 
 
-// 3. RENDER PRODUCTS 
+// 4. RENDER TO GRID
 function renderShop(filter = 'all') {
     const grid = document.getElementById('shop-grid');
     if (!grid) return;
@@ -82,8 +76,6 @@ function renderShop(filter = 'all') {
 
     products.forEach(product => {
         // Filter Logic
-        // Note: Admin saves categories like 'review', 'social', 'custom'
-        // You might want to map 'card' and 'tag' buttons to these, or just show all for now.
         if (filter === 'all' || product.category === filter) {
             
             const card = document.createElement('div');
@@ -109,15 +101,15 @@ function renderShop(filter = 'all') {
     });
 }
 
-// 4. ADD TO CART LOGIC
+// 5. ADD TO CART
 function addToCart(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
-    // Get Cart (Using the specific key 'TAPDCart' that checkout looks for)
+    // Load Cart using 'TAPDCart' key
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
 
-    // Check if item exists
+    // Check duplicate
     let existingItem = cart.find(item => item.id === productId);
 
     if (existingItem) {
@@ -140,7 +132,7 @@ function addToCart(productId) {
     showToast(`${product.name} added to bag`);
 }
 
-// 5. UPDATE BAG COUNT
+// 6. UPDATE ICON
 function updateCartCount() {
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
     let totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
@@ -152,7 +144,7 @@ function updateCartCount() {
     }
 }
 
-// 6. TOAST NOTIFICATION
+// 7. TOAST MSG
 function showToast(message) {
     if(document.querySelector('.toast-msg')) return; 
 
@@ -169,7 +161,7 @@ function showToast(message) {
     setTimeout(() => toast.remove(), 2500);
 }
 
-// Filter Function
+// 8. FILTER HELPER
 function filterProducts(category, btn) {
     const buttons = document.querySelectorAll('.filter-btn');
     if(buttons.length > 0 && btn) {

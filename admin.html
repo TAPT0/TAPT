@@ -175,6 +175,19 @@
                         <input type="file" id="p-images" multiple accept="image/*" onchange="previewImages(this, 'add-preview')">
                         <div class="img-preview-grid" id="add-preview"></div>
                     </div>
+
+                    <div class="form-group">
+    <details style="background: #1a1a1a; padding: 10px; border-radius: 6px; border: 1px solid #333;">
+        <summary style="cursor: pointer; color: var(--gold); font-weight: bold; font-size: 0.9rem;">
+            <i class="fa-solid fa-code"></i> Advanced: Editable Template JSON
+        </summary>
+        <p style="font-size: 0.8rem; color: #888; margin: 10px 0 5px;">
+            Paste the Fabric.js JSON code here. When users click "Customize", this design will auto-load on their canvas.
+        </p>
+        <textarea id="p-design-json" rows="4" placeholder='{"version":"5.3.0","objects":[...]}' 
+                  style="width:100%; font-family:monospace; font-size:0.8rem; background:#111; border:1px solid #444; color:#0f0;"></textarea>
+    </details>
+</div>
                     
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
                         <button class="btn-gold" onclick="uploadProduct()">UPLOAD PRODUCT</button>

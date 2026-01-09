@@ -166,3 +166,96 @@ function filterProducts(category, btn) {
     }
     renderShop(category);
 }
+/* --- APPEND THIS TO SHOP.JS TO MAKE THE DRAWER WORK --- */
+
+// 1. Toggle the Drawer (Open/Close)
+function toggleCart() {
+    const drawer = document.getElementById('cart-drawer');
+    const overlay = document.querySelector('.cart-overlay');
+    
+    if (drawer.classList.contains('open')) {
+        drawer.classList.remove('open');
+        if(overlay) overlay.style.display = 'none';
+    } else {
+        renderCartContents(); // <--- This loads the items!
+        drawer.classList.add('open');
+        if(overlay) overlay.style.display = 'block';
+    }
+}
+
+// 2. Render Items inside the Drawer
+function renderCartContents() {
+    const container = document.getElementById('cart-items-container');
+    const subtotalEl = document.getElementById('cart-subtotal');
+    const totalEl = document.getElementById('cart-total');
+    
+    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+    let total = 0;
+
+    container.innerHTML = '';
+
+    if (cart.length === 0) {
+        container.innerHTML = '<p style="color:#666; text-align:center; margin-top:50px;">Your legacy is empty.</p>';
+        if(subtotalEl) subtotalEl.innerText = "₹0";
+        if(totalEl) totalEl.innerText = "₹0";
+        return;
+    }
+
+    cart.forEach((item, index) => {
+        let price = Number(item.price);
+        let qty = Number(item.qty);
+        total += price * qty;
+
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+            <img src="${item.img}" alt="${item.name}">
+            <div style="flex:1;">
+                <div style="display:flex; justify-content:space-between;">
+                    <h4 style="margin:0; font-size:0.9rem;">${item.name}</h4>
+                    <span onclick="removeCartItem(${index})" style="color:#ff4444; cursor:pointer;">×</span>
+                </div>
+                <p style="color:#888; font-size:0.8rem; margin:5px 0;">₹${price}</p>
+                <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+                    <button onclick="updateDrawerQty(${index}, -1)" style="background:#222; border:none; color:white; width:20px;">-</button>
+                    <span style="font-size:0.8rem;">${qty}</span>
+                    <button onclick="updateDrawerQty(${index}, 1)" style="background:#222; border:none; color:white; width:20px;">+</button>
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+
+    if(subtotalEl) subtotalEl.innerText = "₹" + total;
+    if(totalEl) totalEl.innerText = "₹" + total;
+}
+
+// 3. Helper: Update Qty from Drawer
+function updateDrawerQty(index, change) {
+    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+    cart[index].qty += change;
+    
+    if (cart[index].qty <= 0) {
+        cart.splice(index, 1);
+    }
+    
+    localStorage.setItem('TAPDCart', JSON.stringify(cart));
+    renderCartContents(); // Refresh drawer
+    updateCartCount();    // Refresh icon badge
+}
+
+// 4. Helper: Remove Item
+function removeCartItem(index) {
+    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+    cart.splice(index, 1);
+    localStorage.setItem('TAPDCart', JSON.stringify(cart));
+    renderCartContents();
+    updateCartCount();
+}
+
+// 5. Close Drawer Helper
+function closeAllDrawers() {
+    document.getElementById('cart-drawer').classList.remove('open');
+    const overlay = document.querySelector('.cart-overlay');
+    if(overlay) overlay.style.display = 'none';
+}

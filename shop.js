@@ -108,10 +108,13 @@ function renderShop(filter = 'all') {
              `;
         }
 
-        // --- UPDATED HTML WITH FLIP STRUCTURE ---
+        // --- UPDATED HTML (With Flip Hint) ---
         row.innerHTML = `
             <div class="row-image-box" onmousemove="tiltTwin(event, this)" onmouseleave="resetTwin(this)" onclick="flipCard(this)">
                 <div class="spotlight"></div>
+                
+                <div class="flip-hint"><i class="fa-solid fa-arrows-rotate"></i></div>
+
                 <div class="digital-twin ${shapeClass}">
                     <div class="twin-inner">
                         <div class="twin-face twin-front">

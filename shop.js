@@ -1,13 +1,13 @@
-/* --- shop.js | TAPD. Product Logic --- */
+/* --- shop.js | TAPD. Logic Fixed --- */
 
-// 1. PRODUCT CATALOG (Edit these to match your actual products)
+// 1. PRODUCT CATALOG
 const products = [
     {
         id: 1,
         name: "The 'Album Art' Minimalist",
         price: 249,
         category: "card",
-        image: "https://i.imgur.com/8Q5X4hM.jpg", // Replace with your image URL
+        image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop", 
         desc: "Photo Quality Focus"
     },
     {
@@ -15,7 +15,7 @@ const products = [
         name: "TAPD. Matte Black",
         price: 499,
         category: "card",
-        image: "https://via.placeholder.com/300/111/D4AF37?text=Matte+Black",
+        image: "https://images.unsplash.com/photo-1635443210352-09252c7b5009?q=80&w=1000&auto=format&fit=crop",
         desc: "Premium Finish"
     },
     {
@@ -23,7 +23,7 @@ const products = [
         name: "TAPD. Gold Edition",
         price: 999,
         category: "card",
-        image: "https://via.placeholder.com/300/D4AF37/000?text=Gold+Edition",
+        image: "https://images.unsplash.com/photo-1621504450168-b8c6816c3e83?q=80&w=1000&auto=format&fit=crop",
         desc: "Real Metal Core"
     },
     {
@@ -31,35 +31,37 @@ const products = [
         name: "NFC Coin Tag",
         price: 199,
         category: "tag",
-        image: "https://via.placeholder.com/300/333/fff?text=Coin+Tag",
+        image: "https://images.unsplash.com/photo-1622630998477-20aa696fab05?q=80&w=1000&auto=format&fit=crop",
         desc: "Stick anywhere"
     }
 ];
 
-// 2. RENDER PRODUCTS TO GRID
+// 2. RENDER PRODUCTS (Using your exact CSS classes)
 function renderShop(filter = 'all') {
     const grid = document.getElementById('shop-grid');
     if (!grid) return;
 
-    grid.innerHTML = ''; // Clear existing
+    grid.innerHTML = '';
 
     products.forEach(product => {
         if (filter === 'all' || product.category === filter) {
             
-            // Create Card HTML
             const card = document.createElement('div');
             card.className = 'product-card';
+            // We attach the click event to the button specifically later
             card.innerHTML = `
-                <div class="card-image">
+                <div class="p-img-box">
                     <img src="${product.image}" alt="${product.name}">
-                    <div class="overlay">
-                        <button onclick="addToCart(${product.id})">ADD TO BAG</button>
-                    </div>
+                    <button class="add-btn" onclick="addToCart(${product.id})">
+                        ADD TO BAG
+                    </button>
                 </div>
-                <div class="card-info">
-                    <h3>${product.name}</h3>
-                    <p>${product.desc}</p>
-                    <div class="price">₹${product.price}</div>
+                <div class="p-details">
+                    <div class="p-info">
+                        <h3>${product.name}</h3>
+                        <p class="p-cat">${product.desc}</p>
+                    </div>
+                    <div class="p-price">₹${product.price}</div>
                 </div>
             `;
             grid.appendChild(card);
@@ -67,16 +69,15 @@ function renderShop(filter = 'all') {
     });
 }
 
-// 3. THE "ADD TO CART" LOGIC (Fixed for Checkout)
+// 3. ADD TO CART LOGIC
 function addToCart(productId) {
-    // A. Find the product details
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
-    // B. Get current cart from Storage (Using 'TAPDCart' key)
+    // Get Cart (TAPDCart is the key the checkout page looks for)
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
 
-    // C. Check if item is already in cart
+    // Check if item exists
     let existingItem = cart.find(item => item.id === productId);
 
     if (existingItem) {
@@ -91,18 +92,15 @@ function addToCart(productId) {
         });
     }
 
-    // D. SAVE TO STORAGE
+    // Save
     localStorage.setItem('TAPDCart', JSON.stringify(cart));
 
-    // E. Update UI
+    // Update UI
     updateCartCount();
     showToast(`${product.name} added to bag`);
-    
-    // Optional: Open the cart drawer automatically
-    // toggleCart(); 
 }
 
-// 4. UPDATE BAG COUNT ICON
+// 4. UPDATE ICON
 function updateCartCount() {
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
     let totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
@@ -114,39 +112,29 @@ function updateCartCount() {
     }
 }
 
-// 5. SIMPLE TOAST NOTIFICATION
+// 5. TOAST NOTIFICATION
 function showToast(message) {
-    // Create element
     const toast = document.createElement('div');
-    toast.className = 'toast-msg';
     toast.innerText = message;
     toast.style.cssText = `
-        position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-        background: #D4AF37; color: #000; padding: 12px 24px; 
-        font-family: 'Syncopate', sans-serif; font-weight: 700; font-size: 0.8rem;
-        border-radius: 4px; z-index: 9999; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+        background: #D4AF37; color: #000; padding: 12px 25px; 
+        font-family: sans-serif; font-weight: 700; border-radius: 50px;
+        z-index: 1000; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
     `;
-    
     document.body.appendChild(toast);
-
-    // Remove after 3 seconds
-    setTimeout(() => {
-        toast.remove();
-    }, 3000);
+    setTimeout(() => toast.remove(), 2500);
 }
 
-// 6. INITIALIZE
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     renderShop();
     updateCartCount();
 });
 
-// Filter Helper
+// Filter Function
 function filterProducts(category, btn) {
-    // Visual update for buttons
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    
-    // Re-render
     renderShop(category);
 }

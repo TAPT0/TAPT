@@ -27,7 +27,7 @@
 
         .noise-overlay { position: fixed; inset: 0; background: url('https://grainy-gradients.vercel.app/noise.svg'); opacity: 0.04; pointer-events: none; z-index: 99; }
         
-        /* NEW: Ambient Floating Orbs (3D Depth) */
+        /* Ambient Floating Orbs (3D Depth) */
         .floating-orbs-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: -1; pointer-events: none; }
         .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4; animation: floatOrb 20s infinite alternate ease-in-out; }
         .orb-1 { width: 300px; height: 300px; background: radial-gradient(circle, #D4AF37, transparent); top: -10%; left: -10%; animation-duration: 25s; }
@@ -90,53 +90,53 @@
         .filter-btn { background: transparent; border: 1px solid #333; color: #888; padding: 8px 24px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; text-transform: uppercase; transition: 0.3s; letter-spacing: 1px; }
         .filter-btn.active, .filter-btn:hover { background: var(--gold); color: black; border-color: var(--gold); font-weight: 700; }
 
-        /* --- PREMIUM SHOWCASE LAYOUT (RE-DESIGNED) --- */
+        /* --- THE DIGITAL TWIN ENGINE (CSS) --- */
         .showcase-container { display: flex; flex-direction: column; gap: 200px; max-width: 1300px; margin: 80px auto 150px; padding: 0 5%; }
-
+        
         .shop-row { display: flex; align-items: center; justify-content: space-between; gap: 100px; opacity: 0; transform: translateY(80px); transition: 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .shop-row.active { opacity: 1; transform: translateY(0); }
         .shop-row.reverse { flex-direction: row-reverse; }
 
-        /* NEW PREMIUM CARD STYLE */
+        /* 3D Container */
         .row-image-box { 
-            flex: 1; height: 600px; position: relative; perspective: 2000px; cursor: pointer; 
+            flex: 1; height: 500px; position: relative; perspective: 1500px; cursor: pointer; z-index: 1;
+            display: flex; align-items: center; justify-content: center;
         }
-        
-        .tilt-card {
-            width: 100%; height: 100%; position: relative; 
-            border-radius: 30px; 
-            /* REMOVED CHEAP BORDER, ADDED DEEP SHADOW */
-            background: transparent;
+
+        /* The Master Object */
+        .digital-twin {
+            position: relative;
             transform-style: preserve-3d;
             transition: transform 0.1s ease-out;
-        }
-        
-        /* The Image itself floats */
-        .card-img-wrapper {
-            width: 100%; height: 100%;
-            border-radius: 30px;
-            overflow: hidden;
-            position: relative;
-            transform: translateZ(0);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8); /* Deep shadow */
-            transition: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
         }
 
-        .tilt-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s; filter: brightness(0.9) saturate(0.9); }
-        
+        /* Shape Variants */
+        .digital-twin.shape-card { width: 320px; height: 200px; border-radius: 16px; }
+        .digital-twin.shape-tag { width: 220px; height: 220px; border-radius: 50%; }
+
+        /* Layers */
+        .twin-layer { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; }
+
+        /* 1. Base Material */
+        .twin-base { background-color: #111; background-size: cover; background-position: center; overflow: hidden; }
+
+        /* 2. Texture (Grainy Matte) */
+        .twin-texture { background-image: url('https://grainy-gradients.vercel.app/noise.svg'); opacity: 0.15; mix-blend-mode: overlay; }
+
+        /* 3. Branding */
+        .twin-branding { padding: 25px; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; transform: translateZ(2px); }
+        .chip { width: 45px; height: 32px; background: linear-gradient(135deg, #FFD700, #B8860B); border-radius: 6px; margin-bottom: auto; box-shadow: inset 1px 1px 2px rgba(0,0,0,0.5); }
+        .twin-logo { font-family: 'Syncopate'; font-weight: bold; font-size: 1.4rem; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+
+        /* 4. Lighting */
+        .twin-glare { background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.2) 45%, transparent 60%); opacity: 0; transition: opacity 0.3s; mix-blend-mode: soft-light; }
+
         /* Hover Effects */
-        .row-image-box:hover .tilt-card img { transform: scale(1.08); filter: brightness(1.1) saturate(1.1); }
-        .row-image-box:hover .card-img-wrapper { box-shadow: 0 40px 100px -20px var(--gold-glow); transform: translateZ(20px); }
+        .row-image-box:hover .digital-twin { box-shadow: 0 50px 100px rgba(212,175,55,0.15); }
+        .row-image-box:hover .twin-glare { opacity: 1; }
 
-        /* Glass Overlay on Card */
-        .card-glass-overlay {
-            position: absolute; bottom: 20px; left: 20px; right: 20px;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(15px);
-            padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
-            transform: translateZ(40px) translateY(20px); opacity: 0; transition: 0.4s;
-        }
-        .row-image-box:hover .card-glass-overlay { opacity: 1; transform: translateZ(40px) translateY(0); }
-
+        /* Text Content */
         .row-content { flex: 0.8; position: relative; z-index: 2; }
         .row-cat { color: var(--gold); font-family: 'Syncopate'; font-size: 0.8rem; letter-spacing: 4px; margin-bottom: 20px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
         .row-cat::before { content: ''; width: 30px; height: 1px; background: var(--gold); }
@@ -144,8 +144,6 @@
         .row-title { font-family: 'Syncopate'; font-size: 4rem; margin: 0 0 25px 0; font-weight: 700; line-height: 0.9; letter-spacing: -2px; }
         .row-desc { color: #bbb; font-size: 1.15rem; line-height: 1.8; margin-bottom: 50px; font-weight: 300; max-width: 90%; }
         .row-price { font-size: 2.5rem; color: white; font-weight: 600; margin-bottom: 50px; font-family: 'Inter'; display: flex; align-items: baseline; gap: 10px; }
-        .row-price span { font-size: 1rem; color: #666; font-weight: 400; text-decoration: line-through; }
-
         .row-actions { display: flex; gap: 20px; align-items: center; }
         
         /* Premium Buttons */
@@ -166,7 +164,7 @@
         .cinematic-section {
             position: relative; height: 60vh; width: 100%; margin: 100px 0;
             background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover;
-            background-image: url('https://images.unsplash.com/photo-1616423640778-2cfd9b972e27?q=80&w=2500&auto=format&fit=crop'); /* Placeholder premium dark texture */
+            background-image: url('https://images.unsplash.com/photo-1616423640778-2cfd9b972e27?q=80&w=2500&auto=format&fit=crop');
             display: flex; align-items: center; justify-content: center;
         }
         .cinematic-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
@@ -241,7 +239,7 @@
         .newsletter-input button { padding: 18px 40px; background: var(--gold); color: black; border: none; font-weight: 800; cursor: pointer; border-radius: 8px; transition: 0.3s; font-family: 'Syncopate'; text-transform: uppercase; }
         .newsletter-input button:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(212,175,55,0.2); }
 
-        /* --- DRAWERS & MODALS (PRESERVED) --- */
+        /* --- DRAWERS & MODALS --- */
         .drawer { position: fixed; top: 0; right: -450px; width: 100%; max-width: 450px; height: 100%; background: #080808; z-index: 200; transition: 0.5s cubic-bezier(0.77, 0, 0.175, 1); box-shadow: -20px 0 50px rgba(0,0,0,0.9); border-left: 1px solid var(--border); display: flex; flex-direction: column; }
         .drawer.open { right: 0; }
         .drawer-header { padding: 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: #0a0a0a; }
@@ -310,21 +308,16 @@
         .reveal, .reveal-row { opacity: 0; transform: translateY(50px); transition: 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .reveal.active, .reveal-row.active { opacity: 1; transform: translateY(0); }
 
-        /* --- MOBILE LAYOUT (IMMERSIVE) --- */
+        /* --- MOBILE LAYOUT --- */
         @media (max-width: 900px) {
             .hero-title { font-size: 2.8rem; }
             .showcase-container { gap: 100px; padding: 0 15px; }
-            
-            /* Stacking Cards */
-            .shop-row, .shop-row.reverse { 
-                flex-direction: column; gap: 40px; 
-            }
+            .shop-row, .shop-row.reverse { flex-direction: column; gap: 40px; }
             .row-image-box { height: 400px; width: 100%; }
             .row-content { text-align: center; }
             .row-cat { justify-content: center; }
             .row-price { justify-content: center; }
             .row-actions { justify-content: center; }
-            
             .blueprint-grid { grid-template-columns: 1fr; }
             .stats-strip { flex-direction: column; gap: 30px; }
         }
@@ -665,7 +658,7 @@
 
                 snap.forEach((doc) => {
                     let data = doc.data();
-                    let pImage = 'https://via.placeholder.com/600x600?text=Product';
+                    let pImage = ''; // Default to empty so Twin Engine takes over if no image
                     if (data.images && data.images.length > 0) pImage = data.images[0];
                     else if (data.image) pImage = data.image;
 
@@ -686,7 +679,7 @@
             });
         }
 
-        // --- RENDER (ZIG-ZAG 2.0 - GLASS & GLOW) ---
+        // --- RENDER (DIGITAL TWIN ENGINE) ---
         function renderShop(filter = 'all') {
             const container = document.getElementById('shop-grid');
             if (!container) return;
@@ -695,34 +688,56 @@
             let visibleCount = 0;
 
             products.forEach(product => {
-                if (filter !== 'all' && product.category !== filter) return;
+                // Smart Filter: Detect if it's a "Tag" or "Card"
+                let pType = 'card'; 
+                if (product.name.toLowerCase().includes('tag') || product.category.toLowerCase().includes('tag')) {
+                    pType = 'tag';
+                }
+                
+                if (filter !== 'all' && pType !== filter) return;
 
                 const reverseClass = visibleCount % 2 !== 0 ? 'reverse' : '';
                 const row = document.createElement('div');
                 row.className = `shop-row reveal-row ${reverseClass}`;
                 
-                // NEW PREMIUM CARD LAYOUT
+                // 1. Determine Shape Class
+                const shapeClass = pType === 'tag' ? 'shape-tag' : 'shape-card';
+                
+                // 2. Determine Background
+                const bgStyle = product.image && !product.image.includes('placeholder') 
+                    ? `background-image: url('${product.image}');` 
+                    : `background: #111;`;
+
+                // 3. Branding (Show Chip/Logo only if no custom image)
+                let brandingHTML = '';
+                if (!product.image || product.image.includes('placeholder') || product.image === '') {
+                     brandingHTML = `
+                        <div class="twin-layer twin-branding">
+                            ${pType === 'card' ? '<div class="chip"></div>' : '<div></div>'} 
+                            <div class="twin-logo">TAPD.</div>
+                        </div>
+                     `;
+                }
+
+                // TWIN HTML
                 row.innerHTML = `
-                    <div class="row-image-box" onmousemove="tiltCard(event, this)" onmouseleave="resetCard(this)" onclick="viewProduct('${product.id}')">
-                        <div class="tilt-card">
-                            <div class="card-img-wrapper">
-                                <img src="${product.image}" alt="${product.name}">
-                            </div>
-                            <div class="card-glass-overlay">
-                                <div style="color:var(--gold); font-size:0.8rem; letter-spacing:2px; margin-bottom:5px;">PREVIEW</div>
-                                <div style="font-size:1.1rem; font-weight:bold;">${product.name}</div>
-                            </div>
+                    <div class="row-image-box" onmousemove="tiltTwin(event, this)" onmouseleave="resetTwin(this)" onclick="viewProduct('${product.id}')">
+                        <div class="digital-twin ${shapeClass}">
+                            <div class="twin-layer twin-base" style="${bgStyle}"></div>
+                            <div class="twin-layer twin-texture"></div>
+                            ${brandingHTML}
+                            <div class="twin-layer twin-glare"></div>
                         </div>
                     </div>
                     
                     <div class="row-content">
-                        <div class="row-cat">${product.category} SERIES</div>
+                        <div class="row-cat">${pType.toUpperCase()} SERIES</div>
                         <h2 class="row-title">${product.name}</h2>
                         <p class="row-desc">${product.desc}</p>
                         <div class="row-price">₹${product.price}</div>
                         
                         <div class="row-actions">
-                            <button class="btn-buy" onclick="viewProduct('${product.id}')">View Details</button>
+                            <button class="btn-buy" onclick="viewProduct('${product.id}')">CONFIGURE</button>
                             <button class="btn-add-round" onclick="addToCart('${product.id}')"><i class="fa-solid fa-plus"></i></button>
                         </div>
                     </div>
@@ -733,26 +748,31 @@
             });
         }
 
-        // --- 3D TILT ---
-        function tiltCard(e, container) {
-            const card = container.querySelector('.tilt-card');
-            const imgWrapper = container.querySelector('.card-img-wrapper');
+        // --- TWIN INTERACTION (TILT) ---
+        function tiltTwin(e, container) {
+            const card = container.querySelector('.digital-twin');
+            const glare = container.querySelector('.twin-glare');
             
             const box = container.getBoundingClientRect();
             const x = e.clientX - box.left - box.width / 2;
             const y = e.clientY - box.top - box.height / 2;
             
-            const rotateX = -y / 20;
-            const rotateY = x / 20;
+            // Rotate the 3D Object
+            const rotateX = -y / 15;
+            const rotateY = x / 15;
+            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
             
-            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            if(imgWrapper) imgWrapper.style.transform = `translateZ(30px) scale(1.05)`;
+            // Move Glare
+            glare.style.transform = `translate(${x}px, ${y}px)`;
+            glare.style.opacity = '1';
         }
-        function resetCard(container) {
-            const card = container.querySelector('.tilt-card');
-            const imgWrapper = container.querySelector('.card-img-wrapper');
-            card.style.transform = `rotateX(0) rotateY(0)`;
-            if(imgWrapper) imgWrapper.style.transform = `translateZ(0) scale(1)`;
+
+        function resetTwin(container) {
+            const card = container.querySelector('.digital-twin');
+            const glare = container.querySelector('.twin-glare');
+            
+            card.style.transform = `rotateX(0) rotateY(0) scale(1)`;
+            glare.style.opacity = '0';
         }
 
         // --- AUTH ---
@@ -848,7 +868,7 @@
             cart.forEach((item, idx) => {
                 container.innerHTML += `
                     <div class="cart-item">
-                        <img src="${item.img}">
+                        <img src="${item.img ? item.img : 'https://via.placeholder.com/80?text=TAPD'}">
                         <div style="flex:1;">
                             <div style="display:flex; justify-content:space-between;">
                                 <h4 style="margin:0; font-size:0.9rem;">${item.name}</h4>

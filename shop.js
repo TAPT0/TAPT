@@ -1,24 +1,29 @@
-/* --- shop.js | TAPD. Live Database Connection --- */
+/* --- shop.js | TAPD. Live Database Connection (Fixed) --- */
 
 // 1. Initialize Empty List
 let products = [];
 
-// 2. FETCH FROM FIREBASE (The Missing Link)
-const db = firebase.firestore();
+// 2. FETCH FROM FIREBASE
+// We access firestore directly to avoid "redeclaration" errors
+const app = firebase.app(); 
+const store = app.firestore();
 
-// "products" is the collection name your Admin Panel likely uses.
-// If your admin panel uses a different name, change 'products' below.
-db.collection('products').get().then((querySnapshot) => {
+// "products" is the collection name. Change if your Admin Panel uses "items" etc.
+store.collection('products').get().then((querySnapshot) => {
     products = []; // Clear list
     
     querySnapshot.forEach((doc) => {
         let data = doc.data();
+        
+        // Smart Image Handling: Checks multiple possible image field names
+        let imgUrl = data.image || data.img || data.productImage || 'https://via.placeholder.com/300x300?text=TAPD';
+
         products.push({
-            id: doc.id, // Use the database ID
-            name: data.name || data.productName, // Tries both common names
+            id: doc.id, 
+            name: data.name || data.productName || "Unnamed Product",
             price: Number(data.price) || 0,
             category: data.category || 'card',
-            image: data.image || data.img || 'https://via.placeholder.com/300x300?text=No+Image',
+            image: imgUrl,
             desc: data.desc || data.description || 'Premium Hardware'
         });
     });
@@ -33,7 +38,7 @@ db.collection('products').get().then((querySnapshot) => {
 });
 
 
-// 3. RENDER PRODUCTS (Using the FIXED Layout)
+// 3. RENDER PRODUCTS 
 function renderShop(filter = 'all') {
     const grid = document.getElementById('shop-grid');
     if (!grid) return;
@@ -51,7 +56,6 @@ function renderShop(filter = 'all') {
             const card = document.createElement('div');
             card.className = 'product-card';
             
-            // We use the ID as a string now because it comes from Firebase
             card.innerHTML = `
                 <div class="p-img-box">
                     <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x300?text=TAPD'">
@@ -117,7 +121,11 @@ function updateCartCount() {
 
 // 6. TOAST NOTIFICATION
 function showToast(message) {
+    // Prevent duplicate toasts
+    if(document.querySelector('.toast-msg')) return;
+
     const toast = document.createElement('div');
+    toast.className = 'toast-msg';
     toast.innerText = message;
     toast.style.cssText = `
         position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
@@ -131,7 +139,11 @@ function showToast(message) {
 
 // Filter Function
 function filterProducts(category, btn) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    // Only run if buttons exist
+    const buttons = document.querySelectorAll('.filter-btn');
+    if(buttons.length > 0 && btn) {
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
     renderShop(category);
 }

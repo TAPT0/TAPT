@@ -1,47 +1,43 @@
-/* --- shop.js | TAPD. Final Fix (No Conflicts) --- */
+/* --- shop.js | TAPD. Smart Database Connection --- */
 
-// 1. Initialize Empty List
+const app = firebase.app(); 
+const store = app.firestore();
 let products = [];
 
-// 2. FETCH FROM FIREBASE
-// FIX: We do NOT use 'const db' here to avoid the crash.
-// We use firebase.firestore() directly.
-firebase.firestore().collection('products').get().then((querySnapshot) => {
-    products = []; // Clear list
+store.collection('products').get().then((querySnapshot) => {
+    products = []; 
     
     querySnapshot.forEach((doc) => {
         let data = doc.data();
         
-        // Smart Image Handling: Checks for 'image', 'img', or uses a placeholder if broken
-        // This fixes the "Image not found" text in your screenshot
-        let imgUrl = data.image || data.img || data.productImage;
-        if (!imgUrl || imgUrl === "undefined") {
-            imgUrl = 'https://via.placeholder.com/300x300/111/D4AF37?text=TAPD';
-        }
+        // --- DETECTIVE MODE: Print actual data to Console ---
+        console.log("🛒 Loaded Product:", data); 
+
+        // 1. SMART NAME FINDER (Checks every common variation)
+        let finalName = data.name || data.productName || data.title || data.pName || data.itemName || "Unnamed Product";
+
+        // 2. SMART IMAGE FINDER
+        let finalImage = data.image || data.img || data.imageUrl || data.url || data.productImage || data.src || 'https://via.placeholder.com/300x300?text=TAPD';
 
         products.push({
             id: doc.id, 
-            name: data.name || data.productName || "Unnamed Product",
-            price: Number(data.price) || 0,
+            name: finalName,
+            price: Number(data.price) || Number(data.productPrice) || 0,
             category: data.category || 'card',
-            image: imgUrl,
+            image: finalImage,
             desc: data.desc || data.description || 'Premium Hardware'
         });
     });
 
-    // Once data is loaded, build the grid
     renderShop();
     updateCartCount();
 
 }).catch((error) => {
-    console.error("Error getting products: ", error);
-    // This will show if Firebase fails (e.g., permissions or internet)
-    const grid = document.getElementById('shop-grid');
-    if(grid) grid.innerHTML = '<p style="color:white; text-align:center;">Connection to Legacy Failed.<br><small>Check console for details.</small></p>';
+    console.error("Error:", error);
 });
 
 
-// 3. RENDER PRODUCTS 
+// --- RENDER FUNCTION ---
 function renderShop(filter = 'all') {
     const grid = document.getElementById('shop-grid');
     if (!grid) return;
@@ -49,8 +45,7 @@ function renderShop(filter = 'all') {
     grid.innerHTML = '';
 
     if (products.length === 0) {
-        // While loading or if empty
-        grid.innerHTML = '<p style="color:#666; text-align:center; width:100%;">Loading Collection...</p>';
+        grid.innerHTML = '<p style="color:#666; text-align:center;">No products found.</p>';
         return;
     }
 
@@ -62,7 +57,7 @@ function renderShop(filter = 'all') {
             
             card.innerHTML = `
                 <div class="p-img-box">
-                    <img src="${product.image}" alt="${product.name}" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x300/111/D4AF37?text=TAPD';">
+                    <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x300?text=No+Img'">
                     <button class="add-btn" onclick="addToCart('${product.id}')">
                         ADD TO BAG
                     </button>
@@ -80,15 +75,12 @@ function renderShop(filter = 'all') {
     });
 }
 
-// 4. ADD TO CART LOGIC
+// --- ADD TO CART ---
 function addToCart(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
-    // Get Cart
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
-
-    // Check if item exists
     let existingItem = cart.find(item => item.id === productId);
 
     if (existingItem) {
@@ -103,30 +95,24 @@ function addToCart(productId) {
         });
     }
 
-    // Save
     localStorage.setItem('TAPDCart', JSON.stringify(cart));
-
-    // Update UI
     updateCartCount();
     showToast(`${product.name} added to bag`);
 }
 
-// 5. UPDATE BAG COUNT
+// --- UTILS ---
 function updateCartCount() {
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
     let totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
-    
-    const countBadge = document.getElementById('cart-count');
-    if (countBadge) {
-        countBadge.innerText = totalQty;
-        countBadge.style.display = totalQty > 0 ? 'flex' : 'none';
+    const badge = document.getElementById('cart-count');
+    if(badge) {
+        badge.innerText = totalQty;
+        badge.style.display = totalQty > 0 ? 'flex' : 'none';
     }
 }
 
-// 6. TOAST NOTIFICATION
 function showToast(message) {
     if(document.querySelector('.toast-msg')) return;
-
     const toast = document.createElement('div');
     toast.className = 'toast-msg';
     toast.innerText = message;
@@ -140,7 +126,6 @@ function showToast(message) {
     setTimeout(() => toast.remove(), 2500);
 }
 
-// Filter Function
 function filterProducts(category, btn) {
     const buttons = document.querySelectorAll('.filter-btn');
     if(buttons.length > 0 && btn) {

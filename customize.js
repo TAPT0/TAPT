@@ -235,39 +235,56 @@ function updateControls() {
     document.getElementById('common-scale').value = active.scaleX;
 }
 
-// 7. FINISH & SAVE
+/* --- REPLACE FROM LINE: function finishDesign() DOWNWARDS --- */
+
+// 7. FINISH DESIGN & ADD TO CART
 function finishDesign() {
     canvas.discardActiveObject();
     canvas.renderAll();
 
-    // Export High Res Image
+    // 1. Generate Image (For preview)
     const designImage = canvas.toDataURL({
         format: 'png',
         quality: 1.0,
         multiplier: 2 
     });
 
+    // 2. Generate JSON (For editing later)
+    const designJson = JSON.stringify(canvas.toJSON());
+
     const productID = currentProduct ? currentProduct.id : 'custom-' + Date.now();
     const productName = currentProduct ? currentProduct.name + " (Custom)" : "Custom Design";
     
-    addToCart(productID, productName, currentPrice, designImage);
+    // Pass both Image AND Json
+    addToCart(productID, productName, currentPrice, designImage, designJson);
 }
 
-function addToCart(id, name, price, img) {
+function addToCart(id, name, price, img, json) {
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
-    cart.push({ id: id, name: name, price: price, img: img, qty: 1 });
-    localStorage.setItem('TAPDCart', JSON.stringify(cart));
     
+    cart.push({
+        id: id,
+        name: name,
+        price: price,
+        img: img,
+        designJson: json, // <--- SAVING THE CODE HERE
+        qty: 1
+    });
+
+    localStorage.setItem('TAPDCart', JSON.stringify(cart));
     updateCartCount();
     toggleCart(); 
 }
 
+// 8. ADMIN TOOL
 function exportDesignJSON() {
     const json = JSON.stringify(canvas.toJSON());
-    navigator.clipboard.writeText(json).then(() => alert("Copied JSON!"));
+    navigator.clipboard.writeText(json).then(() => {
+        alert("Design JSON Copied! Paste into Admin Panel.");
+    });
 }
 
-// UTILS
+// 9. UTILS
 function updateCartCount() {
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
     let qty = cart.reduce((acc, item) => acc + item.qty, 0);

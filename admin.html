@@ -176,20 +176,20 @@
                         <div class="img-preview-grid" id="add-preview"></div>
                     </div>
 
-                    <div class="form-group">
-    <details style="background: #1a1a1a; padding: 10px; border-radius: 6px; border: 1px solid #333;">
-        <summary style="cursor: pointer; color: var(--gold); font-weight: bold; font-size: 0.9rem;">
-            <i class="fa-solid fa-code"></i> Advanced: Editable Template JSON
-        </summary>
-        <p style="font-size: 0.8rem; color: #888; margin: 10px 0 5px;">
-            Paste the Fabric.js JSON code here. When users click "Customize", this design will auto-load on their canvas.
-        </p>
-        <textarea id="p-design-json" rows="4" placeholder='{"version":"5.3.0","objects":[...]}' 
-                  style="width:100%; font-family:monospace; font-size:0.8rem; background:#111; border:1px solid #444; color:#0f0;"></textarea>
-    </details>
-</div>
+                    <div class="form-group" style="margin-top: 20px;">
+                        <details style="background: #1a1a1a; padding: 15px; border-radius: 6px; border: 1px solid #333;">
+                            <summary style="cursor: pointer; color: var(--gold); font-weight: bold; font-size: 0.9rem;">
+                                <i class="fa-solid fa-code"></i> Advanced: Editable Template JSON (Click to Open)
+                            </summary>
+                            <p style="font-size: 0.8rem; color: #888; margin: 10px 0 5px;">
+                                Paste the Fabric.js JSON code here. When users click "Customize", this design will auto-load on their canvas.
+                            </p>
+                            <textarea id="p-design-json" rows="6" placeholder='{"version":"5.3.0","objects":[...]}' 
+                                      style="width:100%; font-family:monospace; font-size:0.8rem; background:#000; border:1px solid #444; color:#0f0; padding:10px;"></textarea>
+                        </details>
+                    </div>
                     
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
                         <button class="btn-gold" onclick="uploadProduct()">UPLOAD PRODUCT</button>
                         <p id="upload-status" style="color:#888; font-size:0.8rem; margin:0;"></p>
                     </div>
@@ -296,6 +296,16 @@
                 <div class="img-preview-grid" id="edit-new-preview"></div>
             </div>
 
+            <div class="form-group" style="margin-top: 20px;">
+                <details style="background: #1a1a1a; padding: 15px; border-radius: 6px; border: 1px solid #333;">
+                    <summary style="cursor: pointer; color: var(--gold); font-weight: bold; font-size: 0.9rem;">
+                        <i class="fa-solid fa-code"></i> Advanced: Editable Template JSON
+                    </summary>
+                    <textarea id="edit-design-json" rows="6" placeholder='Paste new JSON code here to update design...' 
+                              style="width:100%; font-family:monospace; font-size:0.8rem; background:#000; border:1px solid #444; color:#0f0; padding:10px; margin-top:10px;"></textarea>
+                </details>
+            </div>
+
             <button class="btn-gold" style="width:100%" onclick="saveProductChanges()">SAVE CHANGES</button>
         </div>
     </div>
@@ -307,7 +317,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     
     <script>
-        // --- YOUR CORRECTED CONFIG ---
         const firebaseConfig = {
           apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
           authDomain: "tapt-337b8.firebaseapp.com",
@@ -324,7 +333,7 @@
         }
         
         const db = firebase.firestore();
-        const auth = firebase.auth(); // Added Auth Module
+        const auth = firebase.auth();
 
         let allProductsCache = {};
         let tempEditImages = [];
@@ -332,47 +341,31 @@
         let unsubscribeOrders = null;
         let unsubscribeCoupons = null;
 
-        /* --- AUTHENTICATION & STARTUP --- */
-        
-        // 1. Listen for Auth State Changes (The Fix for 'Uncaught Error')
+        /* --- AUTHENTICATION --- */
         auth.onAuthStateChanged((user) => {
             if (user) {
-                // User is logged in -> Show Dashboard & Load Data
                 console.log("Logged in as:", user.email);
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-ui').style.display = 'flex';
                 loadAllData();
             } else {
-                // User is logged out -> Show Login Screen
                 console.log("No user.");
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('dashboard-ui').style.display = 'none';
             }
         });
 
-        // 2. Updated Login Function (Actually signs into Firebase)
         function checkAdmin() {
             const email = document.getElementById('admin-email').value;
             const pass = document.getElementById('admin-pass').value;
-            
-            if(!email || !pass) {
-                alert("Please enter both email and password.");
-                return;
-            }
-
+            if(!email || !pass) { alert("Please enter both email and password."); return; }
             auth.signInWithEmailAndPassword(email, pass)
-                .then(() => {
-                    // Success! The onAuthStateChanged listener above will handle the UI switch.
-                    showToast("Login Successful");
-                })
-                .catch((error) => {
-                    alert("Login Failed: " + error.message);
-                });
+                .then(() => showToast("Login Successful"))
+                .catch((error) => alert("Login Failed: " + error.message));
         }
 
         function logout() {
             auth.signOut().then(() => {
-                // Stop listening to data to prevent errors
                 if(unsubscribeProducts) unsubscribeProducts();
                 if(unsubscribeOrders) unsubscribeOrders();
                 if(unsubscribeCoupons) unsubscribeCoupons();
@@ -401,7 +394,7 @@
             loadCoupons();
         }
 
-        /* --- COMPRESSION & IMAGE HELPERS --- */
+        /* --- HELPERS --- */
         const compressImage = (file, maxWidth, quality) => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -448,69 +441,66 @@
             }
         }
 
-        /* --- REPLACE YOUR uploadProduct FUNCTION WITH THIS --- */
-async function uploadProduct() {
-    const title = document.getElementById('p-title').value;
-    const desc = document.getElementById('p-desc').value;
-    const price = document.getElementById('p-price').value;
-    const category = document.getElementById('p-category').value;
-    const type = document.getElementById('p-type').value; 
-    const designJson = document.getElementById('p-design-json').value; // <--- NEW LINE
-    
-    const files = document.getElementById('p-images').files;
-    const statusText = document.getElementById('upload-status');
+        /* --- PRODUCT MANAGEMENT --- */
+        async function uploadProduct() {
+            const title = document.getElementById('p-title').value;
+            const desc = document.getElementById('p-desc').value;
+            const price = document.getElementById('p-price').value;
+            const category = document.getElementById('p-category').value;
+            const type = document.getElementById('p-type').value; 
+            const designJson = document.getElementById('p-design-json').value;
+            
+            const files = document.getElementById('p-images').files;
+            const statusText = document.getElementById('upload-status');
 
-    if(!title || !price || files.length === 0) {
-        alert("Please fill all fields and select at least 1 image");
-        return;
-    }
+            if(!title || !price || files.length === 0) {
+                alert("Please fill all fields and select at least 1 image");
+                return;
+            }
 
-    statusText.textContent = "Compressing images...";
-    let imageUrls = [];
+            statusText.textContent = "Compressing images...";
+            let imageUrls = [];
 
-    for(let i=0; i<files.length; i++) {
-        try {
-            const base64String = await compressImage(files[i], 800, 0.7);
-            imageUrls.push(base64String);
-        } catch(err) {
-            console.error("Compression Error", err);
-            statusText.textContent = "Error processing image.";
-            return;
+            for(let i=0; i<files.length; i++) {
+                try {
+                    const base64String = await compressImage(files[i], 800, 0.7);
+                    imageUrls.push(base64String);
+                } catch(err) {
+                    console.error("Compression Error", err);
+                    statusText.textContent = "Error processing image.";
+                    return;
+                }
+            }
+
+            statusText.textContent = "Saving...";
+            
+            db.collection("products").add({
+                title: title,
+                description: desc,
+                price: parseFloat(price),
+                category: category,
+                type: type, 
+                images: imageUrls,
+                designTemplate: designJson, 
+                createdAt: new Date().toISOString()
+            }).then(() => {
+                statusText.textContent = "";
+                showToast("Product Added!");
+                document.getElementById('p-title').value = "";
+                document.getElementById('p-desc').value = "";
+                document.getElementById('p-price').value = "";
+                document.getElementById('p-design-json').value = ""; 
+                document.getElementById('p-images').value = "";
+                document.getElementById('add-preview').innerHTML = "";
+            }).catch((error) => {
+                statusText.textContent = "Error: " + error.message;
+            });
         }
-    }
 
-    statusText.textContent = "Saving...";
-    
-    db.collection("products").add({
-        title: title,
-        description: desc,
-        price: parseFloat(price),
-        category: category,
-        type: type, 
-        images: imageUrls,
-        designTemplate: designJson, // <--- SAVES THE JSON HERE
-        createdAt: new Date().toISOString()
-    }).then(() => {
-        statusText.textContent = "";
-        showToast("Product Added!");
-        // Clear inputs
-        document.getElementById('p-title').value = "";
-        document.getElementById('p-desc').value = "";
-        document.getElementById('p-price').value = "";
-        document.getElementById('p-design-json').value = ""; // Clear JSON box
-        document.getElementById('p-images').value = "";
-        document.getElementById('add-preview').innerHTML = "";
-    }).catch((error) => {
-        statusText.textContent = "Error: " + error.message;
-    });
-}
-
-        /* --- 2. LIST PRODUCTS --- */
         function loadProducts() {
             const container = document.getElementById('products-list-container');
             container.innerHTML = "<p style='color:#666;'>Loading inventory...</p>";
             
-            // Assign unsubscribe to variable so we can stop it on logout
             unsubscribeProducts = db.collection("products").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
                 container.innerHTML = "";
                 allProductsCache = {}; 
@@ -556,7 +546,7 @@ async function uploadProduct() {
             }
         }
 
-        /* --- 3. EDIT PRODUCT --- */
+        /* --- EDIT PRODUCT --- */
         function openEditModal(key) {
             const product = allProductsCache[key];
             if(!product) return;
@@ -567,6 +557,7 @@ async function uploadProduct() {
             document.getElementById('edit-price').value = product.price || "";
             document.getElementById('edit-type').value = product.type || "card";
             document.getElementById('edit-category').value = product.category || "custom";
+            document.getElementById('edit-design-json').value = product.designTemplate || ""; // Load existing JSON
             
             tempEditImages = product.images ? [...product.images] : [];
             renderEditImages();
@@ -628,6 +619,7 @@ async function uploadProduct() {
                 type: document.getElementById('edit-type').value,
                 category: document.getElementById('edit-category').value,
                 images: tempEditImages,
+                designTemplate: document.getElementById('edit-design-json').value, // Save JSON
                 updatedAt: new Date().toISOString()
             };
 
@@ -637,7 +629,7 @@ async function uploadProduct() {
             });
         }
 
-        /* --- 4. COUPONS --- */
+        /* --- COUPONS & ORDERS --- */
         function createCoupon() {
             const code = document.getElementById('c-code').value.toUpperCase().trim();
             const type = document.getElementById('c-type').value;
@@ -669,28 +661,22 @@ async function uploadProduct() {
         }
         
         function deleteCoupon(id) {
-            if(confirm("Delete coupon?")) {
-                db.collection("coupons").doc(id).delete();
-            }
+            if(confirm("Delete coupon?")) db.collection("coupons").doc(id).delete();
         }
 
-        /* --- 5. ORDERS --- */
         function loadOrders() {
             const tbody = document.getElementById('orders-table-body');
             unsubscribeOrders = db.collection("orders").orderBy("date", "desc").limit(20).onSnapshot((snap) => {
                 tbody.innerHTML = "";
                 snap.forEach((doc) => {
                     const o = doc.data();
-                    const customerName = o.shipping ? o.shipping.first : 'Guest';
-                    const email = o.email || 'No Email';
+                    const customerName = o.customer ? (o.customer['f-name'] || o.shipping.first) : 'Guest';
+                    const email = o.customer ? o.customer.email : (o.email || 'No Email');
                     const itemCount = o.items ? o.items.length : 0;
                     
                     let statusClass = 'status-paid';
-                    let statusText = 'PAID';
-                    if (o.paymentMethod === 'cod') {
-                        statusClass = 'status-cod';
-                        statusText = 'PENDING (COD)';
-                    }
+                    let statusText = o.status || 'PAID';
+                    if (o.method === 'cod') { statusClass = 'status-cod'; statusText = 'PENDING (COD)'; }
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `

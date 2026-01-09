@@ -6,6 +6,7 @@
     <title>The Collection | TAPD.</title>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
     <link rel="stylesheet" href="shop.css">
 </head>
 <body>
@@ -17,6 +18,12 @@
         <a href="index.html" class="logo">TAPD<span>.</span></a>
         <div class="nav-right">
             <a href="customize.html" class="nav-link">Create</a>
+            <a href="track.html" class="nav-icon" title="Track Order">
+                <i class="fa-solid fa-truck-fast"></i>
+            </a>
+            <div class="nav-icon" onclick="toggleAccount()">
+                <i class="fa-regular fa-user"></i>
+            </div>
             <div class="cart-trigger" onclick="toggleCart()">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <span id="cart-count">0</span>
@@ -56,6 +63,7 @@
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
             <input type="text" id="shop-search" placeholder="Find your vibe..." onkeyup="searchProducts()">
         </div>
+
         <div class="filter-container">
             <button class="filter-btn active" onclick="filterProducts('all', this)">All</button>
             <button class="filter-btn" onclick="filterProducts('card', this)">Cards</button>
@@ -88,6 +96,14 @@
         </div>
     </section>
 
+    <div class="drawer" id="account-drawer">
+        <div class="drawer-header">
+            <h2>My Legacy</h2>
+            <button class="close-btn" onclick="toggleAccount()">×</button>
+        </div>
+        <div class="drawer-content" id="account-content"></div>
+    </div>
+
     <div class="drawer" id="cart-drawer">
         <div class="drawer-header">
             <h2>Your Bag</h2>
@@ -95,15 +111,53 @@
         </div>
         <div class="cart-items" id="cart-items-container"></div>
         <div class="cart-footer">
-            <div class="summary-row total"><span>Total</span><span id="cart-total">₹0</span></div>
-            <button class="checkout-btn" onclick="window.location.href='checkout.html'">CHECKOUT</button>
+            <div class="coupon-wrapper">
+                <input type="text" id="coupon-code" class="coupon-input" placeholder="Promo Code">
+                <button class="coupon-btn" onclick="applyCoupon()">APPLY</button>
+            </div>
+            <div class="summary-row"><span>Subtotal</span><span class="val" id="cart-subtotal">₹0</span></div>
+            <div class="summary-row total"><span>Total</span><span class="val" id="cart-total">₹0</span></div>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">CHECKOUT <i class="fa-solid fa-arrow-right"></i></button>
         </div>
     </div>
-    
-    <div class="cart-overlay" onclick="toggleCart()"></div>
+
+    <div class="auth-modal" id="auth-modal">
+        <h2 style="color:white; font-family:'Syncopate'; margin-bottom:20px;">Access Legacy</h2>
+        <button class="auth-btn-google" onclick="loginWithGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Continue with Google
+        </button>
+        <div class="auth-divider">OR</div>
+        <input type="email" id="auth-email" class="auth-input" placeholder="Email Address">
+        <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
+        <button class="auth-btn-submit" onclick="signupEmail()">Enter</button>
+        <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer; font-size:0.8rem;">Close</button>
+    </div>
+
+    <div class="cart-overlay" onclick="closeAllDrawers()"></div>
 
     <footer class="TAPD-footer">
-        <div class="footer-bottom"><p>&copy; 2026 TAPD. Hardware.</p></div>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h2 class="footer-logo">TAPD.</h2>
+                <p class="footer-tagline">The future of connection.</p>
+            </div>
+            <div class="footer-links-group">
+                <ul class="footer-nav">
+                    <li><span class="nav-head">Explore</span></li>
+                    <li><a href="shop.html">Shop</a></li>
+                    <li><a href="customize.html">Customize</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                </ul>
+                <ul class="footer-nav">
+                    <li><span class="nav-head">Connect</span></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="#">Instagram ↗</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 TAPD. Hardware.</p>
+        </div>
     </footer>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -113,12 +167,21 @@
     
     <script>
         // Init Animation Observer
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if(entry.isIntersecting) entry.target.classList.add('active');
-            });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            // Watch existing and future elements
+            const observeElements = () => {
+                document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+            }
+            setInterval(observeElements, 1000); 
+        });
     </script>
 </body>
 </html>

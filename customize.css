@@ -242,3 +242,52 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cur
     .studio-stage { height: 50vh; }
     .studio-controls { width: 100%; max-width: none; border-left: none; border-top: 1px solid var(--border); padding: 30px 20px; }
 }
+/* --- REALISTIC KEYCHAIN HOLE & RING --- */
+
+/* 1. The Hole (Visual Cutout) */
+.hw-hole {
+    position: absolute;
+    top: 12px; /* Position from top edge */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 18px;
+    
+    /* Dark background simulates empty space */
+    background-color: #050505; 
+    border-radius: 50%;
+    
+    /* Inner shadow makes it look like a hole going IN */
+    box-shadow: 
+        inset 2px 2px 4px rgba(0,0,0,0.9), 
+        inset -1px -1px 2px rgba(255,255,255,0.1),
+        0 1px 0 rgba(255,255,255,0.1); /* Tiny highlight rim */
+        
+    z-index: 20; /* Sits on top of the canvas */
+    pointer-events: none; /* Ignore clicks */
+}
+
+/* 2. The Metal Ring (Silver Hoop) */
+.hw-ring {
+    position: absolute;
+    top: -15px; /* Floats above the tag */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 35px;
+    height: 35px;
+    
+    /* Silver Metal Look */
+    border: 4px solid #C0C0C0; 
+    border-radius: 50%;
+    
+    /* Metallic Gradient Simulation via Shadows */
+    box-shadow: 
+        inset 2px 2px 2px rgba(0,0,0,0.4),
+        2px 2px 5px rgba(0,0,0,0.5);
+        
+    /* Cut the bottom of the ring so it looks like it goes "through" the hole */
+    clip-path: polygon(0 0, 100% 0, 100% 65%, 0 65%);
+    
+    z-index: 10;
+    pointer-events: none;
+}

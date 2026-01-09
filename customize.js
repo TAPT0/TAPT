@@ -314,6 +314,31 @@ function autoDetectColor() {
     if (!state.imageLoaded) return;
     
     const canvas = document.createElement('canvas');
+   /* --- STEP 3: LOAD TEMPLATE FROM URL --- */
+    // Paste this AFTER you define 'const canvas = ...'
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const templateId = urlParams.get('template');
+
+    if (templateId) {
+        console.log("Loading Template ID:", templateId);
+        const db = firebase.firestore();
+        
+        db.collection("products").doc(templateId).get().then((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.designTemplate) {
+                    // Load the design onto the canvas
+                    canvas.loadFromJSON(data.designTemplate, function() {
+                        canvas.renderAll();
+                        console.log("Template loaded successfully");
+                    });
+                }
+            }
+        }).catch((error) => {
+            console.error("Error loading template:", error);
+        });
+    }
     const ctx = canvas.getContext('2d');
     canvas.width = imgLayer.naturalWidth;
     canvas.height = imgLayer.naturalHeight;

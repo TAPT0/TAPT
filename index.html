@@ -131,7 +131,7 @@
         }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- MARQUEE STRIP --- */
+        /* --- NEW: MARQUEE STRIP --- */
         .marquee-strip {
             width: 100%; background: var(--gold); color: black; padding: 15px 0; overflow: hidden; white-space: nowrap;
             font-family: 'Syncopate', sans-serif; font-weight: 800; font-size: 1rem; transform: rotate(-1deg);
@@ -176,7 +176,39 @@
         .step-title { font-size: 1.2rem; margin-bottom: 10px; font-weight: 700; }
         .step-desc { color: #888; font-size: 0.9rem; line-height: 1.6; }
 
-        /* --- SOFTWARE DEMO (THE PORTAL) --- */
+        /* --- LIFESTYLE PARALLAX --- */
+        .lifestyle-section {
+            height: 600px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1974&auto=format&fit=crop');
+            background-attachment: fixed; background-size: cover; background-position: center;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            padding: 0 20px; position: relative;
+        }
+        .lifestyle-content { max-width: 600px; z-index: 2; }
+        .lifestyle-title { font-family: 'Syncopate'; font-size: 2.5rem; margin-bottom: 20px; }
+        .lifestyle-btn {
+            display: inline-block; background: transparent; color: white; border: 1px solid white;
+            padding: 15px 40px; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem;
+            transition: 0.3s; margin-top: 20px; cursor: pointer; text-decoration: none;
+        }
+        .lifestyle-btn:hover { background: white; color: black; }
+
+        /* --- NEW: WHO IS IT FOR (Personas) --- */
+        .personas-section { padding: 100px 5%; position: relative; }
+        .persona-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px;
+            max-width: 1200px; margin: 0 auto;
+        }
+        .persona-card {
+            background: var(--glass); border: 1px solid var(--border); padding: 40px; border-radius: 20px;
+            transition: 0.3s; position: relative; overflow: hidden; opacity: 0; transform: translateY(30px);
+        }
+        .persona-card:hover { transform: scale(1.02); border-color: var(--gold); background: rgba(212,175,55,0.03); }
+        .persona-icon { font-size: 2.5rem; color: white; margin-bottom: 20px; }
+        .persona-title { font-family: 'Syncopate'; font-size: 1.2rem; margin-bottom: 10px; color: var(--gold); }
+        .persona-desc { color: #888; font-size: 0.9rem; line-height: 1.6; }
+
+        /* --- NEW: THE PORTAL (Software Teaser) --- */
         .software-section {
             padding: 100px 5%; background: linear-gradient(to bottom, #000, #0a0a0a);
             display: flex; flex-direction: column; align-items: center; text-align: center;
@@ -194,13 +226,10 @@
             width: 100%; height: 100%; padding: 40px 20px; box-sizing: border-box;
             background: radial-gradient(circle at top, #222, #000);
         }
-        /* UI Elements inside Phone */
         .ui-avatar { width: 80px; height: 80px; border-radius: 50%; background: #333; margin: 20px auto; border: 2px solid var(--gold); }
-        .ui-bar { height: 15px; background: #222; border-radius: 10px; margin-bottom: 10px; }
         .ui-btn { height: 40px; background: #111; border: 1px solid #333; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; padding: 0 15px; gap: 10px; font-size: 0.7rem; color: #666; }
         .ui-btn.active { border-color: var(--gold); color: white; background: rgba(212,175,55,0.1); }
         
-        /* Scan Line Animation */
         .scan-line {
             position: absolute; top: 0; left: 0; width: 100%; height: 2px;
             background: var(--gold); box-shadow: 0 0 10px var(--gold);
@@ -208,29 +237,14 @@
         }
         @keyframes scanUI { 0% { top: 0; } 100% { top: 100%; } }
 
-        /* --- WHO IS THIS FOR (Use Cases) --- */
-        .personas-section { padding: 100px 5%; position: relative; }
-        .persona-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px;
-            max-width: 1200px; margin: 0 auto;
-        }
-        .persona-card {
-            background: var(--glass); border: 1px solid var(--border); padding: 40px; border-radius: 20px;
-            transition: 0.3s; position: relative; overflow: hidden; opacity: 0; transform: translateY(30px);
-        }
-        .persona-card:hover { transform: scale(1.02); border-color: var(--gold); background: rgba(212,175,55,0.03); }
-        .persona-icon { font-size: 2.5rem; color: white; margin-bottom: 20px; }
-        .persona-title { font-family: 'Syncopate'; font-size: 1.2rem; margin-bottom: 10px; color: var(--gold); }
-        .persona-desc { color: #888; font-size: 0.9rem; line-height: 1.6; }
-
-        /* --- THE IMPACT (Eco) --- */
+        /* --- NEW: THE IMPACT --- */
         .impact-section {
             padding: 80px 5%; text-align: center; border-top: 1px solid var(--border); background: #030303;
         }
         .impact-icon { font-size: 4rem; color: #4CAF50; margin-bottom: 20px; text-shadow: 0 0 30px rgba(76, 175, 80, 0.3); }
         .impact-stat { font-family: 'Syncopate'; font-size: 3rem; color: white; font-weight: 700; margin-bottom: 10px; }
 
-        /* --- FORM FACTOR --- */
+        /* --- SHOWCASE --- */
         .info-section { padding: 100px 5%; position: relative; }
         .section-header { text-align: center; margin-bottom: 60px; }
         .section-title { font-family: 'Syncopate'; font-size: 2.2rem; color: var(--gold); margin-bottom: 10px; }
@@ -357,6 +371,16 @@
         </div>
     </section>
 
+    <section class="lifestyle-section">
+        <div class="lifestyle-content reveal">
+            <div class="lifestyle-title">NETWORK WITH <br><span style="color:var(--gold)">AUTHORITY</span></div>
+            <p style="color:#ddd; margin-bottom:30px;">
+                Walk into a room and own it. The TAPD card is a statement piece that says you are ahead of the curve.
+            </p>
+            <a href="shop.html" class="lifestyle-btn">Upgrade Your Network</a>
+        </div>
+    </section>
+
     <section class="personas-section">
         <div class="section-header">
             <h2 class="section-title">For The <span style="color:var(--gold)">Bold</span></h2>
@@ -392,7 +416,7 @@
             <div class="scan-line"></div>
             <div class="phone-screen">
                 <div class="ui-avatar"></div>
-                <div style="font-family:'Syncopate'; margin-bottom:5px;">HASNAIN LORI</div>
+                <div style="font-family:'Syncopate'; margin-bottom:5px;">AAHIL</div>
                 <div style="font-size:0.8rem; color:#666; margin-bottom:30px;">CEO @ TAPD</div>
                 
                 <div class="ui-btn active"><i class="fa-brands fa-instagram"></i> Instagram</div>

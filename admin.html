@@ -109,21 +109,15 @@
         <div class="content-area">
             
             <div id="orders" class="section active">
-                <h2>Recent Orders</h2>
-                <div id="orders-list">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Items</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="orders-table-body">
-                            </tbody>
-                    </table>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin:0; border:none;">Incoming Orders</h2>
+                    <button onclick="loadOrders()" style="background: #333; color: white; padding: 8px 15px; border: none; cursor: pointer; border-radius: 4px;">
+                        <i class="fa-solid fa-rotate"></i> Refresh
+                    </button>
+                </div>
+                
+                <div id="orders-list-container" style="display: flex; flex-direction: column; gap: 20px;">
+                    <p style="color: #666;">Loading orders...</p>
                 </div>
             </div>
 
@@ -197,7 +191,7 @@
 
                 <h3>Current Inventory</h3>
                 <div id="products-list-container">
-                    </div>
+                </div>
             </div>
 
             <div id="coupons" class="section">
@@ -213,7 +207,7 @@
                                 </tr>
                             </thead>
                             <tbody id="coupons-body">
-                                </tbody>
+                            </tbody>
                         </table>
                     </div>
 
@@ -390,7 +384,7 @@
 
         function loadAllData() {
             loadProducts();
-            loadOrders();
+            loadOrders(); // UPDATED FUNCTION BELOW
             loadCoupons();
         }
 
@@ -557,7 +551,7 @@
             document.getElementById('edit-price').value = product.price || "";
             document.getElementById('edit-type').value = product.type || "card";
             document.getElementById('edit-category').value = product.category || "custom";
-            document.getElementById('edit-design-json').value = product.designTemplate || ""; // Load existing JSON
+            document.getElementById('edit-design-json').value = product.designTemplate || ""; 
             
             tempEditImages = product.images ? [...product.images] : [];
             renderEditImages();
@@ -619,7 +613,7 @@
                 type: document.getElementById('edit-type').value,
                 category: document.getElementById('edit-category').value,
                 images: tempEditImages,
-                designTemplate: document.getElementById('edit-design-json').value, // Save JSON
+                designTemplate: document.getElementById('edit-design-json').value, 
                 updatedAt: new Date().toISOString()
             };
 
@@ -629,7 +623,7 @@
             });
         }
 
-        /* --- COUPONS & ORDERS --- */
+        /* --- COUPONS --- */
         function createCoupon() {
             const code = document.getElementById('c-code').value.toUpperCase().trim();
             const type = document.getElementById('c-type').value;
@@ -664,32 +658,92 @@
             if(confirm("Delete coupon?")) db.collection("coupons").doc(id).delete();
         }
 
+        /* --- ORDERS (UPDATED FOR DESIGN DOWNLOADS) --- */
         function loadOrders() {
-            const tbody = document.getElementById('orders-table-body');
-            unsubscribeOrders = db.collection("orders").orderBy("date", "desc").limit(20).onSnapshot((snap) => {
-                tbody.innerHTML = "";
-                snap.forEach((doc) => {
-                    const o = doc.data();
-                    const customerName = o.customer ? (o.customer['f-name'] || o.shipping.first) : 'Guest';
-                    const email = o.customer ? o.customer.email : (o.email || 'No Email');
-                    const itemCount = o.items ? o.items.length : 0;
-                    
-                    let statusClass = 'status-paid';
-                    let statusText = o.status || 'PAID';
-                    if (o.method === 'cod') { statusClass = 'status-cod'; statusText = 'PENDING (COD)'; }
+            const container = document.getElementById('orders-list-container');
+            container.innerHTML = '<p style="color:var(--gold);">Loading orders...</p>';
 
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td style="font-family:monospace; color:#888;">#${doc.id.substring(0,6).toUpperCase()}</td>
-                        <td>
-                            <div style="color:white; font-weight:bold;">${customerName}</div>
-                            <div style="color:#666; font-size:0.8rem;">${email}</div>
-                        </td>
-                        <td>${itemCount} Items</td>
-                        <td style="color:var(--gold); font-weight:bold;">${o.total}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+            unsubscribeOrders = db.collection("orders").orderBy("date", "desc").limit(20).onSnapshot((snapshot) => {
+                container.innerHTML = "";
+                
+                if (snapshot.empty) {
+                    container.innerHTML = "<p>No orders found.</p>";
+                    return;
+                }
+
+                snapshot.forEach((doc) => {
+                    const order = doc.data();
+                    const orderId = doc.id;
+                    const customerName = order.customer ? (order.customer['f-name'] || order.shipping.first) : 'Guest';
+                    
+                    // Generate Items HTML with Download Button for custom designs
+                    let itemsHtml = "";
+                    order.items.forEach(item => {
+                        let downloadBtn = '';
+                        // If item has a long base64 image (likely a custom design), add download button
+                        if (item.img && item.img.startsWith('data:image')) {
+                            downloadBtn = `
+                                <a href="${item.img}" download="Design_${orderId}_${item.name.replace(/\s+/g, '_')}.png" 
+                                   style="display:flex; align-items:center; gap:5px; background:var(--gold); color:black; padding:8px 12px; text-decoration:none; font-weight:bold; font-size:0.75rem; border-radius:4px; margin-left:auto;">
+                                   <i class="fa-solid fa-download"></i> DOWNLOAD DESIGN
+                                </a>
+                            `;
+                        }
+
+                        itemsHtml += `
+                            <div style="display:flex; gap:15px; margin-top:10px; background:#111; padding:10px; border-radius:6px; align-items:center; border:1px solid #333;">
+                                <img src="${item.img}" style="width:60px; height:60px; object-fit:contain; background:#222; border-radius:4px; border:1px solid #444;">
+                                <div style="flex:1;">
+                                    <div style="color:white; font-weight:bold; font-size:0.9rem;">${item.name}</div>
+                                    <div style="color:#888; font-size:0.8rem;">Qty: ${item.qty} | ₹${item.price}</div>
+                                </div>
+                                ${downloadBtn}
+                            </div>
+                        `;
+                    });
+
+                    // Build Order Card
+                    const orderCard = `
+                        <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #333;">
+                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:15px;">
+                                <div>
+                                    <span style="color:var(--gold); font-weight:bold; font-family:monospace; font-size:1.1rem;">#${orderId.substring(0,8).toUpperCase()}</span>
+                                    <span style="display:block; font-size:0.75rem; color:#666;">${new Date(order.date).toLocaleString()}</span>
+                                </div>
+                                <div style="text-align:right;">
+                                    <span style="background:${order.method==='cod'?'rgba(255,165,0,0.1)':'rgba(0,255,0,0.1)'}; color:${order.method==='cod'?'orange':'#00ff88'}; padding:4px 8px; border-radius:4px; font-size:0.75rem; border:1px solid ${order.method==='cod'?'rgba(255,165,0,0.3)':'rgba(0,255,0,0.3)'}; font-weight:bold;">
+                                        ${order.status || (order.method==='cod'?'PENDING (COD)':'PAID')}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; font-size:0.85rem; color:#ccc; margin-bottom:15px;">
+                                <div>
+                                    <strong style="color:white; text-transform:uppercase; font-size:0.75rem;">Customer</strong><br>
+                                    ${order.customer['f-name']} ${order.customer['l-name']}<br>
+                                    ${order.customer.phone}<br>
+                                    ${order.customer.email}
+                                </div>
+                                <div>
+                                    <strong style="color:white; text-transform:uppercase; font-size:0.75rem;">Shipping Address</strong><br>
+                                    ${order.customer.address}<br>
+                                    ${order.customer.city}, ${order.customer.state} - ${order.customer.zip}
+                                </div>
+                            </div>
+
+                            <div style="background:#050505; padding:15px; border-radius:6px; border:1px solid #222;">
+                                <strong style="color:#666; font-size:0.7rem; text-transform:uppercase; display:block; margin-bottom:5px;">Order Items</strong>
+                                ${itemsHtml}
+                            </div>
+
+                            <div style="margin-top:15px; display:flex; justify-content:flex-end; align-items:center; gap:10px; font-size:1.1rem; color:white;">
+                                <span>Total:</span>
+                                <span style="color:var(--gold); font-weight:bold;">₹${order.total}</span> 
+                                <span style="font-size:0.75rem; background:#333; padding:2px 6px; border-radius:4px; color:#aaa; text-transform:uppercase;">${order.method}</span>
+                            </div>
+                        </div>
                     `;
-                    tbody.appendChild(tr);
+                    container.innerHTML += orderCard;
                 });
             });
         }

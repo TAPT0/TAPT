@@ -1,5 +1,5 @@
 /* =========================================
-   1. FIREBASE CONFIGURATION & SETUP
+   1. FIREBASE CONFIGURATION
    ========================================= */
 const firebaseConfig = {
     apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
@@ -12,7 +12,6 @@ const firebaseConfig = {
     measurementId: "G-2CB8QXYNJY"
 };
 
-// Initialize Firebase only once
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
@@ -20,8 +19,6 @@ if (!firebase.apps.length) {
 const store = firebase.firestore();
 const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
-
-// State Variables
 let products = [];
 let appliedDiscount = 0;
 
@@ -33,14 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartCount();
     initAuthListener();
     
-    // Scroll Reveal Animation Observer
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(e => { 
             if(e.isIntersecting) e.target.classList.add('active'); 
         });
     }, { threshold: 0.1 });
     
-    // Attach observer to elements
     setInterval(() => { 
         document.querySelectorAll('.reveal, .reveal-row').forEach(el => observer.observe(el)); 
     }, 500);
@@ -51,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
    ========================================= */
 function fetchProducts() {
     const grid = document.getElementById('shop-grid');
-    if(grid) grid.innerHTML = '<div class="loading-text" style="width:100%; text-align:center; color:#666; margin-top:50px;">Loading Legacy...</div>';
+    if(grid) grid.innerHTML = '<div class="loading-text" style="width:100%; text-align:center; color:#666;">Loading Legacy...</div>';
 
     store.collection('products').get().then((snap) => {
         products = []; 
@@ -60,8 +55,6 @@ function fetchProducts() {
         snap.forEach((doc) => {
             let data = doc.data();
             let pImage = '';
-            
-            // Handle different image formats from database
             if (data.images && data.images.length > 0) pImage = data.images[0];
             else if (data.image) pImage = data.image;
 
@@ -78,7 +71,7 @@ function fetchProducts() {
         renderShop();
     }).catch(err => {
         console.error(err);
-        if(grid) grid.innerHTML = "<p style='text-align:center; color:red; margin-top:50px;'>Failed to load products. Please refresh.</p>";
+        if(grid) grid.innerHTML = "<p style='text-align:center; color:red;'>Failed to load products.</p>";
     });
 }
 
@@ -90,36 +83,21 @@ function renderShop(filter = 'all') {
     let visibleCount = 0;
 
     products.forEach(product => {
-        // Smart Detection: Check if it's a "Tag" or "Card" based on name or category
         let pType = 'card'; 
-        const lowerName = product.name.toLowerCase();
-        const lowerCat = product.category.toLowerCase();
-        
-        if (lowerName.includes('tag') || lowerCat.includes('tag') || lowerName.includes('coin')) {
+        if (product.name.toLowerCase().includes('tag') || product.category.toLowerCase().includes('tag')) {
             pType = 'tag';
         }
         
-        // Filter Logic
-        if (filter !== 'all') {
-            if (filter === 'tag' && pType !== 'tag') return;
-            if (filter === 'card' && pType !== 'card') return;
-        }
+        if (filter !== 'all' && pType !== filter) return;
 
         const reverseClass = visibleCount % 2 !== 0 ? 'reverse' : '';
         const row = document.createElement('div');
         row.className = `shop-row reveal-row ${reverseClass}`;
         
-        // --- 3D TWIN CONSTRUCTION ---
-        
-        // 1. Determine Shape CSS Class
         const shapeClass = pType === 'tag' ? 'shape-tag' : 'shape-card';
-        
-        // 2. Determine Background (Custom Image vs Standard Black)
-        // If image exists and isn't a placeholder, use it. Otherwise, use matte black.
         const hasCustomImage = product.image && !product.image.includes('placeholder') && product.image !== '';
-        const bgStyle = hasCustomImage ? `background-image: url('${product.image}');` : `background-color: #111;`;
+        const bgStyle = hasCustomImage ? `background-image: url('${product.image}');` : `background: #111;`;
 
-        // 3. Determine Branding (Only show Gold Chip/Logo if no custom image is used)
         let brandingHTML = '';
         if (!hasCustomImage) {
              brandingHTML = `
@@ -130,26 +108,23 @@ function renderShop(filter = 'all') {
              `;
         }
 
-        // --- UPDATED TWIN HTML (WITH FLIP) ---
+        // --- UPDATED HTML WITH FLIP STRUCTURE ---
         row.innerHTML = `
             <div class="row-image-box" onmousemove="tiltTwin(event, this)" onmouseleave="resetTwin(this)" onclick="flipCard(this)">
                 <div class="spotlight"></div>
                 <div class="digital-twin ${shapeClass}">
                     <div class="twin-inner">
-                        
                         <div class="twin-face twin-front">
                             <div class="twin-layer twin-base" style="${bgStyle}"></div>
                             <div class="twin-layer twin-texture"></div>
                             ${brandingHTML}
                             <div class="twin-layer twin-glare"></div>
                         </div>
-
                         <div class="twin-face twin-back">
                             <div class="twin-layer twin-texture"></div>
                             <i class="fa-solid fa-qrcode qr-placeholder"></i>
-                            <div class="serial-num">TAPD / NFC / ${product.id.substring(0,6).toUpperCase()}</div>
+                            <div class="serial-num">TAPD / ${product.id.substring(0,4).toUpperCase()}</div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -170,48 +145,42 @@ function renderShop(filter = 'all') {
         visibleCount++;
     });
 }
+
+/* =========================================
+   4. INTERACTION (TILT & FLIP)
+   ========================================= */
+function tiltTwin(e, container) {
+    const card = container.querySelector('.digital-twin');
+    const glare = container.querySelector('.twin-glare');
+    const box = container.getBoundingClientRect();
+    const x = e.clientX - box.left - box.width / 2;
+    const y = e.clientY - box.top - box.height / 2;
+    
+    // Tilt
+    const rotateX = -y / 20; 
+    const rotateY = x / 20;
+    
+    // Apply to main container
+    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+    if(glare) {
+        glare.style.transform = `translate(${x}px, ${y}px)`;
+        glare.style.opacity = '0.8';
+    }
+}
+
+function resetTwin(container) {
+    const card = container.querySelector('.digital-twin');
+    const glare = container.querySelector('.twin-glare');
+    card.style.transform = `rotateX(0) rotateY(0) scale(1)`;
+    if(glare) glare.style.opacity = '0';
+}
+
 function flipCard(container) {
     // Find the inner wrapper inside the clicked container
     const inner = container.querySelector('.twin-inner');
     if (inner) {
         inner.classList.toggle('flipped');
     }
-}
-
-/* =========================================
-   4. 3D TILT ENGINE (The Premium Feel)
-   ========================================= */
-function tiltTwin(e, container) {
-    const card = container.querySelector('.digital-twin');
-    const glare = container.querySelector('.twin-glare');
-    
-    // Get dimensions of the container
-    const box = container.getBoundingClientRect();
-    
-    // Calculate mouse position relative to center of the box
-    const x = e.clientX - box.left - box.width / 2;
-    const y = e.clientY - box.top - box.height / 2;
-    
-    // Physics: Divide by 20 for a "heavy", premium feel.
-    // Negative Y for RotateX gives natural tilt.
-    const rotateX = -y / 20; 
-    const rotateY = x / 20;
-    
-    // Apply Transform
-    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
-    
-    // Move Glare (Opposite direction for realistic reflection)
-    glare.style.transform = `translate(${x}px, ${y}px)`;
-    glare.style.opacity = '0.8';
-}
-
-function resetTwin(container) {
-    const card = container.querySelector('.digital-twin');
-    const glare = container.querySelector('.twin-glare');
-    
-    // Reset to flat state
-    card.style.transform = `rotateX(0) rotateY(0) scale(1)`;
-    glare.style.opacity = '0';
 }
 
 /* =========================================
@@ -227,7 +196,6 @@ function addToCart(id) {
     if(item) {
         item.qty++;
     } else {
-        // Fallback image if custom image is missing
         const cartImg = (product.image && product.image !== '') ? product.image : 'https://via.placeholder.com/80?text=TAPD';
         cart.push({ 
             id: product.id, 
@@ -241,7 +209,6 @@ function addToCart(id) {
     localStorage.setItem('TAPDCart', JSON.stringify(cart));
     updateCartCount();
     
-    // Open cart to show user
     const drawer = document.getElementById('cart-drawer');
     if(!drawer.classList.contains('open')) toggleCart(); 
     else renderCartItems();
@@ -268,7 +235,6 @@ function toggleCart() {
         renderCartItems(); 
         drawer.classList.add('open'); 
         overlay.style.display = 'block'; 
-        // Close other drawers
         document.getElementById('account-drawer').classList.remove('open');
     }
 }
@@ -311,7 +277,7 @@ function removeItem(idx) {
     cart.splice(idx, 1);
     localStorage.setItem('TAPDCart', JSON.stringify(cart));
     
-    if(cart.length === 0) appliedDiscount = 0; // Reset coupon if empty
+    if(cart.length === 0) appliedDiscount = 0; 
     
     renderCartItems();
     updateCartCount();
@@ -334,18 +300,16 @@ async function applyCoupon() {
 
             let subtotal = cart.reduce((a, c) => a + (c.price * c.qty), 0);
             
-            // Calculate Discount
             appliedDiscount = data.type === 'percentage' 
                 ? (subtotal * data.value) / 100 
                 : data.value;
             
             renderCartItems();
             
-            // Show Celebration
             document.getElementById('celebration-overlay').classList.add('active');
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             
-            codeInput.value = ""; // Clear input
+            codeInput.value = ""; 
         } else {
             alert("Invalid Coupon Code");
         }
@@ -367,7 +331,6 @@ function initAuthListener() {
         const icon = document.getElementById('user-icon-trigger');
         
         if (user) {
-            // User Logged In
             icon.classList.add('active');
             drawerContent.innerHTML = `
                 <div class="user-profile">
@@ -382,7 +345,6 @@ function initAuthListener() {
                 </div>
             `;
         } else {
-            // User Logged Out
             icon.classList.remove('active');
             drawerContent.innerHTML = `
                 <div style="padding:40px; text-align:center;">
@@ -418,14 +380,13 @@ function handleEmailAuth(e) {
 
 function logout() { 
     auth.signOut(); 
-    toggleAccount(); // Close drawer
+    toggleAccount(); 
 }
 
 function toggleAuthModal(forceState) {
     const modal = document.getElementById('auth-modal');
     const overlay = document.querySelector('.cart-overlay');
     
-    // Logic to toggle or force set state
     if (typeof forceState !== 'undefined') {
         modal.style.display = forceState ? 'block' : 'none';
         overlay.style.display = forceState ? 'block' : 'none';
@@ -463,16 +424,13 @@ function handleUserClick() {
 function toggleAccount() { handleUserClick(); }
 
 function viewProduct(id) { 
-    // Navigate to product details page
     window.location.href = `product.html?id=${id}`; 
 }
 
 function filterProducts(cat, btn) {
-    // Update active button state
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     
-    // Re-render items
     renderShop(cat);
 }
 
@@ -481,7 +439,6 @@ function searchProducts() {
     
     document.querySelectorAll('.shop-row').forEach(row => {
         const title = row.querySelector('.row-title').innerText.toLowerCase();
-        // Simple visibility toggle
         if (title.includes(term)) {
             row.style.display = 'flex';
         } else {

@@ -23,129 +23,95 @@ body { overflow-x: hidden; } /* Prevent scroll from large images */
 }
 
 .card-stage {
-    perspective: 1500px;
-    padding: 40px;
+    position: relative;
     z-index: 10;
+    /* This container holds the canvas + hardware */
 }
 
-/* --- THE PRODUCT MASK (Shape Logic) --- */
-.product-mask {
-    width: 340px;
-    height: 215px; /* Credit Card Ratio */
-    background: #000; /* PLAIN BLACK DEFAULT */
-    position: relative;
-    overflow: hidden; /* Clips user image */
+/* --- THE CANVAS WRAPPER (Handles Shape) --- */
+.canvas-wrapper {
     box-shadow: 0 30px 60px rgba(0,0,0,0.8);
     transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     border: 1px solid rgba(255,255,255,0.1);
-    transform-style: preserve-3d;
+    
+    /* CRITICAL: Centers the canvas & cuts the circle */
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    overflow: hidden !important; 
+    position: relative;
+    z-index: 1;
 }
 
-/* Mode Modifiers */
-.product-mask.mode-card { border-radius: 16px; }
-.product-mask.mode-tag {
-    width: 260px;
-    height: 260px;
-    border-radius: 50%;
-}
-
-/* --- LAYERS INSIDE CARD --- */
-
-/* 1. User Uploaded Image */
-.user-layer {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%; height: 100%;
-    object-fit: cover;
-    opacity: 0; /* Hidden until upload */
-    transition: opacity 0.3s;
-    pointer-events: none; /* Let clicks pass to stage for tilt */
-}
-.user-layer.active { opacity: 1; }
-
-/* 2. Text Canvas (Container for Draggable Text) */
-#text-canvas {
-    position: absolute; inset: 0;
-    z-index: 30; /* Above image */
-    overflow: hidden;
-}
-
-/* 3. Draggable Text Element */
-.draggable-text {
-    position: absolute;
-    cursor: move;
-    user-select: none;
-    white-space: nowrap;
-    line-height: 1;
-    font-weight: 700;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    border: 1px solid transparent; /* Invisible border normally */
-    padding: 5px;
-    transition: border 0.2s, background 0.2s;
-}
-
-/* Selected State (When clicked) */
-.draggable-text.selected {
-    border: 1px dashed var(--tapt-gold);
-    background: rgba(212, 175, 55, 0.15);
-}
-
-/* 4. Overlays & Hardware */
-.overlay-texture {
-    position: absolute; inset: 0;
-    background: linear-gradient(120deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 40%);
-    pointer-events: none;
-    z-index: 40;
-}
-
-/* Tag Specifics (Hidden on Card mode via JS logic usually, or CSS opacity) */
-.hw-hole {
-    position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
-    width: 18px; height: 18px;
-    background: #000; border: 2px solid #333;
-    border-radius: 50%; z-index: 50;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,1);
-    opacity: 0; transition: 0.3s;
-}
-.hw-ring {
-    position: absolute; top: -35px; left: 50%; transform: translateX(-50%);
-    width: 40px; height: 60px;
-    border: 4px solid #555; border-radius: 20px;
-    z-index: 5; opacity: 0; transition: 0.3s;
-}
-
-.mode-tag .hw-hole, .mode-tag .hw-ring { opacity: 1; }
-
-/* Placeholder Message */
-.placeholder-msg {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    text-align: center; color: #444; z-index: 5;
-    display: flex; flex-direction: column; align-items: center; gap: 10px;
-    pointer-events: none;
-}
-.placeholder-msg i { font-size: 2rem; }
-
+/* Instructions below stage */
 .stage-instructions {
     margin-top: 20px; color: #666; font-size: 0.8rem;
     display: flex; gap: 10px; align-items: center;
+    z-index: 5;
 }
 
 /* =========================================
-   2. RIGHT SIDE: CONTROLS
+   2. REALISTIC HARDWARE (HOLE & RING)
+   ========================================= */
+
+/* The Black Hole Cutout */
+.hw-hole {
+    position: absolute;
+    top: 15px; /* Adjust distance from top */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    
+    /* Matches background to look transparent */
+    background-color: #1a1a1a; 
+    border-radius: 50%;
+    
+    /* Inner shadow creates depth */
+    box-shadow: inset 1px 1px 4px rgba(0,0,0,0.9);
+    
+    z-index: 999; /* Sits ON TOP of canvas */
+    pointer-events: none; /* Click-through */
+    display: none; /* JS toggles this */
+}
+
+/* The Silver Metal Ring */
+.hw-ring {
+    position: absolute;
+    top: -12px; /* Sticks out top */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 35px;
+    height: 35px;
+    
+    /* Silver Metal styling */
+    border: 4px solid #C0C0C0; 
+    border-radius: 50%;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+    
+    /* Clips the bottom to look attached */
+    clip-path: polygon(0 0, 100% 0, 100% 60%, 0 60%);
+    
+    z-index: 998; /* Below hole visual */
+    pointer-events: none;
+    display: none; /* JS toggles this */
+}
+
+/* =========================================
+   3. RIGHT SIDE: CONTROLS
    ========================================= */
 .studio-controls {
     flex: 1;
     background: rgba(10, 10, 10, 0.95);
-    border-left: 1px solid var(--border);
+    border-left: 1px solid rgba(255,255,255,0.1);
     padding: 40px;
     overflow-y: auto;
     max-width: 500px;
 }
 
-.studio-title { font-family: 'Syncopate', sans-serif; font-size: 1.8rem; margin-bottom: 5px; }
+.studio-title { font-family: 'Syncopate', sans-serif; font-size: 1.8rem; margin-bottom: 5px; color: white; }
 .control-group { margin-bottom: 30px; }
-.control-group label { display: block; color: var(--tapt-gold); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; font-weight: 700; }
+.control-group label { display: block; color: #D4AF37; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; font-weight: 700; }
 
 /* Toggle Switch (Card/Tag) */
 .toggle-switch {
@@ -155,7 +121,7 @@ body { overflow-x: hidden; } /* Prevent scroll from large images */
     flex: 1; background: transparent; color: #888; border: none; padding: 12px;
     border-radius: 6px; cursor: pointer; transition: 0.3s; font-weight: 600;
 }
-.toggle-btn.active { background: var(--tapt-gold); color: black; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+.toggle-btn.active { background: #D4AF37; color: black; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
 /* File Upload Button */
 input[type="file"] { display: none; }
@@ -165,30 +131,20 @@ input[type="file"] { display: none; }
     padding: 15px 20px; border-radius: 8px; cursor: pointer;
     transition: 0.3s; color: white; font-size: 0.9rem;
 }
-.upload-trigger:hover { border-color: var(--tapt-gold); background: rgba(212, 175, 55, 0.05); }
+.upload-trigger:hover { border-color: #D4AF37; background: rgba(212, 175, 55, 0.05); }
 
 /* Dividers */
 .divider { display: flex; align-items: center; margin: 30px 0; color: #444; font-size: 0.7rem; letter-spacing: 1px; }
 .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #222; }
 .divider span { padding: 0 10px; }
 
-/* --- INPUTS & SLIDERS --- */
-.input-group input { width: 100%; background: #222; border: 1px solid #444; padding: 12px; color: white; border-radius: 6px; outline: none; }
-.input-group input:focus { border-color: var(--tapt-gold); }
-
-/* Custom Font Select */
-.tapt-select {
-    width: 100%; background: #222; border: 1px solid #444; color: white;
-    padding: 10px; border-radius: 6px; outline: none; cursor: pointer;
+/* Inputs & Selects */
+.TAPD-input, .TAPD-select { 
+    width: 100%; background: #222; border: 1px solid #444; 
+    padding: 12px; color: white; border-radius: 6px; outline: none; 
+    box-sizing: border-box;
 }
-
-/* Color Picker */
-input[type="color"] {
-    -webkit-appearance: none; border: none; width: 100%; height: 40px;
-    cursor: pointer; background: none; padding: 0;
-}
-input[type="color"]::-webkit-color-swatch { border: 1px solid #444; border-radius: 6px; }
-input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.TAPD-input:focus, .TAPD-select:focus { border-color: #D4AF37; }
 
 /* Control Buttons */
 .add-text-btn {
@@ -196,7 +152,7 @@ input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
     padding: 12px; border-radius: 6px; cursor: pointer; transition: 0.2s;
     font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px;
 }
-.add-text-btn:hover { border-color: var(--tapt-gold); color: var(--tapt-gold); background: rgba(212, 175, 55, 0.05); }
+.add-text-btn:hover { border-color: #D4AF37; color: #D4AF37; background: rgba(212, 175, 55, 0.05); }
 
 .delete-text-btn {
     width: 100%; background: rgba(255, 85, 85, 0.1); color: #ff5555;
@@ -213,117 +169,27 @@ input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
 input[type=range] { width: 100%; -webkit-appearance: none; background: transparent; }
 input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
-    background: var(--tapt-gold); cursor: pointer; margin-top: -6px;
+    background: #D4AF37; cursor: pointer; margin-top: -6px;
     box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
 }
 input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #333; border-radius: 2px; }
 
-.reset-link {
-    background: none; border: none; color: #666; font-size: 0.8rem;
-    text-decoration: underline; cursor: pointer; width: 100%; text-align: center; margin-top: 10px;
-}
-.reset-link:hover { color: white; }
-
 /* Action Area (Bottom) */
-.action-area { margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--border); }
+.action-area { margin-top: 50px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); }
 .price-display { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .add-cart-btn {
-    width: 100%; background: var(--tapt-gold); color: black; border: none;
+    width: 100%; background: #D4AF37; color: black; border: none;
     padding: 18px; font-size: 1.1rem; font-weight: 800;
     text-transform: uppercase; letter-spacing: 1px;
     border-radius: 8px; cursor: pointer; transition: 0.3s;
     font-family: 'Syncopate', sans-serif;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
 }
-.add-cart-btn:hover { background: white; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2); }
+.add-cart-btn:hover { background: white; transform: translateY(-2px); box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); }
 
 /* Mobile Response */
 @media (max-width: 900px) {
-    .studio-container { flex-direction: column; }
-    .studio-stage { height: 50vh; }
-    .studio-controls { width: 100%; max-width: none; border-left: none; border-top: 1px solid var(--border); padding: 30px 20px; }
-}
-/* --- REALISTIC KEYCHAIN HOLE & RING --- */
-
-/* 1. The Hole (Visual Cutout) */
-.hw-hole {
-    position: absolute;
-    top: 12px; /* Position from top edge */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 18px;
-    height: 18px;
-    
-    /* Dark background simulates empty space */
-    background-color: #050505; 
-    border-radius: 50%;
-    
-    /* Inner shadow makes it look like a hole going IN */
-    box-shadow: 
-        inset 2px 2px 4px rgba(0,0,0,0.9), 
-        inset -1px -1px 2px rgba(255,255,255,0.1),
-        0 1px 0 rgba(255,255,255,0.1); /* Tiny highlight rim */
-        
-    z-index: 20; /* Sits on top of the canvas */
-    pointer-events: none; /* Ignore clicks */
-}
-
-/* 2. The Metal Ring (Silver Hoop) */
-.hw-ring {
-    position: absolute;
-    top: -15px; /* Floats above the tag */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 35px;
-    height: 35px;
-    
-    /* Silver Metal Look */
-    border: 4px solid #C0C0C0; 
-    border-radius: 50%;
-    
-    /* Metallic Gradient Simulation via Shadows */
-    box-shadow: 
-        inset 2px 2px 2px rgba(0,0,0,0.4),
-        2px 2px 5px rgba(0,0,0,0.5);
-        
-    /* Cut the bottom of the ring so it looks like it goes "through" the hole */
-    clip-path: polygon(0 0, 100% 0, 100% 65%, 0 65%);
-    
-    z-index: 10;
-    pointer-events: none;
-}
-/* --- FORCE HOLE & RING ON TOP --- */
-
-.card-stage {
-    position: relative; /* Essential for positioning the hole inside */
-}
-
-.hw-hole {
-    position: absolute;
-    top: 15px; /* Adjust distance from top edge */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 20px;
-    height: 20px;
-    background-color: #0a0a0a; /* Dark hole color matches bg */
-    border-radius: 50%;
-    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.8);
-    z-index: 999; /* Super high to sit on top of Canvas */
-    pointer-events: none; /* Let clicks pass through */
-    display: none; /* JS toggles this */
-}
-
-.hw-ring {
-    position: absolute;
-    top: -12px; /* Ring sticks out slightly above */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 35px;
-    height: 35px;
-    border: 4px solid #C0C0C0; /* Silver */
-    border-radius: 50%;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-    z-index: 998; /* Just below the hole cutout */
-    pointer-events: none;
-    clip-path: polygon(0 0, 100% 0, 100% 60%, 0 60%); /* Cut bottom */
-    display: none; /* JS toggles this */
+    .studio-container { flex-direction: column; padding-top: 60px; }
+    .studio-stage { min-height: 50vh; }
+    .studio-controls { width: 100%; max-width: none; border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding: 30px 20px; }
 }

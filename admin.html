@@ -6,8 +6,9 @@
     <title>TAPD. Admin | Firestore</title>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    
     <link rel="stylesheet" href="admin.css">
+    
+    <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
 </head>
 <body>
 
@@ -21,7 +22,6 @@
     </div>
 
     <div class="admin-container" style="display:none;" id="dashboard-ui">
-        
         <div class="sidebar">
             <div class="logo">TAPD.<span>.</span></div>
             <button class="nav-btn active" onclick="showSection('orders')"><i class="fa-solid fa-cart-shopping"></i> Orders</button>
@@ -31,7 +31,6 @@
         </div>
 
         <div class="content-area">
-            
             <div id="orders" class="section active">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="margin:0; border:none;">Incoming Orders</h2>
@@ -39,7 +38,6 @@
                         <i class="fa-solid fa-rotate"></i> Refresh
                     </button>
                 </div>
-                
                 <div id="orders-list-container" style="display: flex; flex-direction: column; gap: 20px;">
                     <p style="color: #666;">Loading orders...</p>
                 </div>
@@ -47,7 +45,6 @@
 
             <div id="products" class="section">
                 <h2>Manage Products</h2>
-                
                 <div style="background: #111; padding: 25px; border-radius: 10px; margin-bottom: 40px; border: 1px solid #222;">
                     <h3 style="margin-top:0;">Add New Product</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -89,19 +86,19 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Product Images</label>
-                        <input type="file" id="p-images" multiple accept="image/*" onchange="previewImages(this, 'add-preview')">
-                        <div class="img-preview-grid" id="add-preview"></div>
+                        <label>Product Image (High Quality via Cloudinary)</label>
+                        <button type="button" id="upload_widget" class="btn-gold" style="width:100%; border:1px dashed var(--gold); background:rgba(212,175,55,0.05);">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> UPLOAD IMAGE
+                        </button>
+                        <input type="hidden" id="p-image-url">
+                        <div id="add-preview" class="img-preview-grid" style="margin-top: 10px;"></div>
                     </div>
 
                     <div class="form-group" style="margin-top: 20px;">
                         <details style="background: #1a1a1a; padding: 15px; border-radius: 6px; border: 1px solid #333;">
                             <summary style="cursor: pointer; color: var(--gold); font-weight: bold; font-size: 0.9rem;">
-                                <i class="fa-solid fa-code"></i> Advanced: Editable Template JSON (Click to Open)
+                                <i class="fa-solid fa-code"></i> Advanced: Editable Template JSON
                             </summary>
-                            <p style="font-size: 0.8rem; color: #888; margin: 10px 0 5px;">
-                                Paste the Fabric.js JSON code here. When users click "Customize", this design will auto-load on their canvas.
-                            </p>
                             <textarea id="p-design-json" rows="6" placeholder='{"version":"5.3.0","objects":[...]}' 
                                       style="width:100%; font-family:monospace; font-size:0.8rem; background:#000; border:1px solid #444; color:#0f0; padding:10px;"></textarea>
                         </details>
@@ -114,8 +111,7 @@
                 </div>
 
                 <h3>Current Inventory</h3>
-                <div id="products-list-container">
-                </div>
+                <div id="products-list-container"></div>
             </div>
 
             <div id="coupons" class="section">
@@ -130,8 +126,7 @@
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody id="coupons-body">
-                            </tbody>
+                            <tbody id="coupons-body"></tbody>
                         </table>
                     </div>
 
@@ -156,7 +151,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -204,14 +198,12 @@
             </div>
 
             <div class="form-group">
-                <label>Current Images</label>
-                <div class="img-preview-grid" id="edit-current-images"></div>
-            </div>
-
-            <div class="form-group">
-                <label>Add New Images</label>
-                <input type="file" id="edit-new-images" multiple accept="image/*" onchange="previewImages(this, 'edit-new-preview')">
-                <div class="img-preview-grid" id="edit-new-preview"></div>
+                <label>Update Image</label>
+                <button type="button" id="edit_upload_widget" class="btn-gold" style="width:100%; border:1px dashed var(--gold); background:rgba(212,175,55,0.05);">
+                    <i class="fa-solid fa-image"></i> CHANGE IMAGE
+                </button>
+                <input type="hidden" id="edit-image-url">
+                <div id="edit-current-images" class="img-preview-grid" style="margin-top:10px;"></div>
             </div>
 
             <div class="form-group" style="margin-top: 20px;">
@@ -219,8 +211,7 @@
                     <summary style="cursor: pointer; color: var(--gold); font-weight: bold; font-size: 0.9rem;">
                         <i class="fa-solid fa-code"></i> Advanced: Editable Template JSON
                     </summary>
-                    <textarea id="edit-design-json" rows="6" placeholder='Paste new JSON code here to update design...' 
-                              style="width:100%; font-family:monospace; font-size:0.8rem; background:#000; border:1px solid #444; color:#0f0; padding:10px; margin-top:10px;"></textarea>
+                    <textarea id="edit-design-json" rows="6" style="width:100%; font-family:monospace; font-size:0.8rem; background:#000; border:1px solid #444; color:#0f0; padding:10px; margin-top:10px;"></textarea>
                 </details>
             </div>
 
@@ -233,7 +224,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    
     <script src="admin.js"></script>
 </body>
 </html>

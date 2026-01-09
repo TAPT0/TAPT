@@ -6,20 +6,307 @@
     <title>The Collection | TAPD.</title>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="shop.css">
+    
+    <style>
+        /* =========================================
+           CSS STYLES (COMBINED)
+           ========================================= */
+        :root {
+            --gold: #D4AF37;
+            --bg: #050505;
+            --card-bg: #0a0a0a;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #888888;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .noise-overlay {
+            position: fixed; inset: 0; pointer-events: none; z-index: 9999; opacity: 0.03;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+        }
+
+        .gold-glow-sphere {
+            position: fixed; top: 10%; left: 50%; transform: translateX(-50%);
+            width: 80vw; height: 80vw; background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 60%);
+            pointer-events: none; z-index: -1; animation: pulse 8s infinite ease-in-out;
+        }
+        @keyframes pulse { 50% { opacity: 0.8; transform: translateX(-50%) scale(1.1); } }
+
+        /* NAV */
+        nav {
+            padding: 1.5rem 5%; display: flex; justify-content: space-between; align-items: center;
+            position: fixed; width: 100%; top: 0; z-index: 100;
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border); background: rgba(5, 5, 5, 0.85); box-sizing: border-box;
+        }
+        .logo { font-family: 'Syncopate', sans-serif; font-weight: 700; font-size: 1.5rem; text-decoration: none; color: white; letter-spacing: -1px; }
+        .logo span { color: var(--gold); }
+        .nav-right { display: flex; align-items: center; gap: 25px; }
+        .nav-link { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-link:hover { color: white; }
+        .nav-icon { color: white; cursor: pointer; font-size: 1.1rem; transition: 0.3s; }
+        .nav-icon:hover { color: var(--gold); }
+        .cart-trigger { position: relative; cursor: pointer; }
+        .cart-trigger i { font-size: 1.2rem; transition: 0.3s; }
+        .cart-trigger:hover i { color: var(--gold); }
+        #cart-count {
+            position: absolute; top: -8px; right: -8px; background: var(--gold); color: black;
+            font-size: 0.7rem; width: 16px; height: 16px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+        }
+
+        /* 3D HERO CARD */
+        .shop-hero {
+            text-align: center; padding: 140px 20px 60px;
+            display: flex; flex-direction: column; align-items: center;
+            perspective: 1000px;
+        }
+        .hero-title {
+            font-family: 'Syncopate', sans-serif; font-size: 3rem; margin: 0; text-transform: uppercase; line-height: 1.1;
+            animation: fadeUp 1s ease forwards;
+        }
+        .gold-text { color: var(--gold); }
+        .hero-desc { color: var(--text-muted); margin-top: 10px; font-size: 1rem; letter-spacing: 1px; animation: fadeUp 1s ease 0.2s forwards; }
+
+        .hero-3d-container {
+            width: 320px; height: 200px; margin-top: 60px; position: relative;
+            animation: fadeUp 1s ease 0.4s forwards; opacity: 0;
+        }
+        .card-3d-float {
+            width: 100%; height: 100%; animation: floatHero 6s ease-in-out infinite; transform-style: preserve-3d;
+        }
+        .card-3d-body {
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #151515 0%, #000 100%);
+            border-radius: 16px; border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(255,255,255,0.05);
+            position: relative; overflow: hidden;
+        }
+        .card-shine {
+            position: absolute; top: 0; left: -150%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+            transform: skewX(-20deg); animation: shine 4s infinite;
+        }
+        .card-front { padding: 25px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
+        .card-chip { width: 45px; height: 30px; background: linear-gradient(135deg, #d4af37 0%, #8a7018 100%); border-radius: 6px; }
+        .card-signal { position: absolute; top: 25px; right: 25px; transform: rotate(90deg); color: #444; font-size: 1.5rem; }
+        .card-logo { font-family: 'Syncopate'; font-weight: 700; font-size: 1.2rem; }
+        .card-type { font-size: 0.6rem; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; }
+
+        @keyframes floatHero { 0%,100%{transform:translateY(0) rotateX(0) rotateY(0);} 50%{transform:translateY(-20px) rotateX(5deg) rotateY(-5deg);} }
+        @keyframes shine { 0%{left:-150%} 50%{left:150%} 100%{left:150%} }
+        @keyframes fadeUp { from {opacity:0; transform:translateY(30px);} to {opacity:1; transform:translateY(0);} }
+
+        /* MARQUEE & CONTROLS */
+        .marquee-strip {
+            width: 100%; background: var(--gold); color: black; padding: 12px 0; overflow: hidden; white-space: nowrap;
+            font-family: 'Syncopate', sans-serif; font-weight: 800; font-size: 1rem; transform: rotate(-2deg);
+            margin: 40px 0 80px; box-shadow: 0 0 20px rgba(212,175,55,0.4);
+        }
+        .marquee-content { display: inline-block; animation: scrollText 25s linear infinite; }
+        @keyframes scrollText { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+        .controls-wrapper {
+            display: flex; flex-direction: column; align-items: center; gap: 30px;
+            margin-bottom: 80px; padding: 0 20px;
+        }
+        .search-container { position: relative; width: 100%; max-width: 400px; }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #666; }
+        .search-container input {
+            width: 100%; padding: 12px 12px 12px 45px; background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border); border-radius: 50px; color: white;
+            font-family: 'Inter', sans-serif; outline: none; transition: 0.3s;
+        }
+        .search-container input:focus { border-color: var(--gold); background: rgba(255,255,255,0.08); }
+
+        .filter-container { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        .filter-btn {
+            background: transparent; border: 1px solid var(--border); color: #888;
+            padding: 8px 24px; border-radius: 50px; cursor: pointer;
+            font-family: 'Inter', sans-serif; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;
+            transition: 0.3s;
+        }
+        .filter-btn:hover, .filter-btn.active { background: var(--gold); color: black; border-color: var(--gold); font-weight: 700; }
+
+        /* =========================================
+           PRODUCT GRID & CARD STYLES (FIXED & GLOW)
+           ========================================= */
+        .product-showcase-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 5%;
+        }
+
+        /* PRODUCT CARD GOLDEN AURA & STYLING */
+        .product-card {
+            background: #0a0a0a;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            /* Subtle gold glow base */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(212, 175, 55, 0.1);
+            transition: all 0.4s ease;
+            opacity: 0; transform: translateY(30px); /* For reveal animation */
+        }
+
+        /* Hover Effect - Intensify Golden Aura */
+        .product-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--gold);
+            /* Stronger golden glow */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(212, 175, 55, 0.4);
+        }
+        
+        .product-card.active { opacity: 1; transform: translateY(0); }
+
+        .card-image-wrapper {
+            height: 320px;
+            overflow: hidden;
+            position: relative;
+        }
+        .card-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .product-card:hover .card-image-wrapper img {
+            transform: scale(1.1);
+        }
+
+        .card-content {
+            padding: 25px;
+        }
+        .card-cat { color: var(--gold); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; display: block;}
+        .card-title { font-family: 'Syncopate'; font-size: 1.2rem; margin: 0 0 10px; color: white; }
+        .card-price { font-size: 1.3rem; color: var(--gold); font-weight: bold; margin-bottom: 20px; }
+
+        /* FIXED BUTTON STYLES (IMAGE 19 FIX) */
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .card-actions button {
+            background: transparent;
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Inter';
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+        /* View Details Button Hover */
+        .card-actions button:first-child:hover {
+            background: var(--gold);
+            color: black;
+        }
+        /* The '+' Button Style */
+        .card-actions button:last-child {
+            padding: 10px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .card-actions button:last-child:hover {
+            background: var(--gold);
+            color: black;
+        }
+
+
+        /* INFO & FOOTER */
+        .info-section { padding: 100px 5%; text-align: center; border-top: 1px solid #222; margin-top: 100px; }
+        .section-title { font-family: 'Syncopate'; font-size: 2.2rem; margin-bottom: 60px; }
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+        .feature-box { background: rgba(255,255,255,0.03); padding: 40px; border-radius: 16px; border: 1px solid #222; opacity: 0; transform: translateY(30px); transition: 0.5s; }
+        .feature-box.active { opacity: 1; transform: translateY(0); }
+        .feature-icon { font-size: 2rem; color: var(--gold); margin-bottom: 20px; }
+        .feature-box h3 { font-family: 'Syncopate'; font-size: 1rem; margin-bottom: 10px; }
+        .feature-box p { color: #888; font-size: 0.9rem; line-height: 1.6; }
+
+        /* DRAWER & CART FIXES (IMAGE 20) */
+        .drawer { position: fixed; top: 0; right: -400px; width: 100%; max-width: 400px; height: 100%; background: #0a0a0a; z-index: 200; transition: 0.4s; box-shadow: -10px 0 30px rgba(0,0,0,0.8); border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+        .drawer.open { right: 0; }
+        .drawer-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .drawer-header h2 { margin: 0; font-family: 'Syncopate'; font-size: 1.2rem; }
+        .close-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+        .cart-items { flex: 1; overflow-y: auto; padding: 20px; }
+        
+        /* CART IMAGE FIX */
+        .cart-item { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; background: #111; padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
+        .cart-item img { 
+            width: 70px; 
+            height: 70px; 
+            object-fit: cover; /* Ensures image doesn't stretch */
+            border-radius: 6px; 
+        }
+
+        .cart-footer { padding: 20px; border-top: 1px solid var(--border); background: #0f0f0f; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; color: #aaa; }
+        .summary-row.total { color: white; font-weight: bold; font-size: 1.1rem; margin-top: 15px; border-top: 1px dashed #333; padding-top: 15px; }
+        .checkout-btn { width: 100%; background: var(--gold); color: black; border: none; padding: 15px; font-family: 'Syncopate'; font-weight: bold; margin-top: 15px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 150; display: none; backdrop-filter: blur(5px); }
+        
+        /* AUTH MODAL FIX (Hidden by default) */
+        .auth-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; border: 1px solid var(--gold); padding: 40px; width: 90%; max-width: 350px; z-index: 1000; text-align: center; border-radius: 12px; display: none; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .auth-input { width: 100%; padding: 12px; background: #222; border: 1px solid #333; color: white; margin-bottom: 10px; box-sizing: border-box; }
+        .auth-btn-submit { width: 100%; padding: 12px; background: var(--gold); border: none; font-weight: bold; cursor: pointer; }
+
+        /* FOOTER */
+        .TAPD-footer { padding: 60px 5% 30px; border-top: 1px solid var(--border); background: #030303; margin-top: 50px; }
+        .footer-content { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 40px; max-width: 1200px; margin: 0 auto; }
+        .footer-brand p { color: #666; max-width: 300px; font-size: 0.9rem; margin-top: 10px; }
+        .footer-links-group { display: flex; gap: 60px; flex-wrap: wrap; }
+        .footer-nav { list-style: none; padding: 0; margin: 0; }
+        .nav-head { color: #666; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 15px; }
+        .footer-nav li a { color: #ddd; text-decoration: none; font-size: 0.9rem; line-height: 2; transition: 0.3s; }
+        .footer-nav li a:hover { color: var(--gold); }
+        .footer-bottom { text-align: center; margin-top: 60px; padding-top: 20px; border-top: 1px solid #111; color: #444; font-size: 0.8rem; }
+
+        /* Mobile */
+        @media (max-width: 900px) {
+            .product-showcase-list { grid-template-columns: 1fr; }
+            .features-grid { grid-template-columns: 1fr; }
+            .hero-title { font-size: 2.5rem; }
+        }
+    </style>
 </head>
 <body>
 
     <div class="noise-overlay"></div>
-    <div class="ambient-light"></div>
+    <div class="gold-glow-sphere"></div>
 
     <nav>
         <a href="index.html" class="logo">TAPD<span>.</span></a>
         <div class="nav-right">
             <a href="customize.html" class="nav-link">Create</a>
-            <a href="track.html" class="nav-icon" title="Track Order"><i class="fa-solid fa-truck-fast"></i></a>
-            <div class="nav-icon" onclick="toggleAccount()" title="Account"><i class="fa-regular fa-user"></i></div>
-            <div class="cart-trigger" onclick="toggleCart()" title="Cart">
+            <a href="track.html" class="nav-icon" title="Track Order">
+                <i class="fa-solid fa-truck-fast"></i>
+            </a>
+            <div class="nav-icon" onclick="toggleAccount()">
+                <i class="fa-regular fa-user"></i>
+            </div>
+            <div class="cart-trigger" onclick="toggleCart()">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <span id="cart-count">0</span>
             </div>
@@ -28,9 +315,8 @@
 
     <header class="shop-hero">
         <div class="hero-content">
-            <div class="badge-pill fade-in">NEW ARRIVALS</div>
-            <h1 class="hero-title fade-in">Define Your <br><span class="gold-text">Legacy</span></h1>
-            <p class="hero-desc fade-in-delay">Hardware designed for the 1%.</p>
+            <h1 class="hero-title fade-in">The <span class="gold-text">Collection</span></h1>
+            <p class="hero-desc fade-in-delay">Future-proof hardware for the modern professional.</p>
         </div>
         
         <div class="hero-3d-container fade-in-delay">
@@ -41,98 +327,89 @@
                         <div class="card-chip"></div>
                         <i class="fa-solid fa-wifi card-signal"></i>
                         <div class="card-logo">TAPD.</div>
-                        <div class="card-type">TITANIUM EDITION</div>
+                        <div class="card-type">PREMIUM ACCESS</div>
                     </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="sticky-controls reveal">
-        <div class="controls-inner">
-            <div class="search-container">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="shop-search" placeholder="Search Collection..." onkeyup="searchProducts()">
-            </div>
-            <div class="filter-container">
-                <button class="filter-btn active" onclick="filterProducts('all', this)">All</button>
-                <button class="filter-btn" onclick="filterProducts('card', this)">Cards</button>
-                <button class="filter-btn" onclick="filterProducts('tag', this)">Tags</button>
-            </div>
+    <div class="marquee-strip">
+        <div class="marquee-content">
+            • NO MONTHLY FEES • SHIPPING WORLDWIDE • WATERPROOF DESIGN • INSTANT SHARING • NO MONTHLY FEES • SHIPPING WORLDWIDE • WATERPROOF DESIGN • INSTANT SHARING
         </div>
     </div>
 
-    <div class="showcase-container" id="shop-grid">
-        <div class="loading-text">Loading Legacy...</div>
+    <div class="controls-wrapper reveal">
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="shop-search" placeholder="Find your vibe..." onkeyup="searchProducts()">
+        </div>
+
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterProducts('all', this)">All</button>
+            <button class="filter-btn" onclick="filterProducts('card', this)">Cards</button>
+            <button class="filter-btn" onclick="filterProducts('tag', this)">Tags</button>
+        </div>
     </div>
 
-    <section class="blueprint-section reveal">
-        <div class="blueprint-content">
-            <h2 class="section-title">The <span class="gold-text">Blueprint</span></h2>
-            <div class="blueprint-grid">
-                <div class="material-card">
-                    <div class="mat-icon"><i class="fa-solid fa-layer-group"></i></div>
-                    <h3>Matte PVC</h3>
-                    <p>Soft-touch finish that resists fingerprints and scratches.</p>
-                </div>
-                <div class="material-card">
-                    <div class="mat-icon"><i class="fa-solid fa-microchip"></i></div>
-                    <h3>NFC 216</h3>
-                    <p>High-speed data transmission chip embedded within.</p>
-                </div>
-                <div class="material-card">
-                    <div class="mat-icon"><i class="fa-solid fa-droplet-slash"></i></div>
-                    <h3>IP68 Rated</h3>
-                    <p>Fully waterproof and dustproof architecture.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    <div class="product-showcase-list" id="shop-grid">
+        <div class="loading-text" style="grid-column: 1/-1; text-align: center; color: #666;">Loading The Legacy...</div>
+    </div>
 
-    <section class="faq-section reveal">
-        <h2 class="section-title">Common <span class="gold-text">Questions</span></h2>
-        <div class="faq-container">
-            <div class="faq-item" onclick="toggleFaq(this)">
-                <div class="faq-q">Does it work on iPhone and Android? <i class="fa-solid fa-plus"></i></div>
-                <div class="faq-a">Yes. TAPD works seamlessly with all modern smartphones (iPhone XS and newer, almost all Androids) without any app.</div>
+    <section class="info-section">
+        <h2 class="section-title">Why <span class="gold-text">Upgrade?</span></h2>
+        <div class="features-grid">
+            <div class="feature-box reveal">
+                <i class="fa-solid fa-meteor feature-icon"></i>
+                <h3>Built to Last</h3>
+                <p>Constructed from premium PVC and waterproof materials. Ready for the hustle.</p>
             </div>
-            <div class="faq-item" onclick="toggleFaq(this)">
-                <div class="faq-q">Can I change my link later? <i class="fa-solid fa-plus"></i></div>
-                <div class="faq-a">Absolutely. You get access to a dashboard where you can update your links, bio, and socials anytime instantly.</div>
+            <div class="feature-box reveal">
+                <i class="fa-solid fa-fingerprint feature-icon"></i>
+                <h3>Unique to You</h3>
+                <p>Fully customizable. Add your logo, your name, your identity.</p>
             </div>
-            <div class="faq-item" onclick="toggleFaq(this)">
-                <div class="faq-q">Is there a monthly fee? <i class="fa-solid fa-plus"></i></div>
-                <div class="faq-a">Never. You buy the hardware once, and the platform is free forever.</div>
+            <div class="feature-box reveal">
+                <i class="fa-solid fa-globe feature-icon"></i>
+                <h3>Sustainable</h3>
+                <p>One card replaces thousands of paper business cards. Save the planet in style.</p>
             </div>
         </div>
     </section>
 
     <div class="drawer" id="account-drawer">
-        <div class="drawer-header"><h2>My Legacy</h2><button class="close-btn" onclick="toggleAccount()">×</button></div>
-        <div class="drawer-content" id="account-content"></div>
+        <div class="drawer-header">
+            <h2>My Legacy</h2>
+            <button class="close-btn" onclick="toggleAccount()">×</button>
+        </div>
+        <div class="drawer-content" id="account-content" style="padding: 20px; color: #666; text-align: center;">
+            Login to view your legacy.
+        </div>
     </div>
 
     <div class="drawer" id="cart-drawer">
-        <div class="drawer-header"><h2>Your Bag</h2><button class="close-btn" onclick="toggleCart()">×</button></div>
+        <div class="drawer-header">
+            <h2>Your Bag</h2>
+            <button class="close-btn" onclick="toggleCart()">×</button>
+        </div>
         <div class="cart-items" id="cart-items-container"></div>
         <div class="cart-footer">
-            <div class="coupon-wrapper">
-                <input type="text" id="coupon-code" placeholder="Promo Code">
-                <button onclick="applyCoupon()">APPLY</button>
-            </div>
-            <div class="summary-row total"><span>Total</span><span id="cart-total">₹0</span></div>
-            <button class="checkout-btn" onclick="window.location.href='checkout.html'">CHECKOUT</button>
+            <div class="summary-row total"><span>Total</span><span class="val" id="cart-total">₹0</span></div>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">CHECKOUT <i class="fa-solid fa-arrow-right"></i></button>
         </div>
     </div>
-    
-    <div class="auth-modal" id="auth-modal" style="display:none;">
-        <h2 style="color:white; font-family:'Syncopate'; margin-bottom:20px;">Access</h2>
-        <button class="auth-btn-google" onclick="loginWithGoogle()">Google</button>
-        <div class="auth-divider">OR</div>
-        <input type="email" id="auth-email" class="auth-input" placeholder="Email">
+
+    <div class="auth-modal" id="auth-modal">
+        <h2 style="color:white; font-family:'Syncopate'; margin-bottom:20px;">Access Legacy</h2>
+        <button class="auth-btn-google" onclick="loginWithGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" style="vertical-align: middle; margin-right: 10px;"> Continue with Google
+        </button>
+        <div class="auth-divider" style="color:#666; margin: 15px 0;">OR</div>
+        <input type="email" id="auth-email" class="auth-input" placeholder="Email Address">
         <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
         <button class="auth-btn-submit" onclick="signupEmail()">Enter</button>
-        <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:10px;">Close</button>
+        <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer; font-size:0.8rem;">Close</button>
     </div>
 
     <div class="cart-overlay" onclick="closeAllDrawers()"></div>
@@ -145,22 +422,15 @@
             </div>
             <div class="footer-links-group">
                 <ul class="footer-nav">
-                    <li><span class="nav-head">Explore</span></li>
-                    <li><a href="shop.html">Shop</a></li>
-                    <li><a href="customize.html">Customize</a></li>
-                    <li><a href="about.html">About Us</a></li>
+                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Explore</span></li>
+                    <li><a href="shop.html" class="footer-link">Shop</a></li>
+                    <li><a href="customize.html" class="footer-link">Customize</a></li>
+                    <li><a href="about.html" class="footer-link">About Us</a></li>
                 </ul>
                 <ul class="footer-nav">
-                    <li><span class="nav-head">Connect</span></li>
-                    <li><a href="contact.html">Contact</a></li>
-                    <li><a href="#">Instagram ↗</a></li>
-                    <li><a href="#">WhatsApp ↗</a></li>
-                </ul>
-                <ul class="footer-nav">
-                    <li><span class="nav-head">Legal</span></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                    <li><a href="#">Refund Policy</a></li>
+                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Connect</span></li>
+                    <li><a href="contact.html" class="footer-link">Contact Us</a></li>
+                    <li><a href="https://instagram.com/TAPD_.t" target="_blank" class="footer-link">Instagram ↗</a></li>
                 </ul>
             </div>
         </div>
@@ -172,18 +442,253 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="shop.js"></script>
-    
+
     <script>
+        /* =========================================
+           JS LOGIC (COMBINED & FIXED)
+           ========================================= */
+
+        // 1. FIREBASE CONFIGURATION (MUST BE FIRST - FIXES IMAGE 13 ERROR)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
+            authDomain: "tapt-337b8.firebaseapp.com",
+            databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
+            projectId: "tapt-337b8",
+            storageBucket: "tapt-337b8.firebasestorage.app",
+            messagingSenderId: "887956121124",
+            appId: "1:887956121124:web:6856680bf75aa3bacddab1",
+            measurementId: "G-2CB8QXYNJY"
+        };
+
+        // Initialize Firebase only once
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        // 2. DEFINE SERVICES
+        const store = firebase.firestore();
+        const auth = firebase.auth();
+        let products = [];
+
+        // 3. MAIN LOGIC
         document.addEventListener('DOMContentLoaded', () => {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
-            }, { threshold: 0.1 });
-            setInterval(() => { document.querySelectorAll('.reveal, .reveal-row').forEach(el => observer.observe(el)); }, 500);
+            fetchProducts();
+            updateCartCount();
+            initObservers();
         });
 
-        function toggleFaq(el) {
-            el.classList.toggle('active');
+        // --- FETCH ---
+        function fetchProducts() {
+            const grid = document.getElementById('shop-grid');
+            if (!grid) return;
+            
+            store.collection('products').get().then((snap) => {
+                products = []; 
+                grid.innerHTML = ''; 
+
+                snap.forEach((doc) => {
+                    let data = doc.data();
+                    let pImage = 'https://via.placeholder.com/600x400?text=Product';
+                    if (data.images && data.images.length > 0) pImage = data.images[0];
+                    else if (data.image) pImage = data.image;
+
+                    products.push({
+                        id: doc.id,
+                        name: data.title || data.name || "Unnamed",
+                        price: Number(data.price) || 0,
+                        category: data.category || 'custom',
+                        image: pImage
+                    });
+                });
+
+                renderShop();
+            }).catch(err => {
+                console.error("Firebase err:", err);
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red;">Error loading products.</div>';
+            });
+        }
+
+        // --- RENDER (GRID LAYOUT AS SEEN IN IMAGE 11) ---
+        function renderShop(filter = 'all') {
+            const grid = document.getElementById('shop-grid');
+            grid.innerHTML = '';
+
+            products.forEach(product => {
+                if (filter !== 'all' && product.category !== filter) return;
+
+                const card = document.createElement('div');
+                card.className = `product-card reveal`;
+                
+                // Generating HTML structure that matches the fixed CSS
+                card.innerHTML = `
+                    <div class="card-image-wrapper" onclick="viewProduct('${product.id}')">
+                        <img src="${product.image}" alt="${product.name}">
+                    </div>
+                    
+                    <div class="card-content">
+                        <span class="card-cat">${product.category.toUpperCase()}</span>
+                        <h3 class="card-title">${product.name}</h3>
+                        <div class="card-price">₹${product.price}</div>
+                        
+                        <div class="card-actions">
+                            <button onclick="viewProduct('${product.id}')">VIEW DETAILS</button>
+                            <button onclick="addToCart('${product.id}')"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+
+            // Re-init observers for new elements
+            initObservers();
+        }
+
+        function filterProducts(cat, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderShop(cat);
+        }
+
+        function viewProduct(id) {
+            window.location.href = `product.html?id=${id}`;
+        }
+
+        function searchProducts() {
+             const term = document.getElementById('shop-search').value.toLowerCase();
+             const cards = document.querySelectorAll('.product-card');
+             cards.forEach(card => {
+                 const title = card.querySelector('.card-title').innerText.toLowerCase();
+                 card.style.display = title.includes(term) ? 'block' : 'none';
+             });
+         }
+
+        // --- CART ---
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            if(!product) return;
+
+            let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+            let item = cart.find(i => i.id === id);
+            
+            if(item) item.qty++;
+            else cart.push({ id: product.id, name: product.name, price: product.price, img: product.image, qty: 1 });
+
+            localStorage.setItem('TAPDCart', JSON.stringify(cart));
+            updateCartCount();
+            toggleCart(); 
+        }
+
+        function updateCartCount() {
+            let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+            let total = cart.reduce((a, c) => a + c.qty, 0);
+            const badge = document.getElementById('cart-count');
+            if(badge) {
+                badge.innerText = total;
+                badge.style.display = total > 0 ? 'flex' : 'none';
+            }
+        }
+
+        // DRAWER & AUTH LOGIC
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.querySelector('.cart-overlay');
+            if(drawer.classList.contains('open')) {
+                drawer.classList.remove('open');
+                overlay.style.display = 'none';
+            } else {
+                renderCartItems();
+                drawer.classList.add('open');
+                overlay.style.display = 'block';
+            }
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cart-items-container');
+            const totalEl = document.getElementById('cart-total');
+            let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+            let total = 0;
+            
+            container.innerHTML = '';
+            
+            if(cart.length === 0) {
+                container.innerHTML = "<p style='color:#666; text-align:center; margin-top: 50px;'>Bag is empty.</p>";
+                if(totalEl) totalEl.innerText = "₹0";
+                return;
+            }
+
+            cart.forEach((item, idx) => {
+                total += item.price * item.qty;
+                // FIXED CART ITEM STRUCTURE (Image 20 fix)
+                container.innerHTML += `
+                    <div class="cart-item">
+                        <img src="${item.img}">
+                        <div style="flex:1;">
+                            <div style="display:flex; justify-content:space-between; align-items: center; margin-bottom: 5px;">
+                                <h4 style="margin:0; font-size:0.9rem; color: white;">${item.name}</h4>
+                                <span onclick="removeItem(${idx})" style="cursor:pointer; color:#ff4444; font-size: 1.2rem;">&times;</span>
+                            </div>
+                            <p style="color:var(--gold); font-size:0.85rem; margin:0; font-weight: 600;">₹${item.price} x ${item.qty}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            if(totalEl) totalEl.innerText = "₹" + total;
+        }
+
+        function removeItem(idx) {
+            let cart = JSON.parse(localStorage.getItem('TAPDCart'));
+            cart.splice(idx, 1);
+            localStorage.setItem('TAPDCart', JSON.stringify(cart));
+            renderCartItems();
+            updateCartCount();
+        }
+
+        function toggleAccount() {
+            const drawer = document.getElementById('account-drawer');
+            const overlay = document.querySelector('.cart-overlay');
+            if (drawer.classList.contains('open')) {
+                drawer.classList.remove('open');
+                if(overlay) overlay.style.display = 'none';
+            } else {
+                drawer.classList.add('open');
+                if(overlay) overlay.style.display = 'block';
+            }
+        }
+
+        function toggleLoginModal() {
+            const modal = document.getElementById('auth-modal');
+            const overlay = document.querySelector('.cart-overlay');
+            if (modal.style.display === 'block') {
+                modal.style.display = 'none';
+                overlay.style.display = 'none';
+            } else {
+                modal.style.display = 'block';
+                overlay.style.display = 'block';
+                // Close drawers if open
+                document.getElementById('cart-drawer').classList.remove('open');
+                document.getElementById('account-drawer').classList.remove('open');
+            }
+        }
+
+        function closeAllDrawers() {
+            document.getElementById('cart-drawer').classList.remove('open');
+            document.getElementById('account-drawer').classList.remove('open');
+            document.getElementById('auth-modal').style.display = 'none';
+            document.querySelector('.cart-overlay').style.display = 'none';
+        }
+
+        // Animation Observer
+        function initObservers() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         }
     </script>
 </body>

@@ -1,6 +1,7 @@
 /* --- CLOUDINARY CONFIGURATION --- */
 const cloudName = "dmsaqoa0l"; // Replace with your actual Cloud Name
 const uploadPreset = "tapd_preset"; // Replace with your actual Preset Name
+
 /* --- FIREBASE CONFIGURATION & SETUP --- */
 const firebaseConfig = {
     apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
@@ -30,19 +31,29 @@ let unsubscribeCoupons = null;
 auth.onAuthStateChanged((user) => {
     if (user) {
         console.log("Logged in as:", user.email);
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('dashboard-ui').style.display = 'flex';
+        const loginScreen = document.getElementById('login-screen');
+        const dashboardUi = document.getElementById('dashboard-ui');
+        if (loginScreen) loginScreen.style.display = 'none';
+        if (dashboardUi) dashboardUi.style.display = 'flex';
         loadAllData();
     } else {
         console.log("No user.");
-        document.getElementById('login-screen').style.display = 'flex';
-        document.getElementById('dashboard-ui').style.display = 'none';
+        const loginScreen = document.getElementById('login-screen');
+        const dashboardUi = document.getElementById('dashboard-ui');
+        if (loginScreen) loginScreen.style.display = 'flex';
+        if (dashboardUi) dashboardUi.style.display = 'none';
     }
 });
 
 function checkAdmin() {
-    const email = document.getElementById('admin-email').value;
-    const pass = document.getElementById('admin-pass').value;
+    const emailEl = document.getElementById('admin-email');
+    const passEl = document.getElementById('admin-pass');
+    
+    if (!emailEl || !passEl) return;
+    
+    const email = emailEl.value;
+    const pass = passEl.value;
+    
     if(!email || !pass) { alert("Please enter both email and password."); return; }
     auth.signInWithEmailAndPassword(email, pass)
         .then(() => showToast("Login Successful"))
@@ -62,12 +73,16 @@ function logout() {
 function showSection(id) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    if(event) event.currentTarget.classList.add('active');
+    
+    const target = document.getElementById(id);
+    if (target) target.classList.add('active');
+    
+    if(event && event.currentTarget) event.currentTarget.classList.add('active');
 }
 
 function showToast(msg) {
     const t = document.getElementById('toast');
+    if (!t) return;
     t.textContent = msg;
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 3000);
@@ -108,6 +123,8 @@ const compressImage = (file, maxWidth, quality) => new Promise((resolve, reject)
 
 function previewImages(input, divId) {
     const container = document.getElementById(divId);
+    if (!container) return;
+    
     container.innerHTML = "";
     if (input.files) {
         Array.from(input.files).forEach(file => {
@@ -128,23 +145,35 @@ function previewImages(input, divId) {
 
 /* --- PRODUCT MANAGEMENT --- */
 async function uploadProduct() {
-    const title = document.getElementById('p-title').value;
-    const desc = document.getElementById('p-desc').value;
-    const price = document.getElementById('p-price').value;
-    const category = document.getElementById('p-category').value;
-    const type = document.getElementById('p-type').value; 
-    const designJson = document.getElementById('p-design-json').value;
-    
-    // Get the URL from our hidden input instead of the file input
-    const imageUrl = document.getElementById('p-image-url').value;
+    // Safety checks for elements
+    const titleEl = document.getElementById('p-title');
+    const descEl = document.getElementById('p-desc');
+    const priceEl = document.getElementById('p-price');
+    const categoryEl = document.getElementById('p-category');
+    const typeEl = document.getElementById('p-type'); 
+    const designJsonEl = document.getElementById('p-design-json');
+    const imageUrlEl = document.getElementById('p-image-url');
     const statusText = document.getElementById('upload-status');
+
+    if (!titleEl || !priceEl || !imageUrlEl) {
+        console.error("Missing input elements in HTML");
+        return;
+    }
+
+    const title = titleEl.value;
+    const desc = descEl ? descEl.value : "";
+    const price = priceEl.value;
+    const category = categoryEl ? categoryEl.value : "custom";
+    const type = typeEl ? typeEl.value : "card";
+    const designJson = designJsonEl ? designJsonEl.value : "";
+    const imageUrl = imageUrlEl.value;
 
     if(!title || !price || !imageUrl) {
         alert("Please fill all fields and upload an image via Cloudinary");
         return;
     }
 
-    statusText.textContent = "Saving to Legacy...";
+    if (statusText) statusText.textContent = "Saving to Legacy...";
     
     db.collection("products").add({
         title: title,
@@ -156,20 +185,24 @@ async function uploadProduct() {
         designTemplate: designJson, 
         createdAt: new Date().toISOString()
     }).then(() => {
-        statusText.textContent = "";
+        if (statusText) statusText.textContent = "";
         showToast("Product Added!");
         // Clear form
-        document.getElementById('p-title').value = "";
-        document.getElementById('p-desc').value = "";
-        document.getElementById('p-price').value = "";
-        document.getElementById('p-image-url').value = "";
-        document.getElementById('add-preview').innerHTML = "";
+        titleEl.value = "";
+        if (descEl) descEl.value = "";
+        priceEl.value = "";
+        imageUrlEl.value = "";
+        const preview = document.getElementById('add-preview');
+        if (preview) preview.innerHTML = "";
     }).catch((error) => {
-        statusText.textContent = "Error: " + error.message;
+        if (statusText) statusText.textContent = "Error: " + error.message;
     });
 }
+
 function loadProducts() {
     const container = document.getElementById('products-list-container');
+    if (!container) return;
+    
     container.innerHTML = "<p style='color:#666;'>Loading inventory...</p>";
     
     unsubscribeProducts = db.collection("products").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
@@ -217,34 +250,56 @@ function deleteProduct(key) {
     }
 }
 
-/* --- EDIT PRODUCT --- */
+/* --- EDIT PRODUCT (FIXED: Safe Checks) --- */
 function openEditModal(key) {
     const product = allProductsCache[key];
     if(!product) return;
 
-    document.getElementById('edit-key').value = key;
-    document.getElementById('edit-title').value = product.title || "";
-    document.getElementById('edit-desc').value = product.description || "";
-    document.getElementById('edit-price').value = product.price || "";
-    document.getElementById('edit-type').value = product.type || "card";
-    document.getElementById('edit-category').value = product.category || "custom";
-    document.getElementById('edit-design-json').value = product.designTemplate || ""; 
+    // Helper to safely set values without crashing if ID is missing
+    const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = val;
+        } else {
+            console.warn(`Admin.js Warning: Missing HTML element with ID '${id}'`);
+        }
+    };
+
+    setVal('edit-key', key);
+    setVal('edit-title', product.title || "");
+    setVal('edit-desc', product.description || "");
+    setVal('edit-price', product.price || "");
+    setVal('edit-type', product.type || "card");
+    setVal('edit-category', product.category || "custom");
+    setVal('edit-design-json', product.designTemplate || ""); 
     
     tempEditImages = product.images ? [...product.images] : [];
     renderEditImages();
     
-    document.getElementById('edit-new-images').value = "";
-    document.getElementById('edit-new-preview').innerHTML = "";
+    // Safely clear inputs
+    const newImagesInput = document.getElementById('edit-new-images');
+    if (newImagesInput) newImagesInput.value = "";
+    
+    const newPreview = document.getElementById('edit-new-preview');
+    if (newPreview) newPreview.innerHTML = "";
 
-    document.getElementById('edit-modal').classList.add('open');
+    const modal = document.getElementById('edit-modal');
+    if (modal) {
+        modal.classList.add('open');
+    } else {
+        console.error("Error: 'edit-modal' container not found in HTML.");
+    }
 }
 
 function closeEditModal() {
-    document.getElementById('edit-modal').classList.remove('open');
+    const modal = document.getElementById('edit-modal');
+    if (modal) modal.classList.remove('open');
 }
 
 function renderEditImages() {
     const container = document.getElementById('edit-current-images');
+    if (!container) return;
+    
     container.innerHTML = "";
     
     tempEditImages.forEach((imgBase64, index) => {
@@ -270,16 +325,27 @@ function renderEditImages() {
 }
 
 async function saveProductChanges() {
-    const key = document.getElementById('edit-key').value;
-    const newImageUrl = document.getElementById('edit-image-url').value;
+    const keyEl = document.getElementById('edit-key');
+    const imgEl = document.getElementById('edit-image-url');
     
+    if (!keyEl) return;
+    
+    const key = keyEl.value;
+    const newImageUrl = imgEl ? imgEl.value : "";
+    
+    // Helper to safely get value
+    const getVal = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value : "";
+    };
+
     const updatedData = {
-        title: document.getElementById('edit-title').value,
-        description: document.getElementById('edit-desc').value,
-        price: parseFloat(document.getElementById('edit-price').value),
-        type: document.getElementById('edit-type').value,
-        category: document.getElementById('edit-category').value,
-        designTemplate: document.getElementById('edit-design-json').value, 
+        title: getVal('edit-title'),
+        description: getVal('edit-desc'),
+        price: parseFloat(getVal('edit-price') || 0),
+        type: getVal('edit-type'),
+        category: getVal('edit-category'),
+        designTemplate: getVal('edit-design-json'), 
         updatedAt: new Date().toISOString()
     };
 
@@ -290,27 +356,36 @@ async function saveProductChanges() {
 
     db.collection("products").doc(key).update(updatedData).then(() => {
         showToast("Product Updated!");
-        document.getElementById('edit-image-url').value = ""; // Clear for next use
+        if (imgEl) imgEl.value = ""; // Clear for next use
         closeEditModal();
     });
 }
 
 /* --- COUPONS --- */
 function createCoupon() {
-    const code = document.getElementById('c-code').value.toUpperCase().trim();
-    const type = document.getElementById('c-type').value;
-    const value = document.getElementById('c-value').value;
+    const codeEl = document.getElementById('c-code');
+    const typeEl = document.getElementById('c-type');
+    const valueEl = document.getElementById('c-value');
+
+    if (!codeEl || !valueEl) return;
+
+    const code = codeEl.value.toUpperCase().trim();
+    const type = typeEl ? typeEl.value : 'fixed';
+    const value = valueEl.value;
+    
     if(!code || !value) return alert("Enter details");
     
     db.collection("coupons").doc(code).set({ type, value: parseFloat(value) }).then(() => {
         showToast("Coupon Saved");
-        document.getElementById('c-code').value = "";
-        document.getElementById('c-value').value = "";
+        codeEl.value = "";
+        valueEl.value = "";
     });
 }
 
 function loadCoupons() {
     const tbody = document.getElementById('coupons-body');
+    if (!tbody) return;
+
     unsubscribeCoupons = db.collection("coupons").onSnapshot((snap) => {
         tbody.innerHTML = "";
         snap.forEach((doc) => {
@@ -333,6 +408,8 @@ function deleteCoupon(id) {
 /* --- ORDERS (WITH TRACKING, STATUS & DELETE) --- */
 function loadOrders() {
     const container = document.getElementById('orders-list-container');
+    if (!container) return;
+
     container.innerHTML = '<p style="color:var(--gold);">Loading orders...</p>';
 
     unsubscribeOrders = db.collection("orders").orderBy("date", "desc").limit(30).onSnapshot((snapshot) => {
@@ -349,42 +426,44 @@ function loadOrders() {
             
             // Generate Items HTML
             let itemsHtml = "";
-            order.items.forEach(item => {
-                let downloadBtn = '';
-                
-                // 1. Download IMAGE
-                if (item.img && item.img.startsWith('data:image')) {
-                    downloadBtn += `
-                        <a href="${item.img}" download="Design_${orderId}_${item.name.replace(/\s+/g, '_')}.png" 
-                           style="background:var(--gold); color:black; padding:5px 10px; text-decoration:none; font-weight:bold; font-size:0.7rem; border-radius:4px; margin-left:10px; display:inline-flex; align-items:center; gap:5px;">
-                           <i class="fa-solid fa-image"></i> PNG
-                        </a>
-                    `;
-                }
+            if (order.items) {
+                order.items.forEach(item => {
+                    let downloadBtn = '';
+                    
+                    // 1. Download IMAGE
+                    if (item.img && item.img.startsWith('data:image')) {
+                        downloadBtn += `
+                            <a href="${item.img}" download="Design_${orderId}_${item.name.replace(/\s+/g, '_')}.png" 
+                               style="background:var(--gold); color:black; padding:5px 10px; text-decoration:none; font-weight:bold; font-size:0.7rem; border-radius:4px; margin-left:10px; display:inline-flex; align-items:center; gap:5px;">
+                               <i class="fa-solid fa-image"></i> PNG
+                            </a>
+                        `;
+                    }
 
-                // 2. Download JSON
-                if (item.designJson) {
-                    const blob = new Blob([item.designJson], {type: "application/json"});
-                    const url = URL.createObjectURL(blob);
-                    downloadBtn += `
-                        <a href="${url}" download="CODE_${orderId}.json" 
-                           style="background:#333; color:white; padding:5px 10px; text-decoration:none; font-weight:bold; font-size:0.7rem; border-radius:4px; margin-left:5px; border:1px solid #555; display:inline-flex; align-items:center; gap:5px;">
-                           <i class="fa-solid fa-code"></i> JSON
-                        </a>
-                    `;
-                }
+                    // 2. Download JSON
+                    if (item.designJson) {
+                        const blob = new Blob([item.designJson], {type: "application/json"});
+                        const url = URL.createObjectURL(blob);
+                        downloadBtn += `
+                            <a href="${url}" download="CODE_${orderId}.json" 
+                               style="background:#333; color:white; padding:5px 10px; text-decoration:none; font-weight:bold; font-size:0.7rem; border-radius:4px; margin-left:5px; border:1px solid #555; display:inline-flex; align-items:center; gap:5px;">
+                               <i class="fa-solid fa-code"></i> JSON
+                            </a>
+                        `;
+                    }
 
-                itemsHtml += `
-                    <div style="display:flex; gap:15px; margin-top:10px; background:#111; padding:10px; border-radius:6px; align-items:center; border:1px solid #333;">
-                        <img src="${item.img}" style="width:50px; height:50px; object-fit:contain; background:#222; border-radius:4px; border:1px solid #444;">
-                        <div style="flex:1;">
-                            <div style="color:white; font-weight:bold; font-size:0.9rem;">${item.name}</div>
-                            <div style="color:#888; font-size:0.8rem;">Qty: ${item.qty} | ₹${item.price}</div>
+                    itemsHtml += `
+                        <div style="display:flex; gap:15px; margin-top:10px; background:#111; padding:10px; border-radius:6px; align-items:center; border:1px solid #333;">
+                            <img src="${item.img}" style="width:50px; height:50px; object-fit:contain; background:#222; border-radius:4px; border:1px solid #444;">
+                            <div style="flex:1;">
+                                <div style="color:white; font-weight:bold; font-size:0.9rem;">${item.name}</div>
+                                <div style="color:#888; font-size:0.8rem;">Qty: ${item.qty} | ₹${item.price}</div>
+                            </div>
+                            <div style="display:flex;">${downloadBtn}</div>
                         </div>
-                        <div style="display:flex;">${downloadBtn}</div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            }
 
             // Determine Status and Tracking for Inputs
             const currentStatus = order.status || 'Pending';
@@ -458,12 +537,14 @@ function loadOrders() {
 
 // Function to Update Order Status & Tracking
 function updateOrder(orderId) {
-    const tracking = document.getElementById(`track-${orderId}`).value;
-    const status = document.getElementById(`status-${orderId}`).value;
+    const trackEl = document.getElementById(`track-${orderId}`);
+    const statusEl = document.getElementById(`status-${orderId}`);
+
+    if(!trackEl || !statusEl) return;
 
     db.collection("orders").doc(orderId).update({
-        trackingId: tracking,
-        status: status
+        trackingId: trackEl.value,
+        status: statusEl.value
     }).then(() => {
         showToast("Order Updated Successfully");
     }).catch(err => {
@@ -482,6 +563,9 @@ function deleteOrder(orderId) {
         });
     }
 }
+
+/* --- CLOUDINARY WIDGET SETUP --- */
+
 // Widget for ADDING new products
 var myWidget = cloudinary.createUploadWidget({
     cloudName: cloudName, 
@@ -491,8 +575,11 @@ var myWidget = cloudinary.createUploadWidget({
 }, (error, result) => { 
     if (!error && result && result.event === "success") { 
         const imageUrl = result.info.secure_url;
-        document.getElementById('p-image-url').value = imageUrl; // Store URL in hidden input
-        document.getElementById('add-preview').innerHTML = `<img src="${imageUrl}" class="img-thumb">`;
+        const urlInput = document.getElementById('p-image-url');
+        const preview = document.getElementById('add-preview');
+        
+        if (urlInput) urlInput.value = imageUrl; 
+        if (preview) preview.innerHTML = `<img src="${imageUrl}" class="img-thumb">`;
         showToast("High-Res Image Ready");
     }
 });
@@ -506,12 +593,26 @@ var editWidget = cloudinary.createUploadWidget({
 }, (error, result) => { 
     if (!error && result && result.event === "success") { 
         const imageUrl = result.info.secure_url;
-        document.getElementById('edit-image-url').value = imageUrl; // Store URL in hidden input
-        document.getElementById('edit-current-images').innerHTML = `<img src="${imageUrl}" class="img-thumb">`;
+        const urlInput = document.getElementById('edit-image-url');
+        const container = document.getElementById('edit-current-images');
+        
+        if (urlInput) urlInput.value = imageUrl;
+        if (container) container.innerHTML = `<img src="${imageUrl}" class="img-thumb">`;
         showToast("Update Image Ready");
     }
 });
 
-// Attach listeners to buttons
-document.getElementById("upload_widget").addEventListener("click", () => myWidget.open(), false);
-document.getElementById("edit_upload_widget").addEventListener("click", () => editWidget.open(), false);
+// Attach listeners to buttons (FIXED: Safe Checks)
+const uploadBtn = document.getElementById("upload_widget");
+if (uploadBtn) {
+    uploadBtn.addEventListener("click", () => myWidget.open(), false);
+} else {
+    // console.warn("Upload widget button not found");
+}
+
+const editUploadBtn = document.getElementById("edit_upload_widget");
+if (editUploadBtn) {
+    editUploadBtn.addEventListener("click", () => editWidget.open(), false);
+} else {
+    // console.warn("Edit upload widget button not found");
+}

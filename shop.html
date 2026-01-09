@@ -32,9 +32,52 @@
     </nav>
 
     <header class="shop-hero">
-        <h1 class="hero-title fade-in">Select Your <br><span class="gold-text">Legacy</span></h1>
-        <p class="hero-subtitle fade-in-delay">Premium Hardware. Instant Connection.</p>
+        <div class="hero-content">
+            <h1 class="hero-title fade-in">Select Your <br><span class="gold-text">Legacy</span></h1>
+            <p class="hero-subtitle fade-in-delay">Premium Hardware. Instant Connection.</p>
+        </div>
     </header>
+
+    <div class="marquee-strip">
+        <div class="marquee-content">
+            PREMIUM HARDWARE • LIFETIME VALIDITY • NO MONTHLY FEES • SHIP WORLDWIDE • PREMIUM HARDWARE • LIFETIME VALIDITY • NO MONTHLY FEES • SHIP WORLDWIDE •
+        </div>
+    </div>
+
+    <section class="spotlight-section">
+        <div class="spotlight-grid">
+            <div class="spotlight-text reveal">
+                <div class="badge">BEST SELLER</div>
+                <h2>The Matte <br><span style="color:var(--gold)">Black</span></h2>
+                <p>
+                    Our signature card. Finished in a soft-touch matte coating with spot UV detailing. 
+                    The ultimate statement piece for executives.
+                </p>
+                <div class="spotlight-stats">
+                    <div>
+                        <strong>50k+</strong>
+                        <span>Sold</span>
+                    </div>
+                    <div>
+                        <strong>4.9/5</strong>
+                        <span>Rating</span>
+                    </div>
+                </div>
+            </div>
+            <div class="spotlight-visual reveal">
+                <div class="card-3d-spotlight">
+                    <div class="shine"></div>
+                    <div style="display:flex; justify-content:flex-end;">
+                        <i class="fa-solid fa-wifi" style="transform: rotate(90deg); color:rgba(255,255,255,0.4);"></i>
+                    </div>
+                    <div>
+                        <div style="font-family:'Syncopate'; font-size:1.1rem; font-weight:700;">TAPD.</div>
+                        <div style="color:var(--gold); font-size:0.6rem; margin-top:5px; font-weight:700; letter-spacing:1px;">SIGNATURE</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <div class="controls-wrapper fade-in-delay">
         <div class="search-container">
@@ -53,13 +96,46 @@
         <div class="loading-text">Loading Legacy...</div>
     </div>
 
+    <div class="trust-strip">
+        <div class="logo-scroller">
+            <i class="fa-brands fa-apple trust-icon"></i>
+            <i class="fa-brands fa-android trust-icon"></i>
+            <i class="fa-brands fa-instagram trust-icon"></i>
+            <i class="fa-brands fa-linkedin trust-icon"></i>
+            <i class="fa-brands fa-spotify trust-icon"></i>
+            <i class="fa-brands fa-tiktok trust-icon"></i>
+            <i class="fa-solid fa-envelope trust-icon"></i>
+            <i class="fa-brands fa-apple trust-icon"></i>
+            <i class="fa-brands fa-android trust-icon"></i>
+            <i class="fa-brands fa-instagram trust-icon"></i>
+            <i class="fa-brands fa-linkedin trust-icon"></i>
+        </div>
+    </div>
+
+    <section class="features-section">
+        <div class="feature-card reveal">
+            <i class="fa-solid fa-droplet feature-icon"></i>
+            <h3>Waterproof</h3>
+            <p>Built to survive rain, spills, and life.</p>
+        </div>
+        <div class="feature-card reveal">
+            <i class="fa-solid fa-lock feature-icon"></i>
+            <h3>Secure</h3>
+            <p>Bank-grade encryption for your data.</p>
+        </div>
+        <div class="feature-card reveal">
+            <i class="fa-solid fa-battery-full feature-icon"></i>
+            <h3>No Charging</h3>
+            <p>Powered by the phone it taps.</p>
+        </div>
+    </section>
+
     <div class="drawer" id="account-drawer">
         <div class="drawer-header">
             <h2>My Legacy</h2>
             <button class="close-btn" onclick="toggleAccount()">×</button>
         </div>
-        <div class="drawer-content" id="account-content">
-            </div>
+        <div class="drawer-content" id="account-content"></div>
     </div>
 
     <div class="drawer" id="cart-drawer">
@@ -67,27 +143,15 @@
             <h2>Your Bag</h2>
             <button class="close-btn" onclick="toggleCart()">×</button>
         </div>
-        
         <div class="cart-items" id="cart-items-container"></div>
-        
         <div class="cart-footer">
             <div class="coupon-wrapper">
                 <input type="text" id="coupon-code" class="coupon-input" placeholder="Promo Code">
                 <button class="coupon-btn" onclick="applyCoupon()">APPLY</button>
             </div>
-            
-            <div class="summary-row">
-                <span>Subtotal</span>
-                <span class="val" id="cart-subtotal">₹0</span>
-            </div>
-            <div class="summary-row total">
-                <span>Total</span>
-                <span class="val" id="cart-total">₹0</span>
-            </div>
-            
-            <button class="checkout-btn" onclick="window.location.href='checkout.html'">
-                CHECKOUT <i class="fa-solid fa-arrow-right"></i>
-            </button>
+            <div class="summary-row"><span>Subtotal</span><span class="val" id="cart-subtotal">₹0</span></div>
+            <div class="summary-row total"><span>Total</span><span class="val" id="cart-total">₹0</span></div>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">CHECKOUT <i class="fa-solid fa-arrow-right"></i></button>
         </div>
     </div>
 
@@ -143,7 +207,20 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    
     <script src="shop.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        });
+    </script>
 </body>
 </html>

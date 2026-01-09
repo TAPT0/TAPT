@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shop Collection | TAPD.</title>
+    <title>The Collection | TAPD.</title>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    
     <link rel="stylesheet" href="shop.css">
 </head>
 <body>
@@ -18,12 +17,6 @@
         <a href="index.html" class="logo">TAPD<span>.</span></a>
         <div class="nav-right">
             <a href="customize.html" class="nav-link">Create</a>
-            <a href="track.html" class="nav-icon" title="Track Order">
-                <i class="fa-solid fa-truck-fast"></i>
-            </a>
-            <div class="nav-icon" onclick="toggleAccount()">
-                <i class="fa-regular fa-user"></i>
-            </div>
             <div class="cart-trigger" onclick="toggleCart()">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <span id="cart-count">0</span>
@@ -32,22 +25,37 @@
     </nav>
 
     <header class="shop-hero">
-        <h1 class="hero-title fade-in">Select Your <br><span class="gold-text">Legacy</span></h1>
-        <p class="hero-subtitle fade-in-delay">Premium Hardware. Instant Connection.</p>
+        <div class="hero-content">
+            <h1 class="hero-title fade-in">The <span class="gold-text">Collection</span></h1>
+            <p class="hero-desc fade-in-delay">Future-proof hardware for the modern professional.</p>
+        </div>
+        
+        <div class="hero-3d-container fade-in-delay">
+            <div class="card-3d-float">
+                <div class="card-3d-body">
+                    <div class="card-shine"></div>
+                    <div class="card-front">
+                        <div class="card-chip"></div>
+                        <i class="fa-solid fa-wifi card-signal"></i>
+                        <div class="card-logo">TAPD.</div>
+                        <div class="card-type">PREMIUM ACCESS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
 
     <div class="marquee-strip">
         <div class="marquee-content">
-            PREMIUM HARDWARE • LIFETIME VALIDITY • NO MONTHLY FEES • SHIP WORLDWIDE • PREMIUM HARDWARE • LIFETIME VALIDITY • NO MONTHLY FEES • SHIP WORLDWIDE •
+            • NO MONTHLY FEES • SHIPPING WORLDWIDE • WATERPROOF DESIGN • INSTANT SHARING • NO MONTHLY FEES • SHIPPING WORLDWIDE • WATERPROOF DESIGN • INSTANT SHARING
         </div>
     </div>
 
-    <div class="controls-wrapper fade-in-delay">
+    <div class="controls-wrapper reveal">
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="text" id="shop-search" placeholder="Search the collection..." onkeyup="searchProducts()">
+            <input type="text" id="shop-search" placeholder="Find your vibe..." onkeyup="searchProducts()">
         </div>
-
         <div class="filter-container">
             <button class="filter-btn active" onclick="filterProducts('all', this)">All</button>
             <button class="filter-btn" onclick="filterProducts('card', this)">Cards</button>
@@ -56,16 +64,29 @@
     </div>
 
     <div class="product-showcase-list" id="shop-grid">
-        <div class="loading-text">Loading Legacy...</div>
+        <div class="loading-text">Loading The Legacy...</div>
     </div>
 
-    <div class="drawer" id="account-drawer">
-        <div class="drawer-header">
-            <h2>My Legacy</h2>
-            <button class="close-btn" onclick="toggleAccount()">×</button>
+    <section class="info-section">
+        <h2 class="section-title">Why <span class="gold-text">Upgrade?</span></h2>
+        <div class="features-grid">
+            <div class="feature-box reveal">
+                <i class="fa-solid fa-meteor feature-icon"></i>
+                <h3>Built to Last</h3>
+                <p>Constructed from premium PVC and waterproof materials. Ready for the hustle.</p>
+            </div>
+            <div class="feature-box reveal">
+                <i class="fa-solid fa-fingerprint feature-icon"></i>
+                <h3>Unique to You</h3>
+                <p>Fully customizable. Add your logo, your name, your identity.</p>
+            </div>
+            <div class="feature-box reveal">
+                <i class="fa-solid fa-globe feature-icon"></i>
+                <h3>Sustainable</h3>
+                <p>One card replaces thousands of paper business cards. Save the planet in style.</p>
+            </div>
         </div>
-        <div class="drawer-content" id="account-content"></div>
-    </div>
+    </section>
 
     <div class="drawer" id="cart-drawer">
         <div class="drawer-header">
@@ -74,52 +95,15 @@
         </div>
         <div class="cart-items" id="cart-items-container"></div>
         <div class="cart-footer">
-            <div class="coupon-wrapper">
-                <input type="text" id="coupon-code" class="coupon-input" placeholder="Promo Code">
-                <button class="coupon-btn" onclick="applyCoupon()">APPLY</button>
-            </div>
-            <div class="summary-row"><span>Subtotal</span><span class="val" id="cart-subtotal">₹0</span></div>
-            <div class="summary-row total"><span>Total</span><span class="val" id="cart-total">₹0</span></div>
-            <button class="checkout-btn" onclick="window.location.href='checkout.html'">CHECKOUT <i class="fa-solid fa-arrow-right"></i></button>
+            <div class="summary-row total"><span>Total</span><span id="cart-total">₹0</span></div>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">CHECKOUT</button>
         </div>
     </div>
-
-    <div class="auth-modal" id="auth-modal">
-        <h2 style="color:white; font-family:'Syncopate'; margin-bottom:20px;">Access Legacy</h2>
-        <button class="auth-btn-google" onclick="loginWithGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Continue with Google
-        </button>
-        <div class="auth-divider">OR</div>
-        <input type="email" id="auth-email" class="auth-input" placeholder="Email Address">
-        <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
-        <button class="auth-btn-submit" onclick="signupEmail()">Enter</button>
-        <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer; font-size:0.8rem;">Close</button>
-    </div>
-
-    <div class="cart-overlay" onclick="closeAllDrawers()"></div>
+    
+    <div class="cart-overlay" onclick="toggleCart()"></div>
 
     <footer class="TAPD-footer">
-        <div class="footer-content">
-            <div class="footer-brand">
-                <h2 class="footer-logo">TAPD.</h2>
-                <p class="footer-tagline">The future of connection.</p>
-            </div>
-            <div class="footer-links-group">
-                <ul class="footer-nav">
-                    <li><span class="nav-head">Explore</span></li>
-                    <li><a href="shop.html">Shop</a></li>
-                    <li><a href="customize.html">Customize</a></li>
-                </ul>
-                <ul class="footer-nav">
-                    <li><span class="nav-head">Connect</span></li>
-                    <li><a href="contact.html">Contact</a></li>
-                    <li><a href="#">Instagram ↗</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 TAPD. Hardware.</p>
-        </div>
+        <div class="footer-bottom"><p>&copy; 2026 TAPD. Hardware.</p></div>
     </footer>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -128,23 +112,13 @@
     <script src="shop.js"></script>
     
     <script>
-        // Init Scroll Animation
-        document.addEventListener('DOMContentLoaded', () => {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('active');
-                    }
-                });
-            }, { threshold: 0.15 });
-
-            // This will grab elements injected by JS too
-            const observeNewElements = () => {
-                document.querySelectorAll('.reveal-row').forEach(el => observer.observe(el));
-            }
-            // Check periodically or call this inside shop.js render
-            setInterval(observeNewElements, 1000); 
-        });
+        // Init Animation Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     </script>
 </body>
 </html>

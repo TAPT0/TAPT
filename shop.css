@@ -151,6 +151,7 @@ nav {
     .row-content { text-align: center; padding: 0; }
     .row-title { font-size: 2.2rem; }
 }
+
 /* 3D Container (Increased Size) */
 .row-image-box { 
     flex: 1.2; 
@@ -355,9 +356,7 @@ nav {
 .footer-nav li a:hover { color: white; padding-left: 5px; }
 .footer-bottom { text-align: center; margin-top: 80px; padding-top: 30px; border-top: 1px solid #111; color: #444; font-size: 0.8rem; }
 
-/* REPLACE THE OLD "REVEAL ANIMATION" SECTION WITH THIS: */
-
-/* Base State: Invisible and pushed to the sides */
+/* REVEAL ANIMATION */
 .shop-row { 
     opacity: 0; 
     transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1); /* Smooth cinematic ease */
@@ -390,7 +389,7 @@ nav {
     transform: translateY(0); 
 }
 
-vv/* =========================================
+/* =========================================
    MOBILE LAYOUT: HORIZONTAL (Like PC)
    ========================================= */
 @media (max-width: 900px) {

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order | TAPD.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="track.css">
+</head>
+<body>
+
+    <div class="noise-overlay"></div>
+    <div class="gold-glow-sphere" style="top:-10%; left:-10%;"></div>
+
+    <nav>
+        <a href="index.html" class="logo">TAPD<span>.</span></a>
+        <div class="nav-right">
+            <a href="shop.html" class="nav-icon"><i class="fa-solid fa-shop"></i></a>
+            <a href="track.html" class="nav-icon active"><i class="fa-solid fa-truck-fast"></i></a>
+        </div>
+    </nav>
+
+    <div class="track-container">
+        
+        <div class="track-header">
+            <h1 class="glitch-text">TRACK STATUS</h1>
+            <p>ENTER YOUR ORDER ID TO SEE LIVE UPDATES</p>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="order-input" placeholder="e.g. 8A2B9C..." autocomplete="off">
+            <button onclick="trackOrder()">SEARCH</button>
+        </div>
+
+        <div id="track-result" class="track-result" style="display: none;">
+            
+            <div class="result-card">
+                <div class="order-meta">
+                    <div>
+                        <span class="label">ORDER ID</span>
+                        <span class="val" id="res-id">--</span>
+                    </div>
+                    <div style="text-align:right;">
+                        <span class="label">DATE</span>
+                        <span class="val" id="res-date">--</span>
+                    </div>
+                </div>
+
+                <div class="progress-track" id="progress-track">
+                    <ul class="progressbar">
+                        <li class="step" id="step-pending">Ordered</li>
+                        <li class="step" id="step-processing">Processing</li>
+                        <li class="step" id="step-shipped">Shipped</li>
+                        <li class="step" id="step-delivered">Delivered</li>
+                    </ul>
+                </div>
+
+                <div id="cancelled-msg" style="display:none; color:#ff4444; text-align:center; padding:20px; font-weight:bold; border:1px solid #ff4444; border-radius:8px; background:rgba(255,0,0,0.1);">
+                    <i class="fa-solid fa-ban"></i> THIS ORDER HAS BEEN CANCELLED
+                </div>
+
+                <div class="tracking-details">
+                    <div class="detail-row">
+                        <span>Courier / Method</span>
+                        <span id="res-method" style="color:white;">--</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Tracking Number</span>
+                        <span id="res-tracking" style="color:var(--tapd-gold); font-family:monospace; letter-spacing:1px;">PENDING</span>
+                    </div>
+                </div>
+
+                <div class="order-items" id="res-items">
+                    </div>
+
+                <div class="total-row">
+                    <span>TOTAL AMOUNT</span>
+                    <span id="res-total">₹0</span>
+                </div>
+            </div>
+
+        </div>
+
+        <p id="error-msg" style="color:#ff4444; text-align:center; margin-top:20px; display:none;"></p>
+
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="track.js"></script>
+
+</body>
+</html>

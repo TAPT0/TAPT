@@ -2,186 +2,415 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TAPD. Admin | Firestore</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>About The Legacy | TAPD.</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="admin.css">
+    
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* =========================================
+           ABOUT PAGE SPECIFIC STYLES
+           ========================================= */
+        :root {
+            --gold: #D4AF37;
+            --bg: #050505;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* --- NAV (Consistent with Home) --- */
+        nav {
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border);
+            background: rgba(5, 5, 5, 0.85);
+            box-sizing: border-box;
+        }
+
+        .logo { font-family: 'Syncopate', sans-serif; font-weight: 700; font-size: 1.5rem; letter-spacing: -1px; }
+        .logo span { color: var(--gold); }
+
+        /* --- HERO SECTION --- */
+        .about-hero {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            padding: 100px 20px;
+            overflow: hidden;
+        }
+
+        /* Moving Background Gradient */
+        .bg-blob {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            animation: pulseBlob 8s ease-in-out infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes pulseBlob {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+        }
+
+        .manifesto-title {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: textReveal 1s cubic-bezier(0.2, 1, 0.2, 1) 0.2s forwards;
+        }
+
+        .manifesto-text {
+            max-width: 700px;
+            font-size: 1.2rem;
+            color: #aaa;
+            line-height: 1.6;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.6s forwards;
+        }
+
+        @keyframes textReveal {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* --- SCROLL TEXT STRIP --- */
+        .marquee-container {
+            width: 100%;
+            background: var(--gold);
+            color: black;
+            padding: 15px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            font-family: 'Syncopate', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            transform: rotate(-2deg) scale(1.05); /* Jaunty angle */
+            margin: 50px 0;
+            border-top: 2px solid white;
+            border-bottom: 2px solid white;
+        }
+
+        .marquee-content {
+            display: inline-block;
+            animation: scrollText 20s linear infinite;
+        }
+
+        @keyframes scrollText {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        /* --- STORY GRID --- */
+        .story-section {
+            padding: 100px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .story-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .story-image {
+            width: 100%;
+            height: 500px;
+            background: #111;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Abstract geometrical shape inside image box */
+        .story-image::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 200px; height: 200px;
+            border: 2px solid var(--gold);
+            transform: translate(-50%, -50%) rotate(45deg);
+            box-shadow: 0 0 50px rgba(212,175,55,0.2);
+            animation: spinSlow 20s linear infinite;
+        }
+
+        @keyframes spinSlow { to { transform: translate(-50%, -50%) rotate(405deg); } }
+
+        .story-content h2 {
+            font-family: 'Syncopate';
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 30px;
+        }
+
+        .story-content p {
+            color: #ccc;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        /* --- STATS COUNTER --- */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 80px 5%;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,0.02);
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-family: 'Syncopate';
+            font-size: 3.5rem;
+            color: white;
+            margin: 0;
+            font-weight: 700;
+        }
+        
+        .stat-item span {
+            color: var(--gold);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        /* --- TEAM / FOUNDER --- */
+        .team-section {
+            padding: 100px 5%;
+            text-align: center;
+        }
+
+        .team-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            padding: 50px;
+            border-radius: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            transition: 0.4s;
+        }
+
+        .team-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .avatar-circle {
+            width: 120px; height: 120px;
+            background: #222;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            border: 2px solid var(--gold);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; color: #555;
+            position: relative;
+        }
+        
+        /* Animated Ring around avatar */
+        .avatar-circle::before {
+            content:''; position: absolute; inset: -10px;
+            border: 1px dashed rgba(255,255,255,0.2);
+            border-radius: 50%;
+            animation: spinSlow 10s linear infinite;
+        }
+
+        /* --- MOBILE --- */
+        @media (max-width: 900px) {
+            .manifesto-title { font-size: 2.2rem; }
+            .story-grid { grid-template-columns: 1fr; }
+            .story-image { height: 300px; order: -1; margin-bottom: 30px; }
+            .stats-section { grid-template-columns: 1fr; gap: 50px; }
+            .marquee-container { transform: rotate(-2deg) scale(1.1); font-size: 1rem; }
+        }
+    </style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <div class="logo">TAPD.<span>.</span> ADMIN</div>
-        <div class="login-box">
-            <input type="email" id="admin-email" placeholder="Admin Email" required>
-            <input type="password" id="admin-pass" placeholder="Admin Password" required>
-            <button onclick="checkAdmin()">LOGIN</button>
+    <div class="noise-overlay"></div>
+    
+    <nav>
+        <div class="logo">TAPD<span>.</span></div>
+        <div class="nav-links">
+            <a href="shop.html" style="color: white; text-decoration:none; margin-right:20px; font-size:0.9rem; letter-spacing:1px; text-transform:uppercase;">Shop</a>
+            <a href="customize.html" style="color: white; text-decoration:none; font-size:0.9rem; letter-spacing:1px; text-transform:uppercase;">Create</a>
+        </div>
+        <a href="shop.html" style="text-decoration:none; padding:10px 24px; background:rgba(255,255,255,0.1); color:white; border-radius:4px; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; border:1px solid rgba(255,255,255,0.2);">Shop All</a>
+    </nav>
+
+    <section class="about-hero">
+        <div class="bg-blob"></div>
+        <h1 class="manifesto-title">We Don't Just Network.<br><span style="color:var(--gold);">We Connect.</span></h1>
+        <p class="manifesto-text">
+            The paper business card was invented in the 15th century. It died today. 
+            TAPD is the bridge between your physical presence and your digital legacy.
+        </p>
+    </section>
+
+    <div class="marquee-container">
+        <div class="marquee-content">
+            NO APPS REQUIRED • INSTANT SHARING • SUSTAINABLE TECH • FUTURE READY • NO APPS REQUIRED • INSTANT SHARING • SUSTAINABLE TECH • FUTURE READY • NO APPS REQUIRED • INSTANT SHARING •
         </div>
     </div>
 
-    <div class="admin-container" style="display:none;" id="dashboard-ui">
+    <section class="story-section">
+        <div class="story-grid">
+            <div class="story-image">
+                </div>
+            <div class="story-content">
+                <h2>The Glitch in <br>The Matrix</h2>
+                <p>
+                    We were tired of carrying stacks of paper that ended up in the trash. We were tired of "Let me spell my handle for you."
+                </p>
+                <p>
+                    So we built a tool for the bold. A piece of hardware that feels like the future. Embedded with NFC technology, TAPD allows you to transfer your entire digital identity—Instagram, LinkedIn, Spotify, Portfolio—with a single tap.
+                </p>
+                <p style="color:var(--gold); font-weight:bold; letter-spacing:1px;">
+                    ONE TAP. ZERO FRICTION. INFINITE IMPACT.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section" id="stats">
+        <div class="stat-item">
+            <h3 data-target="50000">0</h3>
+            <span>Trees Saved</span>
+        </div>
+        <div class="stat-item">
+            <h3 data-target="150">0</h3>
+            <span>Countries Reached</span>
+        </div>
+        <div class="stat-item">
+            <h3 data-target="1000000">0</h3>
+            <span>Taps & Counting</span>
+        </div>
+    </section>
+
+    <section class="team-section">
+        <h2 style="font-family:'Syncopate'; margin-bottom:50px;">The Architect</h2>
         
-        <div class="sidebar">
-            <div class="logo">TAPD.<span>.</span></div>
-            <button class="nav-btn active" onclick="showSection('orders')"><i class="fa-solid fa-cart-shopping"></i> Orders</button>
-            <button class="nav-btn" onclick="showSection('products')"><i class="fa-solid fa-box-open"></i> Products</button>
-            <button class="nav-btn" onclick="showSection('coupons')"><i class="fa-solid fa-ticket"></i> Coupons</button>
-            <button class="nav-btn" style="margin-top: auto; color: #ff5555;" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+        <div class="team-card">
+            <div class="avatar-circle">
+                <i class="fa-solid fa-user-astronaut"></i>
+            </div>
+            <h3 style="font-family:'Syncopate'; margin-bottom:5px;">HASNAIN LORI</h3>
+            <div style="color:var(--gold); font-size:0.8rem; letter-spacing:2px; font-weight:bold; margin-bottom:20px;">FOUNDER & CREATOR</div>
+            <p style="color:#aaa; font-size:0.9rem;">
+                "I didn't want to build just another gadget. I wanted to build a key. A key that unlocks your world for others seamlessly."
+            </p>
         </div>
+    </section>
 
-        <div class="content-area">
-            
-            <div id="orders" class="section active">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin:0; border:none;">Order Management</h2>
-                    <button onclick="loadOrders()" style="background: #333; color: white; padding: 8px 15px; border: none; cursor: pointer; border-radius: 4px;">
-                        <i class="fa-solid fa-rotate"></i> Refresh
-                    </button>
-                </div>
-                
-                <div id="orders-list-container" style="display: flex; flex-direction: column; gap: 20px;">
-                    <p style="color: #666;">Loading orders...</p>
-                </div>
+    <footer class="TAPD-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h2 class="footer-logo">TAPD.</h2>
+                <p class="footer-tagline">The future of connection.</p>
             </div>
-
-            <div id="products" class="section">
-                <h2>Manage Products</h2>
-                
-                <div style="background: #111; padding: 25px; border-radius: 10px; margin-bottom: 40px; border: 1px solid #222;">
-                    <h3 style="margin-top:0;">Add New Product</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <div class="form-group">
-                            <label>Product Title</label>
-                            <input type="text" id="p-title" placeholder="e.g. The Executive Black">
-                        </div>
-                        <div class="form-group">
-                            <label>Price (₹)</label>
-                            <input type="number" id="p-price" placeholder="1999">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Description</label>
-                        <textarea id="p-desc" rows="3" placeholder="Enter full product description here..."></textarea>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <div class="form-group">
-                            <label>Product Type</label>
-                            <select id="p-type">
-                                <option value="card">NFC Card (Rectangle)</option>
-                                <option value="tag">NFC Tag / Keychain (Circle)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Category</label>
-                            <select id="p-category">
-                                <option value="review">Restaurants / Reviews</option>
-                                <option value="social">Social Media</option>
-                                <option value="business">Business / Professional</option>
-                                <option value="music">Music / Spotify</option>
-                                <option value="pet">Pet Safety</option>
-                                <option value="custom">Custom Design</option>
-                                <option value="privacy">Car Privacy</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Product Images</label>
-                        <input type="file" id="p-images" multiple accept="image/*" onchange="previewImages(this, 'add-preview')">
-                        <div class="img-preview-grid" id="add-preview"></div>
-                    </div>
-
-                    <div class="form-group" style="margin-top: 20px;">
-                        <details style="background: #1a1a1a; padding: 15px; border-radius: 6px; border: 1px solid #333;">
-                            <summary style="cursor: pointer; color: var(--gold); font-weight: bold; font-size: 0.9rem;">
-                                <i class="fa-solid fa-code"></i> Advanced: Editable Template JSON
-                            </summary>
-                            <textarea id="p-design-json" rows="6" placeholder='{"version":"5.3.0","objects":[...]}' 
-                                      style="width:100%; font-family:monospace; font-size:0.8rem; background:#000; border:1px solid #444; color:#0f0; padding:10px; margin-top:10px;"></textarea>
-                        </details>
-                    </div>
-                    
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
-                        <button class="btn-gold" onclick="uploadProduct()">UPLOAD PRODUCT</button>
-                        <p id="upload-status" style="color:#888; font-size:0.8rem; margin:0;"></p>
-                    </div>
-                </div>
-
-                <h3>Current Inventory</h3>
-                <div id="products-list-container">
-                </div>
+    
+            <div class="footer-links-group">
+                <ul class="footer-nav">
+                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Explore</span></li>
+                    <li><a href="shop.html" class="footer-link">Shop</a></li>
+                    <li><a href="customize.html" class="footer-link">Customize</a></li>
+                    <li><a href="about.html" class="footer-link">About Us</a></li>
+                </ul>
+                <ul class="footer-nav">
+                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Legal</span></li>
+                    <li><a href="legal.html#shipping" class="footer-link">Shipping Policy</a></li>
+                    <li><a href="legal.html#refunds" class="footer-link">Refunds & Returns</a></li>
+                    <li><a href="legal.html#terms" class="footer-link">Terms of Service</a></li>
+                </ul>
+                <ul class="footer-nav">
+                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Connect</span></li>
+                    <li><a href="contact.html" class="footer-link">ConTAPD Us</a></li>
+                    <li><a href="https://instagram.com/TAPD_.t" target="_blank" class="footer-link">Instagram ↗</a></li>
+                </ul>
             </div>
-
-            <div id="coupons" class="section">
-                <div style="display: grid; grid-template-columns: 1fr 300px; gap: 40px;">
-                    <div>
-                        <h2>Active Coupons</h2>
-                        <table id="coupons-table">
-                            <thead>
-                                <tr>
-                                    <th>Code</th>
-                                    <th>Discount</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="coupons-body">
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div style="background: #111; padding: 25px; border-radius: 10px; border: 1px solid #222; height: fit-content;">
-                        <h3 style="margin-top:0;">Create Coupon</h3>
-                        <div class="form-group">
-                            <label>Code Name</label>
-                            <input type="text" id="c-code" style="text-transform: uppercase;" placeholder="e.g. SALE20">
-                        </div>
-                        <div class="form-group">
-                            <label>Discount Type</label>
-                            <select id="c-type">
-                                <option value="flat">Flat Amount Off (₹)</option>
-                                <option value="percentage">Percentage Off (%)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Value</label>
-                            <input type="number" id="c-value" placeholder="e.g. 500">
-                        </div>
-                        <button class="btn-gold" style="width:100%" onclick="createCoupon()">SAVE COUPON</button>
-                    </div>
-                </div>
-            </div>
-
         </div>
-    </div>
-
-    <div id="edit-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Edit Product</h3>
-                <button class="close-modal" onclick="closeEditModal()">&times;</button>
-            </div>
-            <input type="hidden" id="edit-key">
-            <div class="form-group"><label>Title</label><input type="text" id="edit-title"></div>
-            <div class="form-group"><label>Price (₹)</label><input type="number" id="edit-price"></div>
-            <div class="form-group"><label>Description</label><textarea id="edit-desc" rows="3"></textarea></div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                 <div class="form-group"><label>Type</label><select id="edit-type"><option value="card">NFC Card</option><option value="tag">NFC Tag</option></select></div>
-                <div class="form-group"><label>Category</label><select id="edit-category"><option value="review">Reviews</option><option value="social">Social</option><option value="business">Business</option><option value="music">Music</option><option value="pet">Pet</option><option value="custom">Custom</option><option value="privacy">Privacy</option></select></div>
-            </div>
-            <div class="form-group"><label>Current Images</label><div class="img-preview-grid" id="edit-current-images"></div></div>
-            <div class="form-group"><label>Add New Images</label><input type="file" id="edit-new-images" multiple accept="image/*" onchange="previewImages(this, 'edit-new-preview')"><div class="img-preview-grid" id="edit-new-preview"></div></div>
-            <div class="form-group" style="margin-top: 20px;"><details style="background: #1a1a1a; padding: 15px; border-radius: 6px; border: 1px solid #333;"><summary style="cursor: pointer; color: var(--gold); font-weight: bold; font-size: 0.9rem;"><i class="fa-solid fa-code"></i> Advanced: Editable Template JSON</summary><textarea id="edit-design-json" rows="6" placeholder='Paste JSON...' style="width:100%; font-family:monospace; font-size:0.8rem; background:#000; border:1px solid #444; color:#0f0; padding:10px; margin-top:10px;"></textarea></details></div>
-            <button class="btn-gold" style="width:100%" onclick="saveProductChanges()">SAVE CHANGES</button>
+        <div class="footer-bottom">
+            <p>&copy; 2026 TAPD. Hardware.</p>
+            <p class="fade-text">Designed for the bold.</p>
         </div>
-    </div>
+    </footer>
 
-    <div id="toast">Action Successful</div>
+    <script>
+        // --- NUMBER COUNTER ANIMATION ---
+        const statsSection = document.getElementById('stats');
+        const counters = document.querySelectorAll('.stat-item h3');
+        let started = false;
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="admin.js"></script>
+        const startCounting = () => {
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const duration = 2000; // 2 seconds
+                const step = target / (duration / 16); // 60fps
+
+                let current = 0;
+                const updateCounter = () => {
+                    current += step;
+                    if(current < target) {
+                        // Format numbers (e.g., 1,000,000)
+                        counter.innerText = Math.ceil(current).toLocaleString() + "+";
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.innerText = target.toLocaleString() + "+";
+                    }
+                };
+                updateCounter();
+            });
+        };
+
+        // Trigger animation when scrolled into view
+        const observer = new IntersectionObserver((entries) => {
+            if(entries[0].isIntersecting && !started) {
+                startCounting();
+                started = true;
+            }
+        });
+
+        observer.observe(statsSection);
+    </script>
 </body>
 </html>

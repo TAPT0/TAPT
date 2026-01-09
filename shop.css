@@ -356,97 +356,76 @@ nav {
 .footer-nav li a:hover { color: white; padding-left: 5px; }
 .footer-bottom { text-align: center; margin-top: 80px; padding-top: 30px; border-top: 1px solid #111; color: #444; font-size: 0.8rem; }
 
-/* REVEAL ANIMATION */
+/* =========================================
+   LIQUID ZIG-ZAG ANIMATION (Global)
+   ========================================= */
 .shop-row { 
     opacity: 0; 
-    transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1); /* Smooth cinematic ease */
+    /* This bezier curve creates a "slow down" effect at the end = Premium feel */
+    transition: all 1.2s cubic-bezier(0.19, 1, 0.22, 1); 
 }
 
-/* Odd Rows (1, 3, 5...): Slide from Left */
-.shop-row:nth-child(odd) { 
-    transform: translateX(-100px); 
-}
+/* Odd Rows: Slide from Left */
+.shop-row:nth-child(odd) { transform: translateX(-80px) scale(0.95); }
 
-/* Even Rows (2, 4, 6...): Slide from Right */
-.shop-row:nth-child(even) { 
-    transform: translateX(100px); 
-}
+/* Even Rows: Slide from Right */
+.shop-row:nth-child(even) { transform: translateX(80px) scale(0.95); }
 
-/* Active State: Center and Visible */
+/* Active State: Center, Full Size, Visible */
 .shop-row.active { 
     opacity: 1; 
-    transform: translateX(0); 
+    transform: translateX(0) scale(1); 
 }
-
-/* Standard Fade Up for other elements (like headers) */
-.reveal { 
-    opacity: 0; 
-    transform: translateY(50px); 
-    transition: 0.8s ease; 
-}
-.reveal.active { 
-    opacity: 1; 
-    transform: translateY(0); 
-}
-
 /* =========================================
-   MOBILE LAYOUT: REAL 3D CARD (FLOATING)
+   MOBILE LAYOUT: PREMIUM COMPACT
    ========================================= */
 @media (max-width: 900px) {
     .hero-title { font-size: 2.2rem; }
     
     .showcase-container { 
-        gap: 80px; /* Space between products */
+        gap: 50px; 
         padding: 0 10px; 
     }
 
-    /* 1. REMOVE THE BOX (Make it float) */
+    /* 1. LAYOUT CONTAINER */
     .shop-row {
-        background: none !important; /* No dark box */
-        border: none !important;     /* No border */
-        box-shadow: none !important; /* No box shadow */
-        padding: 0 !important;       /* No padding */
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
         
-        flex-direction: row !important; /* Keep horizontal */
+        flex-direction: row !important;
         align-items: center;
-        gap: 20px;
-        min-height: auto;
-        margin-bottom: 40px;
+        gap: 15px; 
+        margin-bottom: 20px;
     }
 
     /* Keep Zig-Zag Layout */
     .shop-row:nth-child(even) { flex-direction: row-reverse !important; }
 
-    /* 2. CARD CONTAINER */
+    /* 2. CARD CONTAINER (The Golden Aura) */
     .row-image-box { 
-        width: 160px; /* Fixed width for card area */
-        height: 110px;
-        flex: 0 0 160px; /* Don't grow/shrink */
+        width: 150px; 
+        height: 120px; /* Slightly taller to breathe */
+        flex: 0 0 150px;
         display: flex;
         align-items: center;
         justify-content: center;
-        perspective: 800px; /* Stronger 3D effect on mobile */
+        perspective: 800px;
     }
     
-    /* 3. THE 3D CARD (PERFECT FIT) */
-    .digital-twin.shape-card { 
-        width: 100% !important; 
-        height: 100% !important; 
-        border-radius: 8px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.8); /* Deep shadow for realism */
-    } 
-    .digital-twin.shape-tag { 
-        width: 100px !important; 
-        height: 100px !important; 
+    /* THE 3D OBJECT + AURA */
+    .digital-twin {
+        /* Soft Golden Glow around the card */
+        box-shadow: 0 0 25px rgba(212, 175, 55, 0.15), 0 10px 20px rgba(0,0,0,0.5) !important;
     }
 
-    /* FORCE IMAGE TO COVER 100% */
-    .twin-base {
-        background-size: 100% 100% !important; /* Forces image to fit perfectly */
-        background-repeat: no-repeat;
-    }
+    .digital-twin.shape-card { width: 100% !important; height: 100% !important; border-radius: 8px; } 
+    .digital-twin.shape-tag { width: 100px !important; height: 100px !important; }
 
-    /* 4. CLEAN TEXT LAYOUT */
+    .twin-base { background-size: 100% 100% !important; }
+
+    /* 3. TEXT CONTENT */
     .row-content { 
         flex: 1; 
         text-align: left !important;
@@ -461,43 +440,62 @@ nav {
     .shop-row:nth-child(even) .row-actions { justify-content: flex-end; }
     .shop-row:nth-child(even) .row-price { justify-content: flex-end; }
 
-    /* HIDE EXTRA STUFF */
-    .row-cat { display: none; }       /* Hide "CARD SERIES" */
-    .row-desc { display: none; }      /* Hide Description */
-    .btn-add-round { display: none; } /* Hide the round (+) button */
+    .row-cat { display: none; } 
+    .btn-add-round { display: none; } 
 
-    /* NAME */
+    /* TITLE: Smaller & Cleaner */
     .row-title { 
-        font-size: 1.3rem;
-        margin-bottom: 5px;
+        font-size: 1.1rem; /* Perfect compact size */
+        margin-bottom: 4px;
         line-height: 1.1;
-        color: white; /* Clean white text */
+        color: white;
+        text-transform: uppercase;
+    }
+    
+    /* DESCRIPTION: Visible but tiny */
+    .row-desc { 
+        display: block !important;
+        font-size: 0.65rem;
+        color: #888;
+        line-height: 1.3;
+        margin-bottom: 8px;
+        /* Limit to 2 lines so it doesn't break layout */
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
     
     /* PRICE */
     .row-price { 
-        font-size: 1.1rem; 
-        margin-bottom: 12px; 
+        font-size: 1rem; 
+        margin-bottom: 10px; 
         color: var(--gold);
         font-weight: 700;
     }
     
-    /* CONFIGURE BUTTON (Small & Clean) */
+    /* PREMIUM CONFIGURE BUTTON */
     .btn-buy { 
-        padding: 8px 16px; 
-        font-size: 0.65rem; 
+        padding: 8px 18px; 
+        font-size: 0.6rem; 
         letter-spacing: 1px; 
-        border: 1px solid rgba(255,255,255,0.3); /* Subtle border */
-        background: transparent;
-        color: white;
+        font-weight: 800;
+        
+        /* Solid Gold Gradient */
+        background: linear-gradient(135deg, #D4AF37, #AA8A2E);
+        color: black;
+        border: none;
+        border-radius: 4px;
+        box-shadow: 0 4px 10px rgba(212,175,55,0.2); /* Button Glow */
     }
-    .btn-buy:active { background: var(--gold); color: black; border-color: var(--gold); }
+    .btn-buy:active { transform: scale(0.95); }
 
-    /* Reset animations for mobile smoothness */
-    .shop-row:nth-child(odd), .shop-row:nth-child(even) { transform: none; }
-    .shop-row.active { opacity: 1; }
+    /* RESET ANIMATION DISTANCE FOR MOBILE (Prevent side scrolling issues) */
+    .shop-row:nth-child(odd) { transform: translateX(-20px); }
+    .shop-row:nth-child(even) { transform: translateX(20px); }
+    .shop-row.active { opacity: 1; transform: translateX(0); }
     
-    /* Other sections */
+    /* Fix other sections */
     .blueprint-grid { grid-template-columns: 1fr; }
     .stats-strip { flex-direction: column; gap: 30px; }
 }

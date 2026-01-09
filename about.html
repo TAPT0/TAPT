@@ -1,109 +1,187 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>About The Future | TAPD.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAPD. Admin | Firestore</title>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="about.css">
+    <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
-    <div class="noise-overlay"></div>
-    <div class="gold-glow-sphere" style="top: 10%; right: -10%;"></div>
-    <div class="gold-glow-sphere" style="bottom: 10%; left: -10%; width: 400px; height: 400px; opacity: 0.4;"></div>
-
-    <nav>
-        <a href="index" class="logo">TAPD<span>.</span></a>
-        <a href="shop" class="back-link">
-            <i class="fa-solid fa-arrow-left"></i> Back to Shop
-        </a>
-    </nav>
-
-    <div class="about-container">
-        
-        <header class="about-hero">
-            <p class="fade-in-text">EST. 2026</p>
-            <h1 class="glitch-text" data-text="THE LAST CARD">THE LAST CARD</h1>
-            <h1 class="glitch-text" data-text="YOU WILL EVER NEED">YOU WILL EVER NEED.</h1>
-            <div class="scroll-line"></div>
-        </header>
-
-        <section class="mission-section">
-            <div class="text-block">
-                <h2>Forget Paper.<br>Embrace the <span class="gold">Signal.</span></h2>
-                <p>
-                    We live in a world that moves at the speed of light, yet we still introduce ourselves with dead trees. 
-                    <strong>TAPD.</strong> exists to kill the paper business card.
-                </p>
-                <p>
-                    We engineer premium NFC hardware that bridges the gap between your physical presence and your digital legacy. 
-                    One tap, and you're connected. No apps. No typing. Just flow.
-                </p>
-            </div>
-            <div class="visual-block">
-                <div class="card-visual">
-                    <div class="floating-card"></div>
-                </div>
-            </div>
-        </section>
-
-        <section class="aesthetic-section">
-            <div class="stat-grid">
-                <div class="stat-box">
-                    <h3>0.1s</h3>
-                    <p>Transfer Speed</p>
-                </div>
-                <div class="stat-box">
-                    <h3>∞</h3>
-                    <p>Impressions</p>
-                </div>
-                <div class="stat-box">
-                    <h3>PVC</h3>
-                    <p>Premium Build</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="quote-section">
-            <blockquote>
-                "Networking isn't about handing out conTAPD info. It's about leaving a mark."
-            </blockquote>
-            <cite>— TAPD. VISION</cite>
-        </section>
-
-        <section class="cta-section">
-            <h2>Ready to Upgrade?</h2>
-            <a href="shop" class="cta-btn">GET YOUR CARD</a>
-        </section>
-
-        <footer class="TAPD-footer">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <h2 class="footer-logo">TAPD.</h2>
-                    <p class="footer-tagline">The future of connection.</p>
-                </div>
-                <div class="footer-links-group">
-                    <ul class="footer-nav">
-                        <li><a href="shop" class="footer-link">Shop</a></li>
-                        <li><a href="customize" class="footer-link">Customize</a></li>
-                    </ul>
-                    <ul class="footer-nav">
-                        <li><a href="https://instagram.com/TAPD_.t" target="_blank" class="footer-link">Instagram ↗</a></li>
-                        <li><a href="mailto:help.TAPD@gmail.com" class="footer-link">ConTAPD</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 TAPD. Hardware.</p>
-            </div>
-        </footer>
-
+    <div id="login-screen">
+        <div class="logo">TAPD.<span>.</span> ADMIN</div>
+        <div class="login-box">
+            <input type="email" id="admin-email" placeholder="Admin Email" required>
+            <input type="password" id="admin-pass" placeholder="Admin Password" required>
+            <button onclick="checkAdmin()">LOGIN</button>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <div class="admin-container" style="display:none;" id="dashboard-ui">
+        
+        <div class="sidebar">
+            <div class="logo">TAPD.<span>.</span></div>
+            <button class="nav-btn active" onclick="showSection('orders')"><i class="fa-solid fa-cart-shopping"></i> Orders</button>
+            <button class="nav-btn" onclick="showSection('products')"><i class="fa-solid fa-box-open"></i> Products</button>
+            <button class="nav-btn" onclick="showSection('coupons')"><i class="fa-solid fa-ticket"></i> Coupons</button>
+            <button class="nav-btn" style="margin-top: auto; color: #ff5555;" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+        </div>
+
+        <div class="content-area">
+            
+            <div id="orders" class="section active">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin:0; border:none;">Order Management</h2>
+                    <button onclick="loadOrders()" style="background: #333; color: white; padding: 8px 15px; border: none; cursor: pointer; border-radius: 4px;">
+                        <i class="fa-solid fa-rotate"></i> Refresh
+                    </button>
+                </div>
+                
+                <div id="orders-list-container" style="display: flex; flex-direction: column; gap: 20px;">
+                    <p style="color: #666;">Loading orders...</p>
+                </div>
+            </div>
+
+            <div id="products" class="section">
+                <h2>Manage Products</h2>
+                
+                <div style="background: #111; padding: 25px; border-radius: 10px; margin-bottom: 40px; border: 1px solid #222;">
+                    <h3 style="margin-top:0;">Add New Product</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Product Title</label>
+                            <input type="text" id="p-title" placeholder="e.g. The Executive Black">
+                        </div>
+                        <div class="form-group">
+                            <label>Price (₹)</label>
+                            <input type="number" id="p-price" placeholder="1999">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="p-desc" rows="3" placeholder="Enter full product description here..."></textarea>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Product Type</label>
+                            <select id="p-type">
+                                <option value="card">NFC Card (Rectangle)</option>
+                                <option value="tag">NFC Tag / Keychain (Circle)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="p-category">
+                                <option value="review">Restaurants / Reviews</option>
+                                <option value="social">Social Media</option>
+                                <option value="business">Business / Professional</option>
+                                <option value="music">Music / Spotify</option>
+                                <option value="pet">Pet Safety</option>
+                                <option value="custom">Custom Design</option>
+                                <option value="privacy">Car Privacy</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Product Images</label>
+                        <input type="file" id="p-images" multiple accept="image/*" onchange="previewImages(this, 'add-preview')">
+                        <div class="img-preview-grid" id="add-preview"></div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <details style="background: #1a1a1a; padding: 15px; border-radius: 6px; border: 1px solid #333;">
+                            <summary style="cursor: pointer; color: var(--gold); font-weight: bold; font-size: 0.9rem;">
+                                <i class="fa-solid fa-code"></i> Advanced: Editable Template JSON
+                            </summary>
+                            <textarea id="p-design-json" rows="6" placeholder='{"version":"5.3.0","objects":[...]}' 
+                                      style="width:100%; font-family:monospace; font-size:0.8rem; background:#000; border:1px solid #444; color:#0f0; padding:10px; margin-top:10px;"></textarea>
+                        </details>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                        <button class="btn-gold" onclick="uploadProduct()">UPLOAD PRODUCT</button>
+                        <p id="upload-status" style="color:#888; font-size:0.8rem; margin:0;"></p>
+                    </div>
+                </div>
+
+                <h3>Current Inventory</h3>
+                <div id="products-list-container">
+                </div>
+            </div>
+
+            <div id="coupons" class="section">
+                <div style="display: grid; grid-template-columns: 1fr 300px; gap: 40px;">
+                    <div>
+                        <h2>Active Coupons</h2>
+                        <table id="coupons-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Discount</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coupons-body">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="background: #111; padding: 25px; border-radius: 10px; border: 1px solid #222; height: fit-content;">
+                        <h3 style="margin-top:0;">Create Coupon</h3>
+                        <div class="form-group">
+                            <label>Code Name</label>
+                            <input type="text" id="c-code" style="text-transform: uppercase;" placeholder="e.g. SALE20">
+                        </div>
+                        <div class="form-group">
+                            <label>Discount Type</label>
+                            <select id="c-type">
+                                <option value="flat">Flat Amount Off (₹)</option>
+                                <option value="percentage">Percentage Off (%)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Value</label>
+                            <input type="number" id="c-value" placeholder="e.g. 500">
+                        </div>
+                        <button class="btn-gold" style="width:100%" onclick="createCoupon()">SAVE COUPON</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Product</h3>
+                <button class="close-modal" onclick="closeEditModal()">&times;</button>
+            </div>
+            <input type="hidden" id="edit-key">
+            <div class="form-group"><label>Title</label><input type="text" id="edit-title"></div>
+            <div class="form-group"><label>Price (₹)</label><input type="number" id="edit-price"></div>
+            <div class="form-group"><label>Description</label><textarea id="edit-desc" rows="3"></textarea></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                 <div class="form-group"><label>Type</label><select id="edit-type"><option value="card">NFC Card</option><option value="tag">NFC Tag</option></select></div>
+                <div class="form-group"><label>Category</label><select id="edit-category"><option value="review">Reviews</option><option value="social">Social</option><option value="business">Business</option><option value="music">Music</option><option value="pet">Pet</option><option value="custom">Custom</option><option value="privacy">Privacy</option></select></div>
+            </div>
+            <div class="form-group"><label>Current Images</label><div class="img-preview-grid" id="edit-current-images"></div></div>
+            <div class="form-group"><label>Add New Images</label><input type="file" id="edit-new-images" multiple accept="image/*" onchange="previewImages(this, 'edit-new-preview')"><div class="img-preview-grid" id="edit-new-preview"></div></div>
+            <div class="form-group" style="margin-top: 20px;"><details style="background: #1a1a1a; padding: 15px; border-radius: 6px; border: 1px solid #333;"><summary style="cursor: pointer; color: var(--gold); font-weight: bold; font-size: 0.9rem;"><i class="fa-solid fa-code"></i> Advanced: Editable Template JSON</summary><textarea id="edit-design-json" rows="6" placeholder='Paste JSON...' style="width:100%; font-family:monospace; font-size:0.8rem; background:#000; border:1px solid #444; color:#0f0; padding:10px; margin-top:10px;"></textarea></details></div>
+            <button class="btn-gold" style="width:100%" onclick="saveProductChanges()">SAVE CHANGES</button>
+        </div>
+    </div>
+
+    <div id="toast">Action Successful</div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="admin.js"></script>
 </body>
 </html>

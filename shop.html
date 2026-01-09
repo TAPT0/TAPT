@@ -6,7 +6,6 @@
     <title>The Collection | TAPD.</title>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    
     <link rel="stylesheet" href="shop.css">
 </head>
 <body>
@@ -16,18 +15,10 @@
 
     <nav>
         <a href="index.html" class="logo">TAPD<span>.</span></a>
-        
         <div class="nav-right">
             <a href="customize.html" class="nav-link">Create</a>
-            
-            <a href="track.html" class="nav-icon" title="Track Order">
-                <i class="fa-solid fa-truck-fast"></i>
-            </a>
-            
-            <div class="nav-icon" onclick="toggleAccount()" title="Account">
-                <i class="fa-regular fa-user"></i>
-            </div>
-            
+            <a href="track.html" class="nav-icon" title="Track Order"><i class="fa-solid fa-truck-fast"></i></a>
+            <div class="nav-icon" onclick="toggleAccount()" title="Account"><i class="fa-regular fa-user"></i></div>
             <div class="cart-trigger" onclick="toggleCart()" title="Cart">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <span id="cart-count">0</span>
@@ -134,7 +125,7 @@
         </div>
     </div>
     
-    <div class="auth-modal" id="auth-modal">
+    <div class="auth-modal" id="auth-modal" style="display:none;">
         <h2 style="color:white; font-family:'Syncopate'; margin-bottom:20px;">Access</h2>
         <button class="auth-btn-google" onclick="loginWithGoogle()">Google</button>
         <div class="auth-divider">OR</div>
@@ -152,7 +143,6 @@
                 <h2 class="footer-logo">TAPD.</h2>
                 <p class="footer-tagline">The future of connection.</p>
             </div>
-            
             <div class="footer-links-group">
                 <ul class="footer-nav">
                     <li><span class="nav-head">Explore</span></li>
@@ -185,7 +175,6 @@
     <script src="shop.js"></script>
     
     <script>
-        // Scroll Reveal
         document.addEventListener('DOMContentLoaded', () => {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
@@ -193,7 +182,6 @@
             setInterval(() => { document.querySelectorAll('.reveal, .reveal-row').forEach(el => observer.observe(el)); }, 500);
         });
 
-        // FAQ Toggle
         function toggleFaq(el) {
             el.classList.toggle('active');
         }

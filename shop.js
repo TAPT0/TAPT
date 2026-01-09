@@ -1,58 +1,61 @@
-/* --- shop.js | TAPD. Logic Fixed --- */
+/* --- shop.js | TAPD. Live Database Connection --- */
 
-// 1. PRODUCT CATALOG
-const products = [
-    {
-        id: 1,
-        name: "The 'Album Art' Minimalist",
-        price: 249,
-        category: "card",
-        image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop", 
-        desc: "Photo Quality Focus"
-    },
-    {
-        id: 2,
-        name: "TAPD. Matte Black",
-        price: 499,
-        category: "card",
-        image: "https://images.unsplash.com/photo-1635443210352-09252c7b5009?q=80&w=1000&auto=format&fit=crop",
-        desc: "Premium Finish"
-    },
-    {
-        id: 3,
-        name: "TAPD. Gold Edition",
-        price: 999,
-        category: "card",
-        image: "https://images.unsplash.com/photo-1621504450168-b8c6816c3e83?q=80&w=1000&auto=format&fit=crop",
-        desc: "Real Metal Core"
-    },
-    {
-        id: 4,
-        name: "NFC Coin Tag",
-        price: 199,
-        category: "tag",
-        image: "https://images.unsplash.com/photo-1622630998477-20aa696fab05?q=80&w=1000&auto=format&fit=crop",
-        desc: "Stick anywhere"
-    }
-];
+// 1. Initialize Empty List
+let products = [];
 
-// 2. RENDER PRODUCTS (Using your exact CSS classes)
+// 2. FETCH FROM FIREBASE (The Missing Link)
+const db = firebase.firestore();
+
+// "products" is the collection name your Admin Panel likely uses.
+// If your admin panel uses a different name, change 'products' below.
+db.collection('products').get().then((querySnapshot) => {
+    products = []; // Clear list
+    
+    querySnapshot.forEach((doc) => {
+        let data = doc.data();
+        products.push({
+            id: doc.id, // Use the database ID
+            name: data.name || data.productName, // Tries both common names
+            price: Number(data.price) || 0,
+            category: data.category || 'card',
+            image: data.image || data.img || 'https://via.placeholder.com/300x300?text=No+Image',
+            desc: data.desc || data.description || 'Premium Hardware'
+        });
+    });
+
+    // Once data is loaded, build the grid
+    renderShop();
+    updateCartCount();
+
+}).catch((error) => {
+    console.error("Error getting products: ", error);
+    document.getElementById('shop-grid').innerHTML = '<p style="color:white; text-align:center;">Loading Legacy...</p>';
+});
+
+
+// 3. RENDER PRODUCTS (Using the FIXED Layout)
 function renderShop(filter = 'all') {
     const grid = document.getElementById('shop-grid');
     if (!grid) return;
 
     grid.innerHTML = '';
 
+    if (products.length === 0) {
+        grid.innerHTML = '<p style="color:#666; text-align:center; width:100%;">No products found in database.</p>';
+        return;
+    }
+
     products.forEach(product => {
         if (filter === 'all' || product.category === filter) {
             
             const card = document.createElement('div');
             card.className = 'product-card';
-            // We attach the click event to the button specifically later
+            
+            // We use the ID as a string now because it comes from Firebase
             card.innerHTML = `
                 <div class="p-img-box">
-                    <img src="${product.image}" alt="${product.name}">
-                    <button class="add-btn" onclick="addToCart(${product.id})">
+                    <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x300?text=TAPD'">
+                    <button class="add-btn" onclick="addToCart('${product.id}')">
                         ADD TO BAG
                     </button>
                 </div>
@@ -69,12 +72,12 @@ function renderShop(filter = 'all') {
     });
 }
 
-// 3. ADD TO CART LOGIC
+// 4. ADD TO CART LOGIC
 function addToCart(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
-    // Get Cart (TAPDCart is the key the checkout page looks for)
+    // Get Cart
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
 
     // Check if item exists
@@ -100,7 +103,7 @@ function addToCart(productId) {
     showToast(`${product.name} added to bag`);
 }
 
-// 4. UPDATE ICON
+// 5. UPDATE BAG COUNT
 function updateCartCount() {
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
     let totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
@@ -112,7 +115,7 @@ function updateCartCount() {
     }
 }
 
-// 5. TOAST NOTIFICATION
+// 6. TOAST NOTIFICATION
 function showToast(message) {
     const toast = document.createElement('div');
     toast.innerText = message;
@@ -125,12 +128,6 @@ function showToast(message) {
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 2500);
 }
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    renderShop();
-    updateCartCount();
-});
 
 // Filter Function
 function filterProducts(category, btn) {

@@ -1,19 +1,36 @@
-/* --- shop.js | PREMIUM SHOWCASE LOGIC --- */
+/* --- shop.js | FIXED & PREMIUM LAYOUT --- */
 
-// 1. SERVICES
+// 1. FIREBASE INIT (Must be first)
+const firebaseConfig = {
+    apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
+    authDomain: "tapt-337b8.firebaseapp.com",
+    databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
+    projectId: "tapt-337b8",
+    storageBucket: "tapt-337b8.firebasestorage.app",
+    messagingSenderId: "887956121124",
+    appId: "1:887956121124:web:6856680bf75aa3bacddab1",
+    measurementId: "G-2CB8QXYNJY"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+// 2. DEFINE SERVICES
 const store = firebase.firestore();
 const auth = firebase.auth();
 let products = [];
 
+// 3. MAIN LOGIC
 document.addEventListener('DOMContentLoaded', () => {
     fetchProducts();
     updateCartCount();
 });
 
-// 2. FETCH
+// --- FETCH ---
 function fetchProducts() {
     const grid = document.getElementById('shop-grid');
-    grid.innerHTML = '<div style="text-align:center; color:#666; font-size:1.2rem;">Loading Legacy...</div>';
+    grid.innerHTML = '<div style="text-align:center; color:#666; font-size:1.2rem; width:100%;">Loading The Legacy...</div>';
 
     store.collection('products').get().then((snap) => {
         products = []; 
@@ -39,19 +56,17 @@ function fetchProducts() {
     });
 }
 
-// 3. RENDER (ZIG-ZAG LAYOUT)
+// --- RENDER (ZIG-ZAG) ---
 function renderShop(filter = 'all') {
     const grid = document.getElementById('shop-grid');
     grid.innerHTML = '';
-    
     let visibleCount = 0;
 
     products.forEach(product => {
         if (filter !== 'all' && product.category !== filter) return;
 
-        // Create Container
         const row = document.createElement('div');
-        // Alternating Class
+        // Alternating Class for Zig-Zag
         const reverseClass = visibleCount % 2 !== 0 ? 'reverse' : '';
         row.className = `shop-row reveal ${reverseClass}`;
         
@@ -81,7 +96,7 @@ function renderShop(filter = 'all') {
         visibleCount++;
     });
 
-    // Attach Observers for Animation
+    // Re-attach scroll observers
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if(entry.isIntersecting) entry.target.classList.add('active');
@@ -114,7 +129,7 @@ function addToCart(id) {
 
     localStorage.setItem('TAPDCart', JSON.stringify(cart));
     updateCartCount();
-    toggleCart(); // Open Drawer
+    toggleCart(); 
 }
 
 function updateCartCount() {
@@ -127,11 +142,10 @@ function updateCartCount() {
     }
 }
 
-// DRAWER LOGIC
+// DRAWER & AUTH LOGIC (Standard)
 function toggleCart() {
     const drawer = document.getElementById('cart-drawer');
     const overlay = document.querySelector('.cart-overlay');
-    
     if(drawer.classList.contains('open')) {
         drawer.classList.remove('open');
         overlay.style.display = 'none';
@@ -152,24 +166,26 @@ function renderCartItems() {
     
     if(cart.length === 0) {
         container.innerHTML = "<p style='color:#666; text-align:center;'>Bag is empty.</p>";
-        totalEl.innerText = "₹0";
+        if(totalEl) totalEl.innerText = "₹0";
         return;
     }
 
     cart.forEach((item, idx) => {
         total += item.price * item.qty;
         container.innerHTML += `
-            <div style="display:flex; gap:15px; margin-bottom:15px; align-items:center; background:#111; padding:10px; border-radius:8px;">
-                <img src="${item.img}" style="width:50px; height:50px; object-fit:cover; border-radius:4px;">
+            <div class="cart-item">
+                <img src="${item.img}">
                 <div style="flex:1;">
-                    <div style="color:white; font-size:0.9rem;">${item.name}</div>
-                    <div style="color:#gold; font-size:0.8rem;">₹${item.price} x ${item.qty}</div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <h4 style="margin:0; font-size:0.9rem;">${item.name}</h4>
+                        <span onclick="removeItem(${idx})" style="cursor:pointer; color:#ff4444;">&times;</span>
+                    </div>
+                    <p style="color:var(--gold); font-size:0.8rem;">₹${item.price} x ${item.qty}</p>
                 </div>
-                <div style="color:#ff4444; cursor:pointer;" onclick="removeItem(${idx})">&times;</div>
             </div>
         `;
     });
-    totalEl.innerText = "₹" + total;
+    if(totalEl) totalEl.innerText = "₹" + total;
 }
 
 function removeItem(idx) {
@@ -178,4 +194,22 @@ function removeItem(idx) {
     localStorage.setItem('TAPDCart', JSON.stringify(cart));
     renderCartItems();
     updateCartCount();
+}
+
+function toggleAccount() {
+    const drawer = document.getElementById('account-drawer');
+    const overlay = document.querySelector('.cart-overlay');
+    if (drawer.classList.contains('open')) {
+        drawer.classList.remove('open');
+        if(overlay) overlay.style.display = 'none';
+    } else {
+        drawer.classList.add('open');
+        if(overlay) overlay.style.display = 'block';
+    }
+}
+
+function closeAllDrawers() {
+    document.getElementById('cart-drawer').classList.remove('open');
+    document.getElementById('account-drawer').classList.remove('open');
+    document.querySelector('.cart-overlay').style.display = 'none';
 }

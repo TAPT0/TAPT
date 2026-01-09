@@ -9,6 +9,8 @@
     
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="customize.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 </head>
 <body>
 
@@ -16,9 +18,9 @@
     <div class="gold-glow-sphere"></div>
 
     <nav>
-        <a href="index" class="logo">TAPD<span>.</span></a>
+        <a href="index.html" class="logo">TAPD<span>.</span></a>
         <div class="nav-right">
-            <a href="shop" class="nav-icon"><i class="fa-solid fa-shop"></i></a>
+            <a href="shop.html" class="nav-icon"><i class="fa-solid fa-shop"></i></a>
             <div class="nav-icon" style="position: relative;" onclick="toggleCart()">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <span id="cart-count" class="cart-badge">0</span>
@@ -31,26 +33,16 @@
         <div class="studio-stage">
             <div class="card-stage" id="tilt-stage">
                 
-                <div class="product-mask mode-card" id="product-mask">
-                    
-                    <img id="user-upload-img" src="" alt="" class="user-layer">
-                    
-                    <div id="text-canvas"></div>
-
-                    <div class="placeholder-msg" id="placeholder-msg">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <span>Upload Design</span>
-                    </div>
-
-                    <div class="overlay-texture"></div> 
-                    
-                    <div class="hw-hole"></div>
-                    <div class="hw-ring"></div>
+                <div class="canvas-wrapper" id="canvas-wrapper">
+                    <canvas id="editor-canvas"></canvas>
                 </div>
 
+                <div class="hw-hole" id="hw-hole" style="display:none;"></div>
+                <div class="hw-ring" id="hw-ring" style="display:none;"></div>
             </div>
+            
             <div class="stage-instructions">
-                <i class="fa-solid fa-hand-pointer"></i> Drag Text to Move • Scroll to Zoom
+                <i class="fa-solid fa-hand-pointer"></i> Select elements to edit • Drag to move
             </div>
         </div>
 
@@ -61,7 +53,7 @@
             </div>
 
             <div class="control-group">
-                <label>Select Hardware</label>
+                <label>Hardware Type</label>
                 <div class="toggle-switch">
                     <button class="toggle-btn active" onclick="setMode('card')" id="btn-card">Card</button>
                     <button class="toggle-btn" onclick="setMode('tag')" id="btn-tag">Tag</button>
@@ -69,38 +61,21 @@
             </div>
 
             <div class="control-group">
-                <label>Design File</label>
+                <label>Add Image / Logo</label>
                 <label for="file-upload" class="upload-trigger">
-                    <span id="file-name">Choose Image</span>
+                    <span id="file-name">Upload Image</span>
                     <i class="fa-solid fa-upload"></i>
                 </label>
-                <input type="file" id="file-upload" accept="image/*">
+                <input type="file" id="file-upload" accept="image/*" onchange="handleAddImage(this)">
             </div>
 
-            <div id="image-controls" style="display:none;">
-                <div class="divider"><span>IMAGE ADJUSTMENT</span></div>
-                <div class="slider-group">
-                    <label>Zoom <span id="val-scale">100%</span></label>
-                    <input type="range" id="sl-scale" min="0.5" max="3" step="0.01" value="1">
-                </div>
-                <div class="slider-group">
-                    <label>Rotate <span id="val-rotate">0°</span></label>
-                    <input type="range" id="sl-rotate" min="-180" max="180" step="1" value="0">
-                </div>
-                <button class="reset-link" onclick="resetImage()">Reset Image</button>
-            </div>
-
-            <div id="text-section" style="display:none; margin-top:30px;">
-                <div class="divider"><span>TEXT LAYERS</span></div>
+            <div id="layer-controls" style="display:none; animation: fadeIn 0.3s;">
+                <div class="divider"><span>EDIT SELECTED</span></div>
                 
-                <button class="add-text-btn" onclick="addTextLayer()">
-                    <i class="fa-solid fa-plus"></i> Add New Text
-                </button>
-
-                <div id="text-properties" style="display:none; margin-top:20px; background:#1a1a1a; padding:15px; border-radius:10px; border:1px solid #333;">
+                <div id="text-tools" style="display:none;">
                     <div class="input-group">
-                        <label>Content</label>
-                        <input type="text" id="txt-content" placeholder="Type here...">
+                        <label>Text</label>
+                        <input type="text" id="txt-content" class="TAPD-input">
                     </div>
                     
                     <div class="slider-row">
@@ -115,31 +90,37 @@
                         </div>
                         <div class="slider-group" style="flex:1; align-items:flex-end; display:flex; flex-direction:column;">
                             <label>Color</label>
-                            <input type="color" id="txt-color" value="#ffffff">
+                            <input type="color" id="txt-color">
                         </div>
                     </div>
-
-                    <div class="slider-group">
-                        <label>Size</label>
-                        <input type="range" id="txt-size" min="10" max="60" value="20">
-                    </div>
-
-                    <button class="delete-text-btn" onclick="deleteSelectedText()">Remove Text</button>
                 </div>
+
+                <div class="slider-group" style="margin-top:15px;">
+                    <label>Size / Scale</label>
+                    <input type="range" id="common-scale" min="0.1" max="3" step="0.1">
+                </div>
+                
+                <button class="delete-text-btn" onclick="deleteSelected()">
+                    <i class="fa-solid fa-trash"></i> Remove Layer
+                </button>
             </div>
+
+            <button class="add-text-btn" onclick="addTextLayer()" style="margin-top:20px;">
+                <i class="fa-solid fa-font"></i> Add Text Layer
+            </button>
 
             <div class="action-area">
                 <div class="price-display">
                     <span>Total</span>
-                    <span id="display-price" style="color:var(--TAPD-gold); font-size:1.5rem;">₹249</span>
+                    <span id="display-price" style="color:var(--tapd-gold); font-size:1.5rem;">--</span>
                 </div>
-                <button class="add-cart-btn" onclick="finishDesign()">Add to Cart</button>
+                <button class="add-cart-btn" onclick="finishDesign()">ADD TO BAG</button>
             </div>
 
         </div>
     </div>
 
-    <div class="cart-overlay" id="overlay" onclick="closeAllDrawers()"></div>
+    <div class="cart-overlay" onclick="closeAllDrawers()"></div>
     <div class="cart-drawer" id="cart-drawer">
         <div class="drawer-header"><h2>Bag</h2><button class="close-drawer" onclick="toggleCart()">×</button></div>
         <div class="cart-items" id="cart-items-container"></div>
@@ -149,25 +130,16 @@
         </div>
     </div>
 
+    <div id="admin-tool" style="position:fixed; bottom:20px; left:20px; z-index:9999;">
+        <button onclick="exportDesignJSON()" style="background:red; color:white; border:none; padding:10px; cursor:pointer; font-weight:bold;">
+            ADMIN: COPY JSON
+        </button>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="script.js"></script>
-
-    <button onclick="exportDesignJSON()" style="position:fixed; bottom:20px; right:20px; z-index:9999; background:red; color:white; padding:10px; border:none; cursor:pointer;">
-    ADMIN: COPY DESIGN JSON
-</button>
-
-<script>
-function exportDesignJSON() {
-    // This grabs the current design from the canvas
-    // Make sure 'canvas' matches the variable name in customize.js (e.g. canvas or editorCanvas)
-    const json = JSON.stringify(canvas.toJSON());
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     
-    navigator.clipboard.writeText(json).then(() => {
-        alert("Design JSON copied! Now go to Admin Panel -> Edit Product -> Paste in Advanced Box.");
-    });
-}
-</script>
+    <script src="customize.js"></script>
 
 </body>
 </html>

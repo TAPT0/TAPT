@@ -130,15 +130,27 @@ function renderShop(filter = 'all') {
              `;
         }
 
-        // 4. Build HTML
+        // --- UPDATED TWIN HTML (WITH FLIP) ---
         row.innerHTML = `
-            <div class="row-image-box" onmousemove="tiltTwin(event, this)" onmouseleave="resetTwin(this)" onclick="viewProduct('${product.id}')">
+            <div class="row-image-box" onmousemove="tiltTwin(event, this)" onmouseleave="resetTwin(this)" onclick="flipCard(this)">
                 <div class="spotlight"></div>
                 <div class="digital-twin ${shapeClass}">
-                    <div class="twin-layer twin-base" style="${bgStyle}"></div>
-                    <div class="twin-layer twin-texture"></div>
-                    ${brandingHTML}
-                    <div class="twin-layer twin-glare"></div>
+                    <div class="twin-inner">
+                        
+                        <div class="twin-face twin-front">
+                            <div class="twin-layer twin-base" style="${bgStyle}"></div>
+                            <div class="twin-layer twin-texture"></div>
+                            ${brandingHTML}
+                            <div class="twin-layer twin-glare"></div>
+                        </div>
+
+                        <div class="twin-face twin-back">
+                            <div class="twin-layer twin-texture"></div>
+                            <i class="fa-solid fa-qrcode qr-placeholder"></i>
+                            <div class="serial-num">TAPD / NFC / ${product.id.substring(0,6).toUpperCase()}</div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
             
@@ -150,7 +162,6 @@ function renderShop(filter = 'all') {
                 
                 <div class="row-actions">
                     <button class="btn-buy" onclick="viewProduct('${product.id}')">CONFIGURE</button>
-                    <button class="btn-add-round" onclick="addToCart('${product.id}')"><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
         `;

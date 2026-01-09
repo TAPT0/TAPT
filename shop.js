@@ -27,21 +27,33 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("TAPD Shop Initialized");
     fetchProducts();
     updateCartCount();
+    initScrollAnimations(); // NEW: Trigger animations
 });
 
-// --- FETCH PRODUCTS & ANIMATION ---
+// --- SCROLL ANIMATIONS ---
+function initScrollAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+}
+
+// --- FETCH PRODUCTS ---
 function fetchProducts() {
     const grid = document.getElementById('shop-grid');
     if(grid) grid.innerHTML = '<div class="loading-text" style="grid-column: 1/-1; text-align:center; color:#666;">Loading Legacy...</div>';
 
     store.collection('products').get().then((querySnapshot) => {
         products = []; 
-        grid.innerHTML = ''; // Clear loading
+        grid.innerHTML = ''; 
 
         querySnapshot.forEach((doc) => {
             let data = doc.data();
-            
-            // Image Fallback Logic
             let pImage = 'https://via.placeholder.com/300x300?text=No+Image';
             if (data.images && Array.isArray(data.images) && data.images.length > 0) {
                 pImage = data.images[0]; 
@@ -76,12 +88,10 @@ function renderShop(filter = 'all') {
     let delayCounter = 0;
 
     products.forEach(product => {
-        // Filter Logic
         if (filter !== 'all' && product.category !== filter) return;
 
         const card = document.createElement('div');
         card.className = 'product-card';
-        // Staggered Animation Delay
         card.style.transitionDelay = `${delayCounter * 0.05}s`; 
         
         card.innerHTML = `
@@ -101,9 +111,8 @@ function renderShop(filter = 'all') {
         `;
         
         grid.appendChild(card);
-        
-        // Trigger Animation
-        setTimeout(() => card.classList.add('reveal'), 50);
+        setTimeout(() => card.classList.add('reveal'), 50); // Add class for animation
+        setTimeout(() => card.classList.add('active'), 100); // Trigger animation
         delayCounter++;
     });
 }
@@ -117,7 +126,6 @@ function filterProducts(category, btn) {
 function searchProducts() {
     const term = document.getElementById('shop-search').value.toLowerCase();
     const cards = document.querySelectorAll('.product-card');
-    
     cards.forEach(card => {
         const title = card.querySelector('h3').innerText.toLowerCase();
         if(title.includes(term)) {
@@ -156,7 +164,6 @@ function addToCart(productId) {
     updateCartCount();
     showToast(`${product.name} Added`);
     
-    // Auto-open drawer
     const drawer = document.getElementById('cart-drawer');
     if(!drawer.classList.contains('open')) toggleCart();
     else renderCartContents();
@@ -176,7 +183,6 @@ function updateCartCount() {
 function toggleCart() {
     const drawer = document.getElementById('cart-drawer');
     const overlay = document.querySelector('.cart-overlay');
-    
     if (drawer.classList.contains('open')) {
         drawer.classList.remove('open');
         if(overlay) overlay.style.display = 'none';
@@ -191,7 +197,6 @@ function renderCartContents() {
     const container = document.getElementById('cart-items-container');
     const subtotalEl = document.getElementById('cart-subtotal');
     const totalEl = document.getElementById('cart-total');
-    
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
     let total = 0;
 
@@ -271,7 +276,6 @@ function showToast(msg) {
     setTimeout(() => toast.remove(), 2500);
 }
 
-// --- AUTH UI ---
 function toggleAccount() {
     const drawer = document.getElementById('account-drawer');
     const overlay = document.querySelector('.cart-overlay');

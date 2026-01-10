@@ -29,6 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchProducts();
     updateCartCount();
     initAuthListener();
+    initAnimatedCounters();
+    initParallaxEffects();
     
     // Premium Intersection Observer for Reveal Animations
     const observerOptions = {
@@ -721,4 +723,111 @@ function searchProducts() {
 
 function toggleFaq(el) { 
     el.classList.toggle('active'); 
+}
+
+/* =========================================
+   8. PREMIUM ANIMATED COUNTERS
+   ========================================= */
+function initAnimatedCounters() {
+    const counters = document.querySelectorAll('.stat-number-large, .stat-number');
+    
+    const animateCounter = (counter, target, duration = 2000) => {
+        const isDecimal = target % 1 !== 0;
+        const increment = target / (duration / 16);
+        let current = 0;
+        
+        const updateCounter = () => {
+            current += increment;
+            if (current < target) {
+                if (isDecimal) {
+                    counter.textContent = current.toFixed(1);
+                } else {
+                    counter.textContent = Math.floor(current).toLocaleString();
+                }
+                requestAnimationFrame(updateCounter);
+            } else {
+                if (isDecimal) {
+                    counter.textContent = target.toFixed(1);
+                } else {
+                    counter.textContent = target.toLocaleString();
+                }
+            }
+        };
+        
+        updateCounter();
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !entry.target.dataset.animated) {
+                entry.target.dataset.animated = 'true';
+                const target = parseFloat(entry.target.dataset.target || entry.target.textContent) || 0;
+                animateCounter(entry.target, target, 2500);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    counters.forEach(counter => {
+        const target = counter.dataset.target || counter.textContent;
+        counter.textContent = '0';
+        if (target) {
+            counter.dataset.target = target;
+            observer.observe(counter);
+        }
+    });
+}
+
+/* =========================================
+   9. PREMIUM PARALLAX EFFECTS
+   ========================================= */
+function initParallaxEffects() {
+    const parallaxElements = document.querySelectorAll('.hero-3d-bg, .featured-3d-container, .stats-3d-bg, .testimonials-3d-bg');
+    
+    const handleParallax = () => {
+        const scrolled = window.pageYOffset;
+        const rate = scrolled * 0.5;
+        
+        parallaxElements.forEach((element, index) => {
+            const speed = 0.1 + (index * 0.05);
+            const yPos = -(scrolled * speed);
+            element.style.transform = `translateY(${yPos}px)`;
+        });
+    };
+    
+    // Throttle scroll events for performance
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                handleParallax();
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }, { passive: true });
+    
+    // Parallax on featured card 3D
+    const featuredCard = document.querySelector('.featured-card-3d');
+    if (featuredCard) {
+        const featuredContainer = featuredCard.closest('.featured-product-3d');
+        if (featuredContainer) {
+            featuredContainer.addEventListener('mousemove', (e) => {
+                const rect = featuredContainer.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -10;
+                const rotateY = ((x - centerX) / centerX) * 10;
+                
+                featuredCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
+            });
+            
+            featuredContainer.addEventListener('mouseleave', () => {
+                featuredCard.style.transform = '';
+            });
+        }
+    }
 }

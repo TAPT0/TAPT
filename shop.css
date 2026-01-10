@@ -30,7 +30,6 @@ body {
     opacity: 0.04; pointer-events: none; z-index: 999;
 }
 
-/* CYBER GRID - Full Height & Brighter */
 .cyber-grid {
     position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
     background-image: 
@@ -39,43 +38,30 @@ body {
     background-size: 60px 60px;
     transform: perspective(500px) rotateX(60deg) scale(2.5);
     transform-origin: top center;
-    opacity: 0.6; 
-    z-index: -1;
+    opacity: 0.6; z-index: -1;
     animation: gridMove 20s linear infinite;
 }
 @keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
 
 /* =========================================
-   2. NAVIGATION (Glass Tech)
+   2. NAVIGATION
    ========================================= */
 .glass-nav {
     display: flex; justify-content: space-between; align-items: center;
     padding: 1rem 5%; position: fixed; width: 100%; top: 0; z-index: 100;
-    background: rgba(3, 3, 3, 0.8);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    box-sizing: border-box;
+    background: rgba(3, 3, 3, 0.8); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border); box-sizing: border-box;
 }
-
-.logo {
-    font-family: var(--font-head); font-weight: 700; font-size: 1.5rem;
-    color: white; text-decoration: none; letter-spacing: -1px;
-}
+.logo { font-family: var(--font-head); font-weight: 700; font-size: 1.5rem; color: white; text-decoration: none; letter-spacing: -1px; }
 .logo span { color: var(--gold); }
-
 .nav-right { display: flex; gap: 25px; align-items: center; }
 .nav-link { color: var(--text-dim); text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
 .nav-link:hover { color: white; text-shadow: 0 0 10px white; }
-
-.nav-icon, .cart-trigger {
-    color: white; font-size: 1.2rem; cursor: pointer; transition: 0.3s; position: relative;
-}
+.nav-icon, .cart-trigger { color: white; font-size: 1.2rem; cursor: pointer; transition: 0.3s; position: relative; }
 .nav-icon:hover, .cart-trigger:hover { color: var(--gold); transform: scale(1.1); }
-
 #cart-count {
-    position: absolute; top: -5px; right: -8px;
-    background: var(--gold); color: black; font-size: 0.6rem;
-    width: 16px; height: 16px; border-radius: 50%;
+    position: absolute; top: -5px; right: -8px; background: var(--gold); color: black;
+    font-size: 0.6rem; width: 16px; height: 16px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center; font-weight: bold;
 }
 
@@ -85,16 +71,10 @@ body {
 .shop-hero {
     height: 70vh; display: flex; align-items: center; justify-content: center;
     text-align: center; position: relative;
-    /* Transparent center for grid visibility */
     background: radial-gradient(circle at center, rgba(0,0,0,0) 0%, rgba(3,3,3,1) 90%);
 }
-
-.hero-title {
-    font-family: var(--font-head); font-size: 4.5rem; line-height: 0.9;
-    margin: 0; letter-spacing: -2px;
-}
+.hero-title { font-family: var(--font-head); font-size: 4.5rem; line-height: 0.9; margin: 0; letter-spacing: -2px; }
 .gold-text { color: var(--gold); text-shadow: 0 0 30px var(--gold-glow); }
-
 .tech-tag {
     font-family: var(--font-tech); font-size: 0.7rem; color: var(--gold);
     border: 1px solid var(--gold); padding: 5px 15px; border-radius: 50px;
@@ -118,36 +98,60 @@ body {
     padding: 8px 20px; border-radius: 20px; cursor: pointer;
     font-family: var(--font-tech); font-size: 0.7rem; transition: 0.3s;
 }
-.filter-btn.active, .filter-btn:hover {
-    border-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.05);
-}
+.filter-btn.active, .filter-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.05); }
 
 /* =========================================
-   4. TITANIUM CARD ENGINE (Visuals + Critical Logic)
+   4. TITANIUM CARD ENGINE + ZIG ZAG ANIMATIONS
    ========================================= */
 .showcase-container { padding: 100px 5%; max-width: 1400px; margin: 0 auto; }
-.shop-row { display: flex; align-items: center; justify-content: space-between; gap: 80px; margin-bottom: 150px; opacity:0; transition: 1s ease; }
-.shop-row.active { opacity: 1; transform: translateY(0); }
+
+/* ZIG ZAG LAYOUT LOGIC */
+.shop-row { 
+    display: flex; align-items: center; justify-content: space-between; gap: 80px; margin-bottom: 180px; 
+    opacity: 1; /* Handled by children */
+    overflow: visible;
+}
+
+/* Alternate Direction for Even Rows (Zig Zag) */
 .shop-row:nth-child(even) { flex-direction: row-reverse; }
 
+/* Initial State of Children (Hidden) */
+.row-image-box, .row-content { opacity: 0; transition: 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+/* --- ENTRANCE ANIMATIONS (Triggered via JS 'active' class) --- */
+
+/* ODD ROWS (Image Left, Text Right) */
+.shop-row:nth-child(odd).active .row-image-box { animation: slideInLeft 1s forwards; }
+.shop-row:nth-child(odd).active .row-content   { animation: slideInRight 1s forwards; }
+
+/* EVEN ROWS (Image Right, Text Left) */
+.shop-row:nth-child(even).active .row-image-box { animation: slideInRight 1s forwards; }
+.shop-row:nth-child(even).active .row-content   { animation: slideInLeft 1s forwards; }
+
+/* KEYFRAMES */
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-100px) scale(0.9); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(100px) scale(0.9); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* 3D CARD CONTAINER */
 .row-image-box { flex: 1; height: 400px; perspective: 1500px; z-index: 10; cursor: pointer; }
 
-/* The Card Container */
 .digital-twin {
     position: relative; transform-style: preserve-3d; transition: transform 0.1s ease-out;
     border-radius: 14px !important;
     box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.1);
     animation: auraBreath 6s ease-in-out infinite;
 }
-@keyframes auraBreath { 
-    0%,100%{ box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(212,175,55,0.1); } 
-    50%{ box-shadow: 0 30px 70px rgba(0,0,0,1), 0 0 50px rgba(212,175,55,0.3); } 
-}
+@keyframes auraBreath { 0%,100%{ box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(212,175,55,0.1); } 50%{ box-shadow: 0 30px 70px rgba(0,0,0,1), 0 0 50px rgba(212,175,55,0.3); } }
 
 .twin-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); border-radius: inherit; }
 .twin-inner.flipped { transform: rotateY(180deg) scale(1.05); }
 
-/* The Faces (Front/Back) */
 .twin-face {
     position: absolute; inset: 0; width: 100%; height: 100%;
     backface-visibility: hidden; -webkit-backface-visibility: hidden;
@@ -157,17 +161,14 @@ body {
 .twin-front { z-index: 2; transform: rotateY(0deg); }
 .twin-back { transform: rotateY(180deg); background-size: cover; background-position: center; background-color: #080808; display: flex; flex-direction: column; }
 
-/* --- CRITICAL IMAGE LAYERS (Must be present for images to show) --- */
+/* IMAGE LAYERS */
 .twin-layer { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: inherit; pointer-events: none; }
 .twin-base { background-size: cover; background-position: center; background-repeat: no-repeat; z-index: 1; }
-/* Noise texture sits on top */
 .twin-layer[style*="noise.svg"] { z-index: 2; mix-blend-mode: overlay; }
-/* Glare sits on top of everything */
 .twin-glare { background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8), transparent 60%); opacity: 0; mix-blend-mode: overlay; z-index: 10; }
-/* Ensure Text is above the image on back */
 .twin-back > div:not(.twin-layer) { z-index: 20; position: relative; }
 
-/* Front Sheen Animation */
+/* Sheen */
 .twin-front::after {
     content: ''; position: absolute; top: 0; left: -150%; width: 150%; height: 100%;
     background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
@@ -180,7 +181,7 @@ body {
 .digital-twin.shape-tag { width: 300px; height: 300px; border-radius: 50% !important; }
 .digital-twin.shape-tag .twin-inner, .digital-twin.shape-tag .twin-face { border-radius: 50% !important; }
 
-/* Product Text */
+/* CONTENT & TEXT */
 .row-content { flex: 0.8; }
 .row-cat { color: var(--gold); font-family: var(--font-tech); font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 15px; }
 .row-title { font-family: var(--font-head); font-size: 3rem; margin: 0 0 20px 0; line-height: 1; }
@@ -208,14 +209,13 @@ body {
 @keyframes pulse { 0%{opacity:0.3} 50%{opacity:0.8} 100%{opacity:0.3} }
 
 /* =========================================
-   5. PREMIUM DRAWERS (Glass & Gold)
+   5. PREMIUM DRAWERS & MODALS
    ========================================= */
 .drawer {
     position: fixed; top: 0; right: -420px; width: 100%; max-width: 420px; height: 100%;
-    /* Dark Glass Background */
     background: rgba(8, 8, 8, 0.95); backdrop-filter: blur(15px);
-    border-left: 1px solid var(--gold); /* Gold Accent Border */
-    z-index: 300; transition: 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+    border-left: 1px solid var(--gold); z-index: 300; 
+    transition: 0.5s cubic-bezier(0.77, 0, 0.175, 1);
     display: flex; flex-direction: column; box-shadow: -10px 0 50px rgba(0,0,0,0.8);
 }
 .drawer.open { right: 0; }
@@ -229,26 +229,15 @@ body {
 .close-btn:hover { color: white; transform: rotate(90deg); }
 
 .cart-items { flex: 1; padding: 25px; overflow-y: auto; }
-
-/* Cart Item Styling */
 .cart-item {
     display: flex; gap: 15px; margin-bottom: 20px; padding: 15px;
     background: rgba(255,255,255,0.03); border: 1px solid var(--border);
     border-radius: 12px; transition: 0.3s;
 }
 .cart-item:hover { border-color: var(--gold); background: rgba(255,255,255,0.05); }
+.cart-img { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #333; }
 
-.cart-img {
-    width: 70px; height: 70px; object-fit: cover; border-radius: 8px;
-    border: 1px solid #333;
-}
-
-/* Cart Footer */
-.cart-footer {
-    padding: 30px 25px; background: rgba(15,15,15,0.9); border-top: 1px solid var(--border);
-}
-
-/* Coupon Input (Transparent) */
+.cart-footer { padding: 30px 25px; background: rgba(15,15,15,0.9); border-top: 1px solid var(--border); }
 .coupon-wrapper { display: flex; gap: 10px; margin-bottom: 20px; }
 .coupon-wrapper input {
     flex: 1; background: transparent; border: none; border-bottom: 1px solid #444;
@@ -259,18 +248,8 @@ body {
     background: transparent; border: 1px solid var(--gold); color: var(--gold);
     padding: 5px 15px; font-family: var(--font-tech); font-size: 0.7rem; cursor: pointer;
 }
-
-/* Totals */
-.summary-row {
-    display: flex; justify-content: space-between; margin-bottom: 10px;
-    font-family: var(--font-tech); font-size: 0.9rem; color: #aaa;
-}
-.summary-row.total {
-    font-family: var(--font-head); font-size: 1.2rem; color: white;
-    margin-top: 15px; padding-top: 15px; border-top: 1px solid #333;
-}
-
-/* Checkout Button */
+.summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-family: var(--font-tech); font-size: 0.9rem; color: #aaa; }
+.summary-row.total { font-family: var(--font-head); font-size: 1.2rem; color: white; margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; }
 .checkout-btn {
     width: 100%; padding: 18px; margin-top: 25px;
     background: var(--gold); color: black; border: none;
@@ -279,113 +258,74 @@ body {
     clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
 }
 .checkout-btn:hover { background: white; box-shadow: 0 0 20px var(--gold-glow); }
-
-.cart-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: none; backdrop-filter: blur(5px);
-}
+.cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: none; backdrop-filter: blur(5px); }
 
 /* =========================================
-   6. MISC UI (Newsletter, FAQ, Footer)
+   6. MISC UI & FOOTER
    ========================================= */
-.newsletter-section { margin-top: 100px; }
-.newsletter-box {
-    text-align: center; padding: 60px 20px;
-    border: 1px solid var(--border);
-    background: rgba(10,10,10,0.8); backdrop-filter: blur(10px);
-    border-radius: 20px; margin: 0 5%;
-}
-.newsletter-input {
-    display: flex; justify-content: center; gap: 10px; margin-top: 30px; flex-wrap: wrap;
-}
-/* Transparent Input Fix */
-.newsletter-input input {
-    background: rgba(255,255,255,0.05); border: 1px solid #333; color: white;
-    padding: 15px 20px; border-radius: 5px; outline: none; width: 300px;
-    font-family: var(--font-tech);
-}
-.newsletter-input button {
-    background: white; color: black; border: none; padding: 15px 30px;
-    font-weight: bold; cursor: pointer; border-radius: 5px; font-family: var(--font-head);
-}
+.newsletter-box { text-align: center; padding: 60px 20px; border: 1px solid var(--border); background: rgba(10,10,10,0.8); backdrop-filter: blur(10px); border-radius: 20px; margin: 100px 5%; }
+.newsletter-input input { background: rgba(255,255,255,0.05); border: 1px solid #333; color: white; padding: 15px 20px; border-radius: 5px; outline: none; width: 300px; font-family: var(--font-tech); }
+.newsletter-input button { background: white; color: black; border: none; padding: 15px 30px; font-weight: bold; cursor: pointer; border-radius: 5px; font-family: var(--font-head); }
 
 .faq-section { max-width: 800px; margin: 100px auto; padding: 0 20px; }
 .faq-item { border-bottom: 1px solid #333; padding: 20px 0; cursor: pointer; }
 .faq-q { display: flex; justify-content: space-between; font-family: var(--font-tech); font-size: 1rem; color: #ddd; }
-.faq-q span { color: var(--gold); margin-right: 15px; }
 .faq-a { max-height: 0; overflow: hidden; transition: 0.3s; color: #888; margin-top: 0; font-size: 0.9rem; line-height: 1.6; }
 .faq-item.active .faq-a { max-height: 200px; margin-top: 15px; }
 
-/* Auth Modal (Premium) */
 .auth-modal {
     display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
     background: rgba(10,10,10,0.95); padding: 40px; border: 1px solid var(--gold);
     border-radius: 20px; z-index: 2000; text-align: center; width: 90%; max-width: 350px;
     box-shadow: 0 0 50px rgba(0,0,0,0.8); backdrop-filter: blur(10px);
 }
-.auth-input {
-    width: 100%; padding: 12px; background: #000; border: 1px solid #333; 
-    color: white; margin-bottom: 10px; box-sizing: border-box; border-radius: 4px;
-}
-.auth-btn-submit {
-    width: 100%; padding: 12px; background: var(--gold); border: none; font-weight: bold;
-    cursor: pointer; margin-top: 10px; font-family: var(--font-head);
-}
-.auth-btn-google {
-    width: 100%; padding: 12px; background: white; border: none; font-weight: bold;
-    cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;
-}
-.close-auth {
-    background: none; border: none; color: #666; margin-top: 20px; cursor: pointer; text-decoration: underline;
-}
+.auth-input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: white; margin-bottom: 10px; border-radius: 4px; }
+.auth-btn-submit { width: 100%; padding: 12px; background: var(--gold); border: none; font-weight: bold; cursor: pointer; margin-top: 10px; font-family: var(--font-head); }
+.auth-btn-google { width: 100%; padding: 12px; background: white; border: none; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
 
-/* Celebration Overlay */
-.celebration-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000;
-    display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
-}
+.celebration-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
 .celebration-overlay.active { display: flex; animation: fadeIn 0.5s ease; }
-.celebration-card {
-    text-align: center; background: #111; padding: 40px; border: 1px solid var(--gold);
-    border-radius: 20px; box-shadow: 0 0 50px var(--gold-glow);
-}
-.celeb-btn {
-    background: var(--gold); border: none; padding: 10px 30px; font-weight: bold;
-    margin-top: 20px; cursor: pointer; font-family: var(--font-head);
-}
+.celebration-card { text-align: center; background: #111; padding: 40px; border: 1px solid var(--gold); border-radius: 20px; box-shadow: 0 0 50px var(--gold-glow); }
+.celeb-btn { background: var(--gold); border: none; padding: 10px 30px; font-weight: bold; margin-top: 20px; cursor: pointer; font-family: var(--font-head); }
 
-/* Tech Specs */
 .tech-divider { width: 2px; height: 100px; background: linear-gradient(transparent, var(--gold), transparent); margin: 0 auto 50px; }
 .section-title { text-align: center; font-family: var(--font-head); font-size: 2.5rem; margin-bottom: 60px; }
 .blueprint-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; padding: 0 5%; }
-.tech-card {
-    background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 30px; transition: 0.3s;
-}
+.tech-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 30px; transition: 0.3s; }
 .tech-card:hover { border-color: var(--gold); background: rgba(212,175,55,0.05); }
 .tech-header { display: flex; justify-content: space-between; color: var(--gold); margin-bottom: 20px; font-family: var(--font-tech); font-size: 0.8rem; }
 .tech-card h3 { font-family: var(--font-head); margin: 0 0 10px 0; font-size: 1.2rem; }
 .tech-card p { color: #888; font-size: 0.9rem; line-height: 1.5; }
 
-/* Marquee */
-.marquee-strip {
-    background: var(--gold); color: black; padding: 10px 0; overflow: hidden; white-space: nowrap;
-    font-family: var(--font-head); font-weight: bold; margin: 100px 0; transform: rotate(-1deg);
-}
+.marquee-strip { background: var(--gold); color: black; padding: 10px 0; overflow: hidden; white-space: nowrap; font-family: var(--font-head); font-weight: bold; margin: 100px 0; transform: rotate(-1deg); }
 .marquee-content { display: inline-block; animation: scroll 20s linear infinite; }
 @keyframes scroll { from {transform:translateX(0)} to {transform:translateX(-50%)} }
 
 .TAPD-footer { border-top: 1px solid #222; padding: 80px 5% 20px; background: #020202; margin-top: 100px; }
 .footer-content { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px; }
-.footer-nav { list-style: none; padding: 0; }
 .footer-nav li a { color: #666; text-decoration: none; font-size: 0.8rem; font-family: var(--font-tech); display: block; margin-bottom: 10px; transition: 0.3s; }
 .footer-nav li a:hover { color: var(--gold); padding-left: 5px; }
 .footer-bottom { text-align: center; margin-top: 60px; color: #444; font-size: 0.7rem; font-family: var(--font-tech); }
 
 /* =========================================
-   9. MOBILE RESPONSIVENESS
+   9. MOBILE OPTIMIZATION & TRUNCATION
    ========================================= */
 @media (max-width: 900px) {
     .hero-title { font-size: 2.5rem; }
+    
+    /* Force Vertical Layout on Mobile (No Zig Zag) */
     .shop-row { flex-direction: column !important; gap: 40px; margin-bottom: 100px; }
+    .shop-row:nth-child(even) { flex-direction: column !important; } /* Override ZigZag */
+    
+    /* Reset Animations to Simple Fade Up on Mobile */
+    .shop-row.active .row-image-box, 
+    .shop-row.active .row-content { 
+        animation: fadeUpMobile 0.8s forwards !important; 
+        transform: translateY(0); opacity: 1; 
+    }
+    @keyframes fadeUpMobile { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+
+    /* Sizes */
     .row-image-box { width: 100%; height: 300px; }
     .digital-twin.shape-card { width: 100%; height: 220px; }
     .digital-twin.shape-tag { width: 220px; height: 220px; }
@@ -394,4 +334,14 @@ body {
     .search-container input { width: 100%; }
     .newsletter-input input { width: 100%; }
     .drawer { width: 100%; max-width: 100%; }
+
+    /* MOBILE TEXT TRUNCATION (Max 3 Lines) */
+    .row-desc {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-height: 4.8em; /* Fallback */
+    }
 }

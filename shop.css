@@ -325,59 +325,86 @@ body {
 .footer-bottom { text-align: center; margin-top: 60px; color: #444; font-size: 0.7rem; font-family: var(--font-tech); }
 
 /* =========================================
-   8. MOBILE OPTIMIZATION (Zig Zag & Card Fix)
+   8. MOBILE OPTIMIZATION (Pinterest Feed Style)
    ========================================= */
 @media (max-width: 900px) {
-    .hero-title { font-size: 2.5rem; }
+    .hero-title { font-size: 2.5rem; line-height: 1.1; }
+    .hero-desc { font-size: 0.9rem; padding: 0 20px; }
     
-    /* MOBILE ZIG ZAG */
-    .shop-row {
+    /* 1. UNIFORM STACKING (Clean Feed) */
+    /* Forces Image ON TOP, Text BELOW for ALL items. 
+       Removes the confusing zig-zag on mobile. */
+    .shop-row, 
+    .shop-row:nth-child(even) { 
         flex-direction: column; 
-        gap: 40px; margin-bottom: 120px; 
+        gap: 20px; 
+        margin-bottom: 100px; 
+        align-items: center; /* Center everything */
         position: relative;
     }
     
-    /* Even items: Text top -> Image bottom */
-    .shop-row:nth-child(even) { flex-direction: column-reverse; }
-    
-    /* FIXED: CARD SIZE ON MOBILE */
+    /* 2. CARD CONTAINER - The Stage */
+    /* using flexbox to perfectly center the 3D element */
     .row-image-box { 
-        width: 100%; height: 280px; 
-        margin: 0 auto; 
+        width: 100%; 
+        height: 280px; 
+        margin: 0;
+        padding: 0;
+        display: flex;             /* FLEX FIX */
+        justify-content: center;   /* Center Horizontally */
+        align-items: center;       /* Center Vertically */
+        perspective: 1000px;
     }
     
-    /* Force Cards to Scale Down */
+    /* 3. THE CARD (RECTANGLE) - Fixed Centering */
     .digital-twin.shape-card { 
-        width: 90%; 
-        height: 100%; 
-        left: 5%; 
-        margin: 0 auto;
+        position: relative;
+        width: 300px !important;   /* Fixed width prevents cutting */
+        height: 190px !important;  /* Standard Card Ratio */
+        left: auto !important;     /* REMOVED the offset bug */
+        margin: 0 !important;      /* Flexbox handles centering */
+        /* Subtle 3D tilt for aesthetic */
+        transform: rotateX(5deg) rotateY(0deg); 
     }
-    .digital-twin.shape-tag { width: 220px; height: 220px; margin: 0 auto; left: 0; }
     
-    /* Text Styling */
-    .row-content { text-align: center; padding: 0 20px; }
-    .row-title { font-size: 2rem; margin-bottom: 10px; }
-    .row-actions { justify-content: center; }
+    /* 4. THE TAG (CIRCLE) - Fixed Centering */
+    .digital-twin.shape-tag { 
+        width: 200px !important; 
+        height: 200px !important; 
+        left: auto !important;
+        margin: 0 !important;
+    }
     
-    /* Text Truncation */
-    .row-desc {
+    /* 5. TEXT CONTENT - Clean & Readable */
+    .row-content { 
+        width: 100%;
+        text-align: center; 
+        padding: 0 25px; 
+        z-index: 20;
+    }
+    
+    .row-title { font-size: 2rem; margin-bottom: 15px; }
+    .row-desc { 
+        font-size: 0.9rem; 
+        margin-bottom: 20px; 
         display: -webkit-box;
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        text-overflow: ellipsis;
-        font-size: 0.9rem;
     }
-    
-    /* Layout Adjustments */
-    .blueprint-grid { grid-template-columns: 1fr; }
-    .glass-hud { border-radius: 10px; flex-direction: column; gap: 10px; width: 90%; }
-    .search-container input { width: 100%; }
-    .newsletter-input input { width: 100%; }
+    .row-actions { justify-content: center; }
+
+    /* 6. UI ADJUSTMENTS */
+    .glass-hud { 
+        width: 95%; 
+        border-radius: 15px; 
+        flex-direction: row; /* Keep side-by-side */
+        padding: 10px;
+    }
+    .search-container input { width: 100px; }
     .drawer { width: 100%; max-width: 100%; }
-    
-    /* Reset Animations for Mobile */
+
+    /* Reset Animations for Mobile so they don't glitch */
     .shop-row.active .row-image-box, 
     .shop-row.active .row-content { 
         animation: fadeUpMobile 0.8s forwards !important; 
@@ -385,6 +412,6 @@ body {
     }
     @keyframes fadeUpMobile { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
     
-    /* Ensure floating assets are visible */
-    .floating-assets { display: block !important; opacity: 0.7; }
+    /* Reduce floating assets opacity so they don't distract */
+    .floating-assets { opacity: 0.4; }
 }

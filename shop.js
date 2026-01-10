@@ -102,7 +102,6 @@ function renderShop(filter = 'all') {
         if (!hasCustomImage) {
              brandingHTML = `
                 <div class="twin-layer twin-branding">
-                    ${pType === 'card' ? '<div class="chip"></div>' : '<div></div>'} 
                     <div class="twin-logo">TAPD.</div>
                 </div>
              `;

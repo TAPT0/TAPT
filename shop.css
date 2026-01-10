@@ -415,3 +415,102 @@ body {
     /* Reduce floating assets opacity so they don't distract */
     .floating-assets { opacity: 0.4; }
 }
+/* =========================================
+   9. FINAL POLISH & ANIMATION FIXES
+   ========================================= */
+
+/* --- FIX 1: BRING ANIMATION TO FRONT --- */
+/* This moves the falling cards/tags ABOVE the black background sections 
+   so they don't disappear when you scroll down. */
+.floating-assets {
+    z-index: 90 !important; /* Sits on top of content, below Menu */
+    opacity: 0.6 !important; /* Slightly visible but not distracting */
+    pointer-events: none; /* Clicks go through them */
+    display: block !important;
+}
+
+/* optimized fall animation */
+@keyframes fallAndSpin {
+    0% { transform: translateY(-20vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
+
+/* --- FIX 2: MOBILE UI CLEANUP (Screenshots Fix) --- */
+@media (max-width: 900px) {
+
+    /* HERO SECTION (Screenshot 3 Fix) */
+    /* Fixes "Engineered Perfection" being too huge */
+    .hero-title {
+        font-size: 2.2rem !important; 
+        line-height: 1.1;
+        padding: 0 10px;
+    }
+    
+    /* SYSTEM CORE (Screenshot 2 Fix) */
+    /* Fixes the grid looking squashed */
+    .section-title {
+        font-size: 1.8rem !important;
+        margin-bottom: 40px;
+    }
+    
+    .blueprint-grid {
+        display: grid;
+        grid-template-columns: 1fr; /* Force 1 column */
+        gap: 20px;
+        padding: 0 20px;
+    }
+    
+    .tech-card {
+        padding: 25px;
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* NEWSLETTER & SEARCH (Screenshot 1 Fix) */
+    /* Fixes the "Secure Your Access" box and Search Bar spacing */
+    .newsletter-box {
+        margin: 60px 20px 100px 20px; /* More breathing room */
+        padding: 40px 20px;
+    }
+    
+    .newsletter-input {
+        flex-direction: column; /* Stack input and button */
+        gap: 15px;
+        width: 100%;
+    }
+    
+    .newsletter-input input,
+    .newsletter-input button {
+        width: 100% !important; /* Full width for easy tapping */
+        max-width: 100%;
+    }
+
+    /* Fix the Floating Search Bar (HUD) */
+    .sticky-controls {
+        top: 75px; /* Adjust slightly for mobile nav */
+        padding: 0 10px;
+    }
+    
+    .glass-hud {
+        width: 100%;
+        padding: 10px 15px;
+        flex-wrap: wrap; /* Allow wrapping if needed */
+        justify-content: center;
+        gap: 12px;
+    }
+    
+    .search-container { width: 100%; display: flex; justify-content: center; }
+    .search-container input { 
+        width: 100%; 
+        text-align: center; 
+        font-size: 0.9rem;
+    }
+    
+    /* Hide filters on tiny screens to save space if needed, 
+       or style them smaller */
+    .filter-btn {
+        padding: 6px 15px;
+        font-size: 0.65rem;
+    }
+}

@@ -1,174 +1,140 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Product Details | TAPD.</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Black Card | TAPD. Premium</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
+    <!-- Styles -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="product.css">
 </head>
-<body>
+<body class="premium-product-page">
 
+    <!-- Background Elements -->
     <div class="noise-overlay"></div>
-    <div class="gold-glow-sphere"></div>
+    <div class="ambient-glow"></div>
+    <div class="grid-lines"></div>
 
-    <nav>
+    <!-- Navigation (Injected by script if missing, but we add it here for structure) -->
+    <nav class="glass-nav">
         <a href="index.html" class="logo">TAPD<span>.</span></a>
         <div class="nav-right">
-            <a href="shop.html" style="font-size:0.9rem; color:#888; margin-right:15px; text-decoration:none;">Back to Shop</a>
-            
-            <a href="track.html" class="nav-icon" title="Track Order" style="text-decoration:none; color:white;">
-                <i class="fa-solid fa-truck-fast"></i>
-            </a>
-            
-            <div class="nav-icon" onclick="toggleAccount()">
-                <i class="fa-regular fa-user"></i>
-            </div>
-            
-            <div class="cart-trigger" onclick="toggleCart()">
+            <a href="shop.html" class="nav-link">COLLECTION</a>
+            <div class="nav-icon cart-trigger" onclick="toggleCart()">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <span id="cart-count">0</span>
+            </div>
+            <div class="nav-icon" onclick="toggleAccount()">
+                <i class="fa-regular fa-user"></i>
             </div>
         </div>
     </nav>
 
-    <div class="product-container">
+    <!-- Main Product Layout -->
+    <main class="product-hero">
         
-        <div class="product-gallery">
-            <div class="main-image-frame">
-                <img id="main-image" src="" alt="Product Image" style="opacity:0; transition: opacity 0.3s ease;" onload="this.style.opacity='1'">
-                <div class="loading-spinner"></div>
+        <!-- Left: Product Info -->
+        <section class="product-details">
+            <div class="breadcrumbs">
+                <a href="index.html">Home</a> / <a href="shop.html">Collection</a> / <span class="current">Black Card</span>
             </div>
-            <div class="thumb-strip" id="thumb-strip"></div>
-        </div>
-
-        <div class="product-info">
-            <h1 id="p-title" class="p-detail-title">Loading...</h1>
-            <div class="p-detail-price" id="p-price"></div>
             
-            <div class="divider"></div>
-
-            <div class="p-desc-box">
-                <p id="p-desc">Fetching product details...</p>
+            <h1 class="p-title" data-text="BLACK CARD">BLACK CARD</h1>
+            <div class="p-subtitle">The Last Business Card You'll Ever Need.</div>
+            
+            <div class="p-price-container">
+                <span class="currency">₹</span>
+                <span class="amount" id="product-price">1,999</span>
             </div>
 
-            <div class="action-area">
-                <div id="add-btn-container" style="flex:1;">
-                    <button class="btn-bag" onclick="startAddToCart()">Add to Bag</button>
+            <div class="p-features">
+                <div class="feat-item"><i class="fa-solid fa-wifi"></i> NFC Enabled</div>
+                <div class="feat-item"><i class="fa-brands fa-apple"></i> iOS & Android</div>
+                <div class="feat-item"><i class="fa-solid fa-droplet"></i> Waterproof</div>
+            </div>
+
+            <div class="p-description">
+                <p>Forged from premium matte PVC with a soft-touch finish. Embedded with a high-frequency NFC chip for instant data transfer. No app required for the receiver.</p>
+            </div>
+
+            <div class="p-actions">
+                <div class="quantity-selector">
+                    <button onclick="adjustPageQty(-1)">-</button>
+                    <span id="page-qty">1</span>
+                    <button onclick="adjustPageQty(1)">+</button>
                 </div>
-                <button class="btn-buy" onclick="buyNow()">Buy Now</button>
+                <button class="btn-add-cart" onclick="addToBag()">
+                    <span>ADD TO BAG</span>
+                    <div class="btn-fill"></div>
+                </button>
             </div>
             
-            <button class="btn-customize" onclick="goToCustomize()">
-                <i class="fa-solid fa-pen-nib"></i> Customize this design
-            </button>
-
-            <div class="reviews-section">
-                <h3>Reviews (3)</h3>
-                <div id="reviews-container"></div>
+            <div class="secure-badge">
+                <i class="fa-solid fa-shield-halved"></i> Secure Checkout • Free Shipping
             </div>
-        </div>
-    </div>
+        </section>
 
-    <div class="account-drawer" id="account-drawer">
-        <div class="drawer-header"><h2>My Legacy</h2><button class="close-cart" onclick="toggleAccount()">×</button></div>
-        <div class="drawer-content" id="account-content"></div>
-    </div>
-
-    <div class="cart-drawer" id="cart-drawer">
-        <div class="drawer-header">
-            <h2>Your Bag</h2>
-            <button class="close-cart" onclick="toggleCart()">×</button>
-        </div>
-        
-        <div class="cart-items" id="cart-items-container"></div>
-        
-        <div class="cart-footer">
-            <div class="coupon-wrapper">
-                <input type="text" id="coupon-code" class="coupon-input" placeholder="Promo Code">
-                <button class="coupon-btn" onclick="applyCoupon()">APPLY</button>
+        <!-- Right: 3D Visualization -->
+        <section class="product-visual">
+            <div class="visual-circle"></div>
+            
+            <!-- Fallback to CSS 3D if model fails or for aesthetic -->
+            <div class="card-3d-wrapper" id="card-wrapper">
+                <div class="card-3d-inner">
+                    <div class="card-front">
+                        <div class="card-chip"></div>
+                        <div class="card-logo">TAPD.</div>
+                        <div class="card-name">ALEXANDER</div>
+                        <div class="card-shine"></div>
+                    </div>
+                    <div class="card-back">
+                        <div class="qr-code"></div>
+                        <div class="card-text">tapd.co/alex</div>
+                    </div>
+                </div>
             </div>
             
-            <div class="summary-row">
-                <span>Subtotal</span>
-                <span class="val" id="cart-subtotal">₹0</span>
+            <div class="visual-controls">
+                <button class="v-btn active" onclick="rotateCard('front')">FRONT</button>
+                <button class="v-btn" onclick="rotateCard('back')">BACK</button>
+                <button class="v-btn" onclick="rotateCard('float')">FLOAT</button>
             </div>
-            <div class="summary-row" id="discount-row" style="display:none;">
-                <span class="discount-active">Discount</span>
-                <span class="val discount-active" id="cart-discount">-₹0</span>
+        </section>
+    </main>
+
+    <!-- Detailed Sections -->
+    <section class="details-section">
+        <div class="detail-grid">
+            <div class="detail-box">
+                <h3><i class="fa-solid fa-wand-magic-sparkles"></i> INSTANT CONNECT</h3>
+                <p>Just tap your card on any smartphone to instantly share your contact info, social media, and more.</p>
             </div>
-            <div class="summary-row total">
-                <span>Total</span>
-                <span class="val" id="cart-total">₹0</span>
+            <div class="detail-box">
+                <h3><i class="fa-solid fa-sliders"></i> DYNAMIC PROFILE</h3>
+                <p>Update your details anytime from your dashboard. The card stays the same, the content evolves.</p>
             </div>
-            
-            <button class="checkout-btn" onclick="window.location.href='checkout.html'">Checkout</button>
-        </div>
-    </div>
-
-    <div class="auth-modal" id="auth-modal">
-        <h2 style="color:white; font-family:'Syncopate'; margin-bottom:20px;">Access Legacy</h2>
-        <button class="auth-btn-google" onclick="loginWithGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Continue with Google
-        </button>
-        <div class="auth-divider">OR CREATE ACCOUNT</div>
-        <input type="email" id="auth-email" class="auth-input" placeholder="Email Address">
-        <input type="tel" id="auth-phone" class="auth-input" placeholder="Phone Number">
-        <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
-        <button class="auth-btn-submit" onclick="signupEmail()">Create Account</button>
-        <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Close</button>
-    </div>
-    
-    <div class="cart-overlay" onclick="closeAllDrawers()"></div>
-
-    <footer class="TAPD-footer">
-        <div class="footer-content">
-            <div class="footer-brand">
-                <h2 class="footer-logo">TAPD.</h2>
-                <p class="footer-tagline">The future of connection.</p>
-            </div>
-
-            <div class="footer-links-group">
-                
-                <ul class="footer-nav">
-                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Explore</span></li>
-                    <li><a href="shop.html" class="footer-link">Shop</a></li>
-                    <li><a href="customize.html" class="footer-link">Customize</a></li>
-                    <li><a href="about.html" class="footer-link">About Us</a></li>
-                </ul>
-                
-                <ul class="footer-nav">
-                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Legal</span></li>
-                    <li><a href="legal.html#shipping" class="footer-link">Shipping Policy</a></li>
-                    <li><a href="legal.html#refunds" class="footer-link">Refunds & Returns</a></li>
-                    <li><a href="legal.html#terms" class="footer-link">Terms of Service</a></li>
-                    <li><a href="legal.html#privacy" class="footer-link">Privacy Policy</a></li>
-                </ul>
-
-                <ul class="footer-nav">
-                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Connect</span></li>
-                    <li><a href="contact.html" class="footer-link">Contact Us</a></li>
-                    <li><a href="https://instagram.com/TAPD_.t" target="_blank" class="footer-link">Instagram ↗</a></li>
-                    <li><a href="https://wa.me/9103463033" target="_blank" class="footer-link">WhatsApp ↗</a></li>
-                </ul>
+            <div class="detail-box">
+                <h3><i class="fa-solid fa-earth-americas"></i> ECO FRIENDLY</h3>
+                <p>One card replaces thousands of paper business cards. Save trees while looking professional.</p>
             </div>
         </div>
+    </section>
 
-        <div class="footer-bottom">
-            <p>&copy; 2026 TAPD. Hardware.</p>
-            <p class="fade-text">Designed for the bold.</p>
-        </div>
-    </footer>
-
+    <!-- Global Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     
     <script src="script.js"></script>
     <script src="product.js"></script>
-
 </body>
 </html>

@@ -24,7 +24,66 @@ const provider = (typeof firebase !== 'undefined' && firebase.auth) ? new fireba
 /* =========================================
    2. GLOBAL HELPERS (Preloader & Cursor)
    ========================================= */
+
+// --- NEW: GLOBAL INJECTION SYSTEM ---
+function injectGlobalElements() {
+    if (document.getElementById('cart-drawer')) return; // Already exists
+
+    const globalHTML = `
+    <div class="cart-overlay" onclick="closeAllDrawers()"></div>
+
+    <div class="cart-drawer" id="cart-drawer">
+        <div class="drawer-header">
+            <h2>Your Bag</h2>
+            <button class="close-cart" onclick="toggleCart()">×</button>
+        </div>
+        <div class="cart-items" id="cart-items-container"></div>
+        <div class="cart-footer">
+            <div class="coupon-wrapper">
+                <input type="text" id="coupon-code" class="coupon-input" placeholder="Promo Code">
+                <button class="coupon-btn" onclick="applyCoupon()">APPLY</button>
+            </div>
+            <div class="summary-row"><span>Subtotal</span><span class="val" id="cart-subtotal">₹0</span></div>
+            <div class="summary-row" id="discount-row" style="display:none;"><span class="discount-active">Discount</span><span class="val discount-active" id="cart-discount">-₹0</span></div>
+            <div class="summary-row total"><span>Total</span><span class="val" id="cart-total">₹0</span></div>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">Checkout</button>
+        </div>
+    </div>
+
+    <div class="account-drawer" id="account-drawer">
+        <div class="drawer-header"><h2>My Legacy</h2><button class="close-cart" onclick="toggleAccount()">×</button></div>
+        <div class="drawer-content" id="account-content"></div>
+    </div>
+
+    <div class="auth-modal" id="auth-modal" style="display:none;">
+        <h2 style="color:white; font-family:'Syncopate'; margin-bottom:20px;">Access Legacy</h2>
+        <button class="auth-btn-google" onclick="loginWithGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Continue with Google
+        </button>
+        <div class="auth-divider">OR CREATE ACCOUNT</div>
+        <input type="email" id="auth-email" class="auth-input" placeholder="Email Address">
+        <input type="tel" id="auth-phone" class="auth-input" placeholder="Phone Number">
+        <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
+        <button class="auth-btn-submit" onclick="signupEmail()">Create Account</button>
+        <button onclick="window.toggleLoginModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Close</button>
+    </div>
+    
+    <div id="celebration-overlay" onclick="closeCelebration()">
+        <div class="celebration-content">
+            <h2>UNLOCKED</h2>
+            <p id="celeb-discount-amount">SAVED ₹0</p>
+            <div id="confetti-container"></div>
+        </div>
+    </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', globalHTML);
+}
+
 window.addEventListener("load", () => {
+    injectGlobalElements(); // Run injection
+    updateCartUI(); // Initial render
+
     const preloader = document.querySelector(".preloader");
     if (preloader) {
         window.scrollTo(0, 0);

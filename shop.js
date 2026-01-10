@@ -120,7 +120,7 @@ function renderShop(filter = 'all') {
                 </div>
              `;
         }
-        // --- UPDATED HTML (With Footer Text) ---
+        // --- UPDATED HTML (Text at Bottom + Business Name at Top) ---
         row.innerHTML = `
             <div class="row-image-box" onmousemove="tiltTwin(event, this)" onmouseleave="resetTwin(this)" onclick="flipCard(this)">
                 <div class="spotlight"></div>
@@ -158,15 +158,15 @@ function renderShop(filter = 'all') {
 
                                 <div style="
                                     position: absolute; 
-                                    bottom: 12%; /* Moves text to bottom */
+                                    bottom: 15%; /* Pushed to bottom */
                                     width: 100%; 
                                     text-align: center; 
-                                    color: #888; /* Slightly darker for subtle premium look */
+                                    color: #666; /* Premium Grey */
                                     font-family: 'Syncopate', sans-serif; 
-                                    font-size: 0.65rem; 
+                                    font-size: 0.6rem; 
                                     font-weight: 600; 
                                     letter-spacing: 3px;
-                                    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+                                    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
                                     pointer-events: none;
                                 ">
                                     TAPD. BOOST CARD

@@ -1,7 +1,7 @@
 /* =========================================
    1. CORE SYSTEM & ATMOSPHERE
    ========================================= */
-/* Font Imports (Backup if HTML fails) */
+/* Font Imports (Backup) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400&family=Syncopate:wght@400;700&display=swap');
 
 :root {
@@ -15,6 +15,12 @@
     --font-head: 'Syncopate', sans-serif;
     --font-body: 'Inter', sans-serif;
     --font-tech: 'JetBrains Mono', monospace;
+}
+
+/* GLOBAL RESET - Fixes the "Blue Highlight" on Tap */
+* {
+    -webkit-tap-highlight-color: transparent; /* Removes blue box on mobile */
+    box-sizing: border-box;
 }
 
 body {
@@ -47,7 +53,7 @@ body {
 @keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
 
 /* =========================================
-   2. VISIBLE FLOATING ASSETS (The Fix)
+   2. FLOATING 3D BACKGROUND ASSETS (Visible on Mobile Now)
    ========================================= */
 .floating-assets {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -56,14 +62,13 @@ body {
 
 .floater {
     position: absolute;
-    border: 1px solid rgba(212, 175, 55, 0.3); /* Gold Border for Visibility */
-    background: rgba(10, 10, 10, 0.6); /* Semi-dark background */
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.1); /* Subtle Glow */
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    background: rgba(10, 10, 10, 0.6);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
     backdrop-filter: blur(2px);
     animation: fallAndSpin linear infinite;
 }
 
-/* Add Fake "Chip" detail to cards */
 .floater.card::after {
     content: ''; position: absolute; top: 15px; left: 10px; width: 20px; height: 15px;
     background: rgba(255, 255, 255, 0.1); border-radius: 2px;
@@ -72,11 +77,9 @@ body {
 .floater.card { width: 100px; height: 60px; border-radius: 6px; }
 .floater.tag { width: 60px; height: 60px; border-radius: 50%; }
 
-/* Positioning (Gutters) */
 .floater.left { left: 5%; }
 .floater.right { right: 5%; }
 
-/* Timing Variations */
 .t1 { animation-duration: 12s; animation-delay: 0s; top: -10%; }
 .t2 { animation-duration: 18s; animation-delay: -5s; top: -20%; }
 .t3 { animation-duration: 15s; animation-delay: -8s; top: -15%; }
@@ -116,7 +119,6 @@ body {
 .shop-hero {
     height: 70vh; display: flex; align-items: center; justify-content: center;
     text-align: center; position: relative; z-index: 5;
-    /* Transparent center for grid visibility */
     background: radial-gradient(circle at center, rgba(0,0,0,0) 0%, rgba(3,3,3,1) 90%);
 }
 .hero-title { font-family: var(--font-head); font-size: 4.5rem; line-height: 0.9; margin: 0; letter-spacing: -2px; }
@@ -147,7 +149,7 @@ body {
 .filter-btn.active, .filter-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.05); }
 
 /* =========================================
-   5. TITANIUM CARD ENGINE + ZIG ZAG ANIMATIONS
+   5. TITANIUM CARD ENGINE + ZIG ZAG
    ========================================= */
 .showcase-container { padding: 100px 5%; max-width: 1400px; margin: 0 auto; position: relative; z-index: 5; }
 
@@ -293,7 +295,7 @@ body {
 .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: none; backdrop-filter: blur(5px); }
 
 /* =========================================
-   7. MISC UI (Newsletter, FAQ, Footer)
+   7. MISC UI
    ========================================= */
 .newsletter-box { text-align: center; padding: 60px 20px; border: 1px solid var(--border); background: rgba(10,10,10,0.8); backdrop-filter: blur(10px); border-radius: 20px; margin: 100px 5%; }
 .newsletter-input { display: flex; justify-content: center; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
@@ -315,7 +317,7 @@ body {
 .faq-a { max-height: 0; overflow: hidden; transition: 0.3s; color: #888; margin-top: 0; font-size: 0.9rem; line-height: 1.6; }
 .faq-item.active .faq-a { max-height: 200px; margin-top: 15px; }
 
-/* Auth Modal (Premium) */
+/* Auth Modal */
 .auth-modal {
     display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
     background: rgba(10,10,10,0.95); padding: 40px; border: 1px solid var(--gold);
@@ -324,7 +326,7 @@ body {
 }
 .auth-input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: white; margin-bottom: 10px; border-radius: 4px; }
 .auth-btn-submit { width: 100%; padding: 12px; background: var(--gold); border: none; font-weight: bold; cursor: pointer; margin-top: 10px; font-family: var(--font-head); }
-.auth-btn-google { width: 100%; padding: 12px; background: white; border: none; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+.auth-btn-google { width: 100%; padding: 12px; background: white; border: none; font-weight: bold; cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
 .close-auth { background: none; border: none; color: #666; margin-top: 20px; cursor: pointer; text-decoration: underline; }
 
 .celebration-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
@@ -353,7 +355,7 @@ body {
 .footer-bottom { text-align: center; margin-top: 60px; color: #444; font-size: 0.7rem; font-family: var(--font-tech); }
 
 /* =========================================
-   8. MOBILE OPTIMIZATION & TRUNCATION
+   9. MOBILE RESPONSIVENESS & TRUNCATION
    ========================================= */
 @media (max-width: 900px) {
     .hero-title { font-size: 2.5rem; }
@@ -390,6 +392,6 @@ body {
         max-height: 4.8em; /* Fallback */
     }
     
-    /* Hide Floaters on Mobile to save battery */
-    .floating-assets { display: none; }
+    /* KEEP FLOATING ASSETS VISIBLE ON MOBILE */
+    .floating-assets { display: block !important; }
 }

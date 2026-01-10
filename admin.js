@@ -1,7 +1,7 @@
 /* --- CLOUDINARY CONFIGURATION --- */
 // REPLACE THESE WITH YOUR ACTUAL CLOUDINARY CREDENTIALS
-const cloudName = "YOUR_CLOUD_NAME"; 
-const uploadPreset = "YOUR_UPLOAD_PRESET"; 
+const cloudName = "dmsaqoa0l"; 
+const uploadPreset = "tapd_preset"; 
 
 /* --- FIREBASE CONFIGURATION & SETUP --- */
 const firebaseConfig = {

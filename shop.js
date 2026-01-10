@@ -169,7 +169,8 @@ function renderShop(filter = 'all') {
                                     text-shadow: 0 1px 2px rgba(0,0,0,0.8);
                                     pointer-events: none;
                                 ">
-                                    TAPD. BOOST CARD
+
+                           
                                 </div>
 
                             ` : `

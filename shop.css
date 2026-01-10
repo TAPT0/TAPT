@@ -1,5 +1,5 @@
 /* =========================================
-   1. CORE SYSTEM & VARIABLES
+   1. CORE SYSTEM & ATMOSPHERE
    ========================================= */
 :root {
     --bg: #030303;
@@ -23,7 +23,7 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* --- BACKGROUND FX --- */
+/* BACKGROUND FX */
 .noise-overlay {
     position: fixed; inset: 0;
     background: url('https://grainy-gradients.vercel.app/noise.svg');
@@ -44,7 +44,7 @@ body {
 @keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
 
 /* =========================================
-   2. NAVIGATION
+   2. NAVIGATION (Glass Tech)
    ========================================= */
 .glass-nav {
     display: flex; justify-content: space-between; align-items: center;
@@ -105,40 +105,26 @@ body {
    ========================================= */
 .showcase-container { padding: 100px 5%; max-width: 1400px; margin: 0 auto; }
 
-/* ZIG ZAG LAYOUT LOGIC */
+/* ZIG ZAG LAYOUT */
 .shop-row { 
     display: flex; align-items: center; justify-content: space-between; gap: 80px; margin-bottom: 180px; 
-    opacity: 1; /* Handled by children */
     overflow: visible;
 }
-
-/* Alternate Direction for Even Rows (Zig Zag) */
 .shop-row:nth-child(even) { flex-direction: row-reverse; }
 
-/* Initial State of Children (Hidden) */
+/* Entrance Animations */
 .row-image-box, .row-content { opacity: 0; transition: 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
 
-/* --- ENTRANCE ANIMATIONS (Triggered via JS 'active' class) --- */
-
-/* ODD ROWS (Image Left, Text Right) */
 .shop-row:nth-child(odd).active .row-image-box { animation: slideInLeft 1s forwards; }
 .shop-row:nth-child(odd).active .row-content   { animation: slideInRight 1s forwards; }
 
-/* EVEN ROWS (Image Right, Text Left) */
 .shop-row:nth-child(even).active .row-image-box { animation: slideInRight 1s forwards; }
 .shop-row:nth-child(even).active .row-content   { animation: slideInLeft 1s forwards; }
 
-/* KEYFRAMES */
-@keyframes slideInLeft {
-    from { opacity: 0; transform: translateX(-100px) scale(0.9); }
-    to { opacity: 1; transform: translateX(0) scale(1); }
-}
-@keyframes slideInRight {
-    from { opacity: 0; transform: translateX(100px) scale(0.9); }
-    to { opacity: 1; transform: translateX(0) scale(1); }
-}
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-100px) scale(0.9); } to { opacity: 1; transform: translateX(0) scale(1); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(100px) scale(0.9); } to { opacity: 1; transform: translateX(0) scale(1); } }
 
-/* 3D CARD CONTAINER */
+/* 3D Card Container */
 .row-image-box { flex: 1; height: 400px; perspective: 1500px; z-index: 10; cursor: pointer; }
 
 .digital-twin {
@@ -161,7 +147,7 @@ body {
 .twin-front { z-index: 2; transform: rotateY(0deg); }
 .twin-back { transform: rotateY(180deg); background-size: cover; background-position: center; background-color: #080808; display: flex; flex-direction: column; }
 
-/* IMAGE LAYERS */
+/* CRITICAL IMAGE FIXES */
 .twin-layer { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: inherit; pointer-events: none; }
 .twin-base { background-size: cover; background-position: center; background-repeat: no-repeat; z-index: 1; }
 .twin-layer[style*="noise.svg"] { z-index: 2; mix-blend-mode: overlay; }
@@ -181,7 +167,7 @@ body {
 .digital-twin.shape-tag { width: 300px; height: 300px; border-radius: 50% !important; }
 .digital-twin.shape-tag .twin-inner, .digital-twin.shape-tag .twin-face { border-radius: 50% !important; }
 
-/* CONTENT & TEXT */
+/* Content & Text */
 .row-content { flex: 0.8; }
 .row-cat { color: var(--gold); font-family: var(--font-tech); font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 15px; }
 .row-title { font-family: var(--font-head); font-size: 3rem; margin: 0 0 20px 0; line-height: 1; }
@@ -209,7 +195,7 @@ body {
 @keyframes pulse { 0%{opacity:0.3} 50%{opacity:0.8} 100%{opacity:0.3} }
 
 /* =========================================
-   5. PREMIUM DRAWERS & MODALS
+   5. PREMIUM DRAWERS (Glass & Gold)
    ========================================= */
 .drawer {
     position: fixed; top: 0; right: -420px; width: 100%; max-width: 420px; height: 100%;
@@ -261,18 +247,29 @@ body {
 .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: none; backdrop-filter: blur(5px); }
 
 /* =========================================
-   6. MISC UI & FOOTER
+   6. MISC UI (Newsletter, FAQ, Footer)
    ========================================= */
 .newsletter-box { text-align: center; padding: 60px 20px; border: 1px solid var(--border); background: rgba(10,10,10,0.8); backdrop-filter: blur(10px); border-radius: 20px; margin: 100px 5%; }
-.newsletter-input input { background: rgba(255,255,255,0.05); border: 1px solid #333; color: white; padding: 15px 20px; border-radius: 5px; outline: none; width: 300px; font-family: var(--font-tech); }
-.newsletter-input button { background: white; color: black; border: none; padding: 15px 30px; font-weight: bold; cursor: pointer; border-radius: 5px; font-family: var(--font-head); }
+.newsletter-input { display: flex; justify-content: center; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
+/* Transparent Input Fix */
+.newsletter-input input {
+    background: rgba(255,255,255,0.05); border: 1px solid #333; color: white;
+    padding: 15px 20px; border-radius: 5px; outline: none; width: 300px;
+    font-family: var(--font-tech);
+}
+.newsletter-input button {
+    background: white; color: black; border: none; padding: 15px 30px;
+    font-weight: bold; cursor: pointer; border-radius: 5px; font-family: var(--font-head);
+}
 
 .faq-section { max-width: 800px; margin: 100px auto; padding: 0 20px; }
 .faq-item { border-bottom: 1px solid #333; padding: 20px 0; cursor: pointer; }
 .faq-q { display: flex; justify-content: space-between; font-family: var(--font-tech); font-size: 1rem; color: #ddd; }
+.faq-q span { color: var(--gold); margin-right: 15px; }
 .faq-a { max-height: 0; overflow: hidden; transition: 0.3s; color: #888; margin-top: 0; font-size: 0.9rem; line-height: 1.6; }
 .faq-item.active .faq-a { max-height: 200px; margin-top: 15px; }
 
+/* Auth Modal (Premium) */
 .auth-modal {
     display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
     background: rgba(10,10,10,0.95); padding: 40px; border: 1px solid var(--gold);
@@ -282,6 +279,7 @@ body {
 .auth-input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: white; margin-bottom: 10px; border-radius: 4px; }
 .auth-btn-submit { width: 100%; padding: 12px; background: var(--gold); border: none; font-weight: bold; cursor: pointer; margin-top: 10px; font-family: var(--font-head); }
 .auth-btn-google { width: 100%; padding: 12px; background: white; border: none; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+.close-auth { background: none; border: none; color: #666; margin-top: 20px; cursor: pointer; text-decoration: underline; }
 
 .celebration-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
 .celebration-overlay.active { display: flex; animation: fadeIn 0.5s ease; }
@@ -303,6 +301,7 @@ body {
 
 .TAPD-footer { border-top: 1px solid #222; padding: 80px 5% 20px; background: #020202; margin-top: 100px; }
 .footer-content { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px; }
+.footer-nav { list-style: none; padding: 0; }
 .footer-nav li a { color: #666; text-decoration: none; font-size: 0.8rem; font-family: var(--font-tech); display: block; margin-bottom: 10px; transition: 0.3s; }
 .footer-nav li a:hover { color: var(--gold); padding-left: 5px; }
 .footer-bottom { text-align: center; margin-top: 60px; color: #444; font-size: 0.7rem; font-family: var(--font-tech); }
@@ -313,11 +312,11 @@ body {
 @media (max-width: 900px) {
     .hero-title { font-size: 2.5rem; }
     
-    /* Force Vertical Layout on Mobile (No Zig Zag) */
+    /* Force Vertical Layout on Mobile */
     .shop-row { flex-direction: column !important; gap: 40px; margin-bottom: 100px; }
-    .shop-row:nth-child(even) { flex-direction: column !important; } /* Override ZigZag */
+    .shop-row:nth-child(even) { flex-direction: column !important; }
     
-    /* Reset Animations to Simple Fade Up on Mobile */
+    /* Reset Animations to Simple Fade Up */
     .shop-row.active .row-image-box, 
     .shop-row.active .row-content { 
         animation: fadeUpMobile 0.8s forwards !important; 
@@ -335,7 +334,7 @@ body {
     .newsletter-input input { width: 100%; }
     .drawer { width: 100%; max-width: 100%; }
 
-    /* MOBILE TEXT TRUNCATION (Max 3 Lines) */
+    /* TEXT TRUNCATION (Mobile Only) */
     .row-desc {
         display: -webkit-box;
         -webkit-line-clamp: 3;

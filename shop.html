@@ -5,19 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Collection | TAPD.</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="shop.css">
 </head>
 <body>
 
     <div class="noise-overlay"></div>
-    <div class="cyber-grid"></div> <div class="spotlight-follow" id="spotlight"></div>
+    <div class="cyber-grid"></div>
+
+    <div class="floating-assets">
+        <div class="floater card left t1"></div>
+        <div class="floater tag left t2"></div>
+        <div class="floater card left t3"></div>
+        
+        <div class="floater tag right t1"></div>
+        <div class="floater card right t2"></div>
+        <div class="floater tag right t3"></div>
+    </div>
 
     <nav class="glass-nav">
         <a href="index.html" class="logo">TAPD<span>.</span></a>
-        
         <div class="nav-right">
             <a href="customize.html" class="nav-link">Create</a>
             <a href="track.html" class="nav-icon" title="Track Order"><i class="fa-solid fa-crosshairs"></i></a>
@@ -33,7 +44,7 @@
         <div class="hero-content">
             <div class="tech-tag fade-in">COLLECTION / 2026 / GEN-3</div>
             <h1 class="hero-title fade-in">ENGINEERED <br><span class="gold-text">PERFECTION</span></h1>
-            <p class="hero-desc fade-in-delay">Networking hardware forged from matte polycarbonate and titanium alloy. Zero latency. Infinite impact.</p>
+            <p class="hero-desc fade-in-delay">Networking hardware forged from matte polycarbonate and titanium alloy.</p>
         </div>
     </header>
 
@@ -58,29 +69,19 @@
     <section class="core-section reveal">
         <div class="tech-divider"></div>
         <h2 class="section-title">SYSTEM <span class="gold-text">CORE</span></h2>
-        
         <div class="blueprint-grid">
             <div class="tech-card">
-                <div class="tech-header">
-                    <i class="fa-solid fa-microchip"></i>
-                    <span>NFC-216</span>
-                </div>
+                <div class="tech-header"><i class="fa-solid fa-microchip"></i><span>NFC-216</span></div>
                 <h3>ZERO CONTACT</h3>
                 <p>Embedded 13.56MHz chip. Instant data transmission to iOS & Android.</p>
             </div>
             <div class="tech-card">
-                <div class="tech-header">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <span>MATTE.PVC</span>
-                </div>
+                <div class="tech-header"><i class="fa-solid fa-layer-group"></i><span>MATTE.PVC</span></div>
                 <h3>DURABLE BUILD</h3>
                 <p>Waterproof, dustproof, and resistant to bending. Built for life.</p>
             </div>
             <div class="tech-card">
-                <div class="tech-header">
-                    <i class="fa-solid fa-globe"></i>
-                    <span>WEB.3.0</span>
-                </div>
+                <div class="tech-header"><i class="fa-solid fa-globe"></i><span>WEB.3.0</span></div>
                 <h3>DYNAMIC LINK</h3>
                 <p>Update your destination URL anytime. The hardware stays the same.</p>
             </div>
@@ -104,57 +105,21 @@
         </div>
     </section>
 
-    <section class="faq-section reveal">
-        <h2 class="section-title">DATA <span class="gold-text">BANK</span></h2>
-        <div class="faq-container">
-            <div class="faq-item" onclick="toggleFaq(this)">
-                <div class="faq-q"><span>01</span> DEVICE COMPATIBILITY <i class="fa-solid fa-chevron-down"></i></div>
-                <div class="faq-a">Universal support for all modern smartphones (iPhone XR+, Androids). No app required for the receiver.</div>
-            </div>
-            <div class="faq-item" onclick="toggleFaq(this)">
-                <div class="faq-q"><span>02</span> LIFETIME VALIDITY <i class="fa-solid fa-chevron-down"></i></div>
-                <div class="faq-a">One-time purchase. No monthly subscriptions. Unlimited taps.</div>
-            </div>
-        </div>
-    </section>
-
-     <footer class="TAPD-footer">
+    <footer class="TAPD-footer">
         <div class="footer-content">
             <div class="footer-brand">
                 <h2 class="footer-logo">TAPD.</h2>
-                <p class="footer-tagline">The future of connection.</p>
+                <p>The future is contactless.</p>
             </div>
-
             <div class="footer-links-group">
-                
                 <ul class="footer-nav">
-                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Explore</span></li>
-                    <li><a href="shop.html" class="footer-link">Shop</a></li>
-                    <li><a href="customize.html" class="footer-link">Customize</a></li>
-                    <li><a href="about.html" class="footer-link">About Us</a></li>
-                </ul>
-                
-                <ul class="footer-nav">
-                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Legal</span></li>
-                    <li><a href="legal.html#shipping" class="footer-link">Shipping Policy</a></li>
-                    <li><a href="legal.html#refunds" class="footer-link">Refunds & Returns</a></li>
-                    <li><a href="legal.html#terms" class="footer-link">Terms of Service</a></li>
-                    <li><a href="legal.html#privacy" class="footer-link">Privacy Policy</a></li>
-                </ul>
-
-                <ul class="footer-nav">
-                    <li><span style="color:#666; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Connect</span></li>
-                    <li><a href="contact.html" class="footer-link">Contact Us</a></li>
-                    <li><a href="https://instagram.com/TAPD_.t" target="_blank" class="footer-link">Instagram ↗</a></li>
-                    <li><a href="https://wa.me/9103463033" target="_blank" class="footer-link">WhatsApp ↗</a></li>
+                    <li><a href="#">LEGAL</a></li>
+                    <li><a href="#">PRIVACY</a></li>
+                    <li><a href="#">TERMS</a></li>
                 </ul>
             </div>
         </div>
-
-        <div class="footer-bottom">
-            <p>&copy; 2026 TAPD. Hardware.</p>
-            <p class="fade-text">Designed for the bold.</p>
-        </div>
+        <div class="footer-bottom"><p>SYSTEM ONLINE // 2026 TAPD.</p></div>
     </footer>
 
     <div class="drawer" id="cart-drawer">

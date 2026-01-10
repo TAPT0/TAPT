@@ -1,8 +1,6 @@
 /* =========================================
-   1. CORE SYSTEM & ATMOSPHERE
+   1. CORE SYSTEM
    ========================================= */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400&family=Syncopate:wght@400;700&display=swap');
-
 :root {
     --bg: #030303;
     --glass: rgba(10, 10, 10, 0.85);
@@ -16,11 +14,7 @@
     --font-tech: 'JetBrains Mono', monospace;
 }
 
-/* GLOBAL RESET - Fixes the "Blue Highlight" on Tap */
-* {
-    -webkit-tap-highlight-color: transparent; 
-    box-sizing: border-box;
-}
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 
 body {
     background-color: var(--bg);
@@ -52,7 +46,7 @@ body {
 @keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
 
 /* =========================================
-   2. VISIBLE FLOATING BACKGROUND ASSETS
+   2. FLOATING BACKGROUND ASSETS
    ========================================= */
 .floating-assets {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -74,13 +68,11 @@ body {
 .floater.tag { width: 60px; height: 60px; border-radius: 50%; }
 .floater.left { left: 5%; }
 .floater.right { right: 5%; }
-.t1 { animation-duration: 12s; animation-delay: 0s; top: -10%; }
-.t2 { animation-duration: 18s; animation-delay: -5s; top: -20%; }
-.t3 { animation-duration: 15s; animation-delay: -8s; top: -15%; }
+.t1 { animation-duration: 15s; animation-delay: 0s; top: -10%; }
+.t2 { animation-duration: 20s; animation-delay: -5s; top: -20%; }
+.t3 { animation-duration: 18s; animation-delay: -8s; top: -15%; }
 @keyframes fallAndSpin {
     0% { transform: translateY(-120px) rotate(0deg); opacity: 0; }
-    10% { opacity: 0.8; }
-    90% { opacity: 0.8; }
     100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
 }
 
@@ -90,7 +82,7 @@ body {
 .glass-nav {
     display: flex; justify-content: space-between; align-items: center;
     padding: 1rem 5%; position: fixed; width: 100%; top: 0; z-index: 100;
-    background: rgba(3, 3, 3, 0.9); backdrop-filter: blur(20px);
+    background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border); box-sizing: border-box;
 }
 .logo { font-family: var(--font-head); font-weight: 700; font-size: 1.5rem; color: white; text-decoration: none; letter-spacing: -1px; }
@@ -107,7 +99,7 @@ body {
 }
 
 /* =========================================
-   4. HERO & HUD
+   4. HERO & CONTROLS
    ========================================= */
 .shop-hero {
     height: 70vh; display: flex; align-items: center; justify-content: center;
@@ -142,32 +134,29 @@ body {
 .filter-btn.active, .filter-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.05); }
 
 /* =========================================
-   5. TITANIUM CARD ENGINE + ZIG ZAG
+   5. TITANIUM CARD ENGINE (Zig-Zag)
    ========================================= */
 .showcase-container { padding: 100px 5%; max-width: 1400px; margin: 0 auto; position: relative; z-index: 5; }
 
-/* ZIG ZAG LAYOUT */
+/* Desktop Layout */
 .shop-row { 
     display: flex; align-items: center; justify-content: space-between; gap: 80px; margin-bottom: 180px; 
     overflow: visible;
 }
 .shop-row:nth-child(even) { flex-direction: row-reverse; }
 
-/* Entrance Animations */
+/* Animations */
 .row-image-box, .row-content { opacity: 0; transition: 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
-
 .shop-row:nth-child(odd).active .row-image-box { animation: slideInLeft 1s forwards; }
 .shop-row:nth-child(odd).active .row-content   { animation: slideInRight 1s forwards; }
-
 .shop-row:nth-child(even).active .row-image-box { animation: slideInRight 1s forwards; }
 .shop-row:nth-child(even).active .row-content   { animation: slideInLeft 1s forwards; }
 
 @keyframes slideInLeft { from { opacity: 0; transform: translateX(-100px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes slideInRight { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
 
-/* 3D Card Container */
+/* 3D Container */
 .row-image-box { flex: 1; height: 400px; perspective: 1500px; z-index: 10; cursor: pointer; }
-
 .digital-twin {
     position: relative; transform-style: preserve-3d; transition: transform 0.1s ease-out;
     border-radius: 14px !important;
@@ -188,14 +177,13 @@ body {
 .twin-front { z-index: 2; transform: rotateY(0deg); }
 .twin-back { transform: rotateY(180deg); background-size: cover; background-position: center; background-color: #080808; display: flex; flex-direction: column; }
 
-/* CRITICAL IMAGE FIXES */
+/* Image Layers */
 .twin-layer { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: inherit; pointer-events: none; }
 .twin-base { background-size: cover; background-position: center; background-repeat: no-repeat; z-index: 1; }
 .twin-layer[style*="noise.svg"] { z-index: 2; mix-blend-mode: overlay; }
 .twin-glare { background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8), transparent 60%); opacity: 0; mix-blend-mode: overlay; z-index: 10; }
 .twin-back > div:not(.twin-layer) { z-index: 20; position: relative; }
 
-/* Sheen */
 .twin-front::after {
     content: ''; position: absolute; top: 0; left: -150%; width: 150%; height: 100%;
     background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
@@ -203,12 +191,11 @@ body {
 }
 @keyframes sheen { 0%,70%{left:-150%; opacity:0;} 80%{opacity:1;} 100%{left:150%; opacity:0;} }
 
-/* Shapes */
 .digital-twin.shape-card { width: 460px; height: 290px; }
 .digital-twin.shape-tag { width: 300px; height: 300px; border-radius: 50% !important; }
 .digital-twin.shape-tag .twin-inner, .digital-twin.shape-tag .twin-face { border-radius: 50% !important; }
 
-/* Content & Text */
+/* Content */
 .row-content { flex: 0.8; }
 .row-cat { color: var(--gold); font-family: var(--font-tech); font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 15px; }
 .row-title { font-family: var(--font-head); font-size: 3rem; margin: 0 0 20px 0; line-height: 1; }
@@ -228,7 +215,6 @@ body {
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     text-shadow: 0 0 10px rgba(212,175,55,0.3); font-weight: 700;
 }
-
 .flip-hint {
     position: absolute; bottom: 20px; right: 20px; color: rgba(255,255,255,0.3);
     animation: pulse 2s infinite; pointer-events: none; z-index: 20;
@@ -236,11 +222,11 @@ body {
 @keyframes pulse { 0%{opacity:0.3} 50%{opacity:0.8} 100%{opacity:0.3} }
 
 /* =========================================
-   6. PREMIUM DRAWERS (Glass & Gold)
+   6. PREMIUM DRAWERS
    ========================================= */
 .drawer {
     position: fixed; top: 0; right: -420px; width: 100%; max-width: 420px; height: 100%;
-    background: rgba(8, 8, 8, 0.95); backdrop-filter: blur(15px);
+    background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(15px);
     border-left: 1px solid var(--gold); z-index: 300; 
     transition: 0.5s cubic-bezier(0.77, 0, 0.175, 1);
     display: flex; flex-direction: column; box-shadow: -10px 0 50px rgba(0,0,0,0.8);
@@ -339,47 +325,42 @@ body {
 .footer-bottom { text-align: center; margin-top: 60px; color: #444; font-size: 0.7rem; font-family: var(--font-tech); }
 
 /* =========================================
-   9. MOBILE OPTIMIZATION & FIXED CARD
+   8. MOBILE OPTIMIZATION (Zig Zag & Card Fix)
    ========================================= */
 @media (max-width: 900px) {
     .hero-title { font-size: 2.5rem; }
     
-    /* MOBILE ZIG ZAG (Alternating) */
+    /* MOBILE ZIG ZAG */
     .shop-row {
         flex-direction: column; 
-        gap: 40px; 
-        margin-bottom: 120px; 
+        gap: 40px; margin-bottom: 120px; 
         position: relative;
     }
     
-    /* Alternating Order (Image Top / Text Bottom vs Text Top / Image Bottom) */
+    /* Even items: Text top -> Image bottom */
     .shop-row:nth-child(even) { flex-direction: column-reverse; }
     
-    /* FIXED: CARD VISIBILITY */
+    /* FIXED: CARD SIZE ON MOBILE */
     .row-image-box { 
-        width: 100%; 
-        height: 250px; 
+        width: 100%; height: 280px; 
         margin: 0 auto; 
-        perspective: 1000px; /* Reset depth for mobile */
     }
     
-    /* Ensure card fits the screen */
+    /* Force Cards to Scale Down */
     .digital-twin.shape-card { 
         width: 90%; 
         height: 100%; 
-        margin: 0 auto; 
-        left: 5%; /* Center it */
-        aspect-ratio: 1.58/1; /* Credit Card Ratio */
+        left: 5%; 
+        margin: 0 auto;
     }
-    
-    .digital-twin.shape-tag { width: 200px; height: 200px; margin: 0 auto; left: 0; }
+    .digital-twin.shape-tag { width: 220px; height: 220px; margin: 0 auto; left: 0; }
     
     /* Text Styling */
     .row-content { text-align: center; padding: 0 20px; }
     .row-title { font-size: 2rem; margin-bottom: 10px; }
     .row-actions { justify-content: center; }
     
-    /* Truncation */
+    /* Text Truncation */
     .row-desc {
         display: -webkit-box;
         -webkit-line-clamp: 3;
@@ -404,6 +385,6 @@ body {
     }
     @keyframes fadeUpMobile { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
     
-    /* Ensure floaters are visible but subtle */
+    /* Ensure floating assets are visible */
     .floating-assets { display: block !important; opacity: 0.7; }
 }

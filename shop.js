@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================================
-   3. PRODUCT FETCHING & RENDERING (FIXED IMAGE LOGIC)
+   3. PRODUCT FETCHING (FIXED IMAGE LOGIC)
    ========================================= */
 function fetchProducts() {
     const grid = document.getElementById('shop-grid');
@@ -56,16 +56,23 @@ function fetchProducts() {
         snap.forEach((doc) => {
             let data = doc.data();
             
-            // --- SMART IMAGE DETECTOR ---
-            // 1. Front Image: Try the new array first, then legacy field
+            // --- SMART IMAGE DETECTOR (FIXED) ---
+            
+            // 1. FRONT IMAGE: Check 'images' array first, then legacy 'image'
             let pImage = ''; 
-            if (data.images && data.images.length > 0) pImage = data.images[0];
-            else if (data.image) pImage = data.image;
+            if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+                pImage = data.images[0];
+            } else if (data.image) {
+                pImage = data.image;
+            }
 
-            // 2. Back Image: Check for 2nd image in array, then legacy backImage field
+            // 2. BACK IMAGE: Check 2nd item in array, then legacy 'backImage'
             let bImage = null;
-            if (data.images && data.images.length > 1) bImage = data.images[1];
-            else if (data.backImage) bImage = data.backImage;
+            if (data.images && Array.isArray(data.images) && data.images.length > 1) {
+                bImage = data.images[1];
+            } else if (data.backImage) {
+                bImage = data.backImage;
+            }
 
             products.push({
                 id: doc.id,
@@ -106,17 +113,16 @@ function renderShop(filter = 'all') {
         
         const shapeClass = pType === 'tag' ? 'shape-tag' : 'shape-card';
         
-        // Front Image Style
-        const hasCustomImage = product.image && !product.image.includes('placeholder') && product.image !== '';
-        const bgStyle = hasCustomImage ? `background-image: url('${product.image}');` : `background: #111;`;
+        // Front Image
+        const bgStyle = product.image ? `background-image: url('${product.image}');` : `background: #111;`;
 
-        // Back Image Style
+        // Back Image
         const backBgStyle = product.backImage 
             ? `background-image: url('${product.backImage}'); background-size: 100% 100%;` 
-            : ``; // If empty, CSS defaults to the dark texture
+            : ``; // If empty, CSS handles the texture
 
         let brandingHTML = '';
-        if (!hasCustomImage) {
+        if (!product.image) {
              brandingHTML = `
                 <div style="position:absolute; bottom:25px; right:25px;">
                     <div class="gold-foil" style="font-family:'Syncopate'; font-size:1.2rem; letter-spacing:2px;">TAPD.</div>
@@ -145,37 +151,22 @@ function renderShop(filter = 'all') {
                             
                             ${product.backImage ? `
                                 <div style="
-                                    position: absolute; 
-                                    top: 15%; 
-                                    width: 100%; 
-                                    text-align: center; 
-                                    color: #ececec;
-                                    font-family: 'Syncopate', sans-serif; 
-                                    font-size: 0.75rem; 
-                                    font-weight: 700; 
-                                    letter-spacing: 2px;
-                                    text-shadow: 0 2px 5px rgba(0,0,0,0.9);
-                                    pointer-events: none;
+                                    position: absolute; top: 15%; width: 100%; text-align: center; 
+                                    color: #ececec; font-family: 'Syncopate', sans-serif; 
+                                    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+                                    text-shadow: 0 2px 5px rgba(0,0,0,0.9); pointer-events: none;
                                 ">
                                     ${product.name.toUpperCase()}
                                 </div>
 
                                 <div style="
-                                    position: absolute; 
-                                    bottom: 12%; 
-                                    width: 100%; 
-                                    text-align: center; 
-                                    color: #888; 
-                                    font-family: 'Syncopate', sans-serif; 
-                                    font-size: 0.6rem; 
-                                    font-weight: 600; 
-                                    letter-spacing: 3px;
-                                    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-                                    pointer-events: none;
+                                    position: absolute; bottom: 12%; width: 100%; text-align: center; 
+                                    color: #888; font-family: 'Syncopate', sans-serif; 
+                                    font-size: 0.6rem; font-weight: 600; letter-spacing: 3px;
+                                    text-shadow: 0 1px 3px rgba(0,0,0,0.9); pointer-events: none;
                                 ">
                                     TAPD. BOOST CARD
                                 </div>
-
                             ` : `
                                 <div class="twin-layer" style="background:url('https://grainy-gradients.vercel.app/noise.svg'); opacity:0.05;"></div>
                                 <div style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%) rotate(-90deg); font-family: 'Syncopate'; font-size: 2.5rem; color: rgba(255,255,255,0.03); font-weight: 800;">TAPD.</div>
@@ -300,12 +291,12 @@ function renderCartItems() {
     container.innerHTML = '';
     
     if(cart.length === 0) {
-        // --- FIXED EMPTY STATE ---
+        // --- FIXED EMPTY STATE UI ---
         container.innerHTML = `
             <div style="text-align:center; margin-top:100px; opacity:0.5;">
                 <i class="fa-solid fa-box-open" style="font-size:3rem; margin-bottom:20px; color:#333;"></i>
                 <p style="color:#666; font-family:var(--font-tech);">NO HARDWARE DETECTED</p>
-                <button onclick="toggleCart()" style="margin-top:20px; background:none; border:1px solid #333; color:#888; padding:5px 15px; cursor:pointer;">BROWSE</button>
+                <button onclick="toggleCart()" style="margin-top:20px; background:none; border:1px solid #333; color:#888; padding:8px 15px; cursor:pointer;">BROWSE</button>
             </div>
         `;
         totalEl.innerText = "₹0";

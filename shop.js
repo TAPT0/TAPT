@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartCount();
     initAuthListener();
     
+    // Intersection Observer for Reveal Animations
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(e => { 
             if(e.isIntersecting) e.target.classList.add('active'); 
@@ -37,16 +38,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { threshold: 0.1 });
     
     setInterval(() => { 
-        document.querySelectorAll('.reveal, .reveal-row').forEach(el => observer.observe(el)); 
+        document.querySelectorAll('.reveal, .reveal-row, .fade-in, .fade-in-delay').forEach(el => observer.observe(el)); 
     }, 500);
 });
 
 /* =========================================
-   3. PRODUCT FETCHING & RENDERING
+   3. PRODUCT FETCHING & RENDERING (FIXED IMAGE LOGIC)
    ========================================= */
 function fetchProducts() {
     const grid = document.getElementById('shop-grid');
-    if(grid) grid.innerHTML = '<div class="loading-text" style="width:100%; text-align:center; color:#666;">Loading Legacy...</div>';
+    if(grid) grid.innerHTML = '<div class="loading-text">DECRYPTING INVENTORY...</div>';
 
     store.collection('products').get().then((snap) => {
         products = []; 
@@ -55,31 +56,32 @@ function fetchProducts() {
         snap.forEach((doc) => {
             let data = doc.data();
             
-            // 1. Get Front Image
+            // --- SMART IMAGE DETECTOR ---
+            // 1. Front Image: Try the new array first, then legacy field
             let pImage = ''; 
             if (data.images && data.images.length > 0) pImage = data.images[0];
             else if (data.image) pImage = data.image;
 
-            // 2. Get Back Image (Check for 2nd image in array OR a 'backImage' field)
-            let bImage = '';
+            // 2. Back Image: Check for 2nd image in array, then legacy backImage field
+            let bImage = null;
             if (data.images && data.images.length > 1) bImage = data.images[1];
             else if (data.backImage) bImage = data.backImage;
 
             products.push({
                 id: doc.id,
-                name: data.title || data.name || "Unnamed",
+                name: data.title || data.name || "Unnamed Unit",
                 price: Number(data.price) || 0,
                 category: data.category || 'custom',
                 image: pImage,
-                backImage: bImage, // Stored for later use
-                desc: data.description || "Transform your networking with premium NFC technology."
+                backImage: bImage, 
+                desc: data.description || "Next-gen networking hardware."
             });
         });
 
         renderShop();
     }).catch(err => {
         console.error(err);
-        if(grid) grid.innerHTML = "<p style='text-align:center; color:red;'>Failed to load products.</p>";
+        if(grid) grid.innerHTML = "<p style='text-align:center; color:red; font-family:var(--font-tech);'>CONNECTION FAILED. RETRYING...</p>";
     });
 }
 
@@ -103,24 +105,26 @@ function renderShop(filter = 'all') {
         row.className = `shop-row reveal-row ${reverseClass}`;
         
         const shapeClass = pType === 'tag' ? 'shape-tag' : 'shape-card';
+        
+        // Front Image Style
         const hasCustomImage = product.image && !product.image.includes('placeholder') && product.image !== '';
         const bgStyle = hasCustomImage ? `background-image: url('${product.image}');` : `background: #111;`;
 
-        // Determine Back Background Style
-        // If a back image exists, use it. Otherwise, default to dark.
+        // Back Image Style
         const backBgStyle = product.backImage 
             ? `background-image: url('${product.backImage}'); background-size: 100% 100%;` 
-            : `background: #080808;`;
+            : ``; // If empty, CSS defaults to the dark texture
 
         let brandingHTML = '';
         if (!hasCustomImage) {
              brandingHTML = `
-                <div class="twin-layer twin-branding">
-                    <div class="twin-logo">TAPD.</div>
+                <div style="position:absolute; bottom:25px; right:25px;">
+                    <div class="gold-foil" style="font-family:'Syncopate'; font-size:1.2rem; letter-spacing:2px;">TAPD.</div>
                 </div>
              `;
         }
-        // --- UPDATED HTML (Titanium Minimalist Layout) ---
+
+        // --- RENDER HTML ---
         row.innerHTML = `
             <div class="row-image-box" onmousemove="tiltTwin(event, this)" onmouseleave="resetTwin(this)" onclick="flipCard(this)">
                 <div class="spotlight"></div>
@@ -132,15 +136,10 @@ function renderShop(filter = 'all') {
                         <div class="twin-face twin-front">
                             <div class="twin-layer twin-base" style="${bgStyle}"></div>
                             <div class="twin-layer" style="background:url('https://grainy-gradients.vercel.app/noise.svg'); opacity:0.15; mix-blend-mode:overlay;"></div>
-                            
-                            ${!hasCustomImage ? `
-                                <div style="position:absolute; bottom:25px; right:25px;">
-                                    <div class="gold-foil" style="font-family:'Syncopate'; font-size:1.2rem; letter-spacing:2px;">TAPD.</div>
-                                </div>
-                            ` : ''}
-                            
+                            ${brandingHTML}
                             <div class="twin-layer twin-glare"></div>
                         </div>
+
                         <div class="twin-face twin-back" style="${backBgStyle}">
                             <div class="twin-layer twin-glare"></div>
                             
@@ -152,7 +151,7 @@ function renderShop(filter = 'all') {
                                     text-align: center; 
                                     color: #ececec;
                                     font-family: 'Syncopate', sans-serif; 
-                                    font-size: 0.8rem; 
+                                    font-size: 0.75rem; 
                                     font-weight: 700; 
                                     letter-spacing: 2px;
                                     text-shadow: 0 2px 5px rgba(0,0,0,0.9);
@@ -163,25 +162,27 @@ function renderShop(filter = 'all') {
 
                                 <div style="
                                     position: absolute; 
-                                    bottom: 15%; /* Pushed to bottom */
+                                    bottom: 12%; 
                                     width: 100%; 
                                     text-align: center; 
-                                    color: #666; /* Premium Grey */
+                                    color: #888; 
                                     font-family: 'Syncopate', sans-serif; 
                                     font-size: 0.6rem; 
                                     font-weight: 600; 
                                     letter-spacing: 3px;
-                                    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+                                    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
                                     pointer-events: none;
                                 ">
-
-                           
+                                    TAPD. BOOST CARD
                                 </div>
 
                             ` : `
-                                <div class="twin-layer twin-texture"></div>
-                                <i class="fa-solid fa-qrcode qr-placeholder"></i>
-                                <div class="serial-num">TAPD / ${product.id.substring(0,4).toUpperCase()}</div>
+                                <div class="twin-layer" style="background:url('https://grainy-gradients.vercel.app/noise.svg'); opacity:0.05;"></div>
+                                <div style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%) rotate(-90deg); font-family: 'Syncopate'; font-size: 2.5rem; color: rgba(255,255,255,0.03); font-weight: 800;">TAPD.</div>
+                                <div style="position: absolute; bottom: 25px; right: 25px; text-align: right;">
+                                    <div style="font-size: 0.6rem; color: #666; font-family: 'Inter';">SERIAL NO.</div>
+                                    <div style="font-family: 'monospace'; color: var(--gold);">${product.id.substring(0,6).toUpperCase()}</div>
+                                </div>
                             `}
                         </div>
 
@@ -196,7 +197,7 @@ function renderShop(filter = 'all') {
                 <div class="row-price">₹${product.price}</div>
                 
                 <div class="row-actions">
-                    <button class="btn-buy" onclick="viewProduct('${product.id}')">CONFIGURE</button>
+                    <button class="btn-buy" onclick="viewProduct('${product.id}')">CONFIGURE UNIT</button>
                 </div>
             </div>
         `;
@@ -216,15 +217,14 @@ function tiltTwin(e, container) {
     const x = e.clientX - box.left - box.width / 2;
     const y = e.clientY - box.top - box.height / 2;
     
-    // Tilt
-    const rotateX = -y / 20; 
-    const rotateY = x / 20;
+    // Heavier feeling tilt
+    const rotateX = -y / 25; 
+    const rotateY = x / 25;
     
-    // Apply to main container
     card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
     if(glare) {
         glare.style.transform = `translate(${x}px, ${y}px)`;
-        glare.style.opacity = '0.8';
+        glare.style.opacity = '0.6';
     }
 }
 
@@ -236,15 +236,12 @@ function resetTwin(container) {
 }
 
 function flipCard(container) {
-    // Find the inner wrapper inside the clicked container
     const inner = container.querySelector('.twin-inner');
-    if (inner) {
-        inner.classList.toggle('flipped');
-    }
+    if (inner) inner.classList.toggle('flipped');
 }
 
 /* =========================================
-   5. CART MANAGEMENT
+   5. CART & UTILS
    ========================================= */
 function addToCart(id) {
     const product = products.find(p => p.id === id);
@@ -253,16 +250,11 @@ function addToCart(id) {
     let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
     let item = cart.find(i => i.id === id);
     
-    if(item) {
-        item.qty++;
-    } else {
+    if(item) item.qty++;
+    else {
         const cartImg = (product.image && product.image !== '') ? product.image : 'https://via.placeholder.com/80?text=TAPD';
         cart.push({ 
-            id: product.id, 
-            name: product.name, 
-            price: product.price, 
-            img: cartImg, 
-            qty: 1 
+            id: product.id, name: product.name, price: product.price, img: cartImg, qty: 1 
         });
     }
     
@@ -308,21 +300,28 @@ function renderCartItems() {
     container.innerHTML = '';
     
     if(cart.length === 0) {
-        container.innerHTML = "<p style='color:#666; text-align:center; margin-top:50px;'>Bag is empty.</p>";
+        // --- FIXED EMPTY STATE ---
+        container.innerHTML = `
+            <div style="text-align:center; margin-top:100px; opacity:0.5;">
+                <i class="fa-solid fa-box-open" style="font-size:3rem; margin-bottom:20px; color:#333;"></i>
+                <p style="color:#666; font-family:var(--font-tech);">NO HARDWARE DETECTED</p>
+                <button onclick="toggleCart()" style="margin-top:20px; background:none; border:1px solid #333; color:#888; padding:5px 15px; cursor:pointer;">BROWSE</button>
+            </div>
+        `;
         totalEl.innerText = "₹0";
         return;
     }
 
     cart.forEach((item, idx) => {
         container.innerHTML += `
-            <div class="cart-item">
-                <img src="${item.img}" style="width:70px; height:70px; object-fit:cover; border-radius:8px;">
+            <div class="cart-item" style="background:#111; padding:10px; border-radius:8px; border:1px solid #222;">
+                <img src="${item.img}" style="width:60px; height:60px; object-fit:cover; border-radius:4px; border:1px solid #333;">
                 <div style="flex:1;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <h4 style="margin:0; font-size:0.9rem; color:white;">${item.name}</h4>
-                        <span onclick="removeItem(${idx})" style="cursor:pointer; color:#ff4444; font-size:1.2rem;">&times;</span>
+                        <h4 style="margin:0; font-size:0.8rem; color:white; font-family:var(--font-head);">${item.name}</h4>
+                        <span onclick="removeItem(${idx})" style="cursor:pointer; color:#555; font-size:1.2rem;">&times;</span>
                     </div>
-                    <p style="color:var(--gold); font-size:0.8rem; margin-top:5px;">₹${item.price} x ${item.qty}</p>
+                    <p style="color:var(--gold); font-size:0.8rem; margin-top:5px; font-family:var(--font-tech);">₹${item.price} x ${item.qty}</p>
                 </div>
             </div>
         `;
@@ -336,54 +335,13 @@ function removeItem(idx) {
     let cart = JSON.parse(localStorage.getItem('TAPDCart'));
     cart.splice(idx, 1);
     localStorage.setItem('TAPDCart', JSON.stringify(cart));
-    
     if(cart.length === 0) appliedDiscount = 0; 
-    
     renderCartItems();
     updateCartCount();
 }
 
 /* =========================================
-   6. COUPONS
-   ========================================= */
-async function applyCoupon() {
-    const codeInput = document.getElementById('coupon-code');
-    const code = codeInput.value.toUpperCase().trim();
-    if (!code) return;
-    
-    try {
-        const doc = await store.collection('coupons').doc(code).get();
-        if (doc.exists) {
-            const data = doc.data();
-            let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
-            if(cart.length === 0) return alert("Cart is empty");
-
-            let subtotal = cart.reduce((a, c) => a + (c.price * c.qty), 0);
-            
-            appliedDiscount = data.type === 'percentage' 
-                ? (subtotal * data.value) / 100 
-                : data.value;
-            
-            renderCartItems();
-            
-            document.getElementById('celebration-overlay').classList.add('active');
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            
-            codeInput.value = ""; 
-        } else {
-            alert("Invalid Coupon Code");
-        }
-    } catch (err) { 
-        console.error(err); 
-    }
-}
-
-function closeCelebration() { 
-    document.getElementById('celebration-overlay').classList.remove('active'); 
-}
-
-/* =========================================
-   7. AUTHENTICATION & USER
+   6. AUTHENTICATION & USER (FIXED UI)
    ========================================= */
 function initAuthListener() {
     auth.onAuthStateChanged(user => {
@@ -393,72 +351,55 @@ function initAuthListener() {
         if (user) {
             icon.classList.add('active');
             drawerContent.innerHTML = `
-                <div class="user-profile">
-                    <div class="user-avatar">
-                        ${user.photoURL 
-                            ? `<img src="${user.photoURL}" style="width:100%;height:100%;border-radius:50%">` 
-                            : user.email[0].toUpperCase()}
+                <div style="text-align:center; padding:30px;">
+                    <div style="width:80px; height:80px; border-radius:50%; background:var(--gold); color:black; font-size:2rem; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-weight:bold;">
+                        ${user.email[0].toUpperCase()}
                     </div>
-                    <div class="user-name">${user.displayName || 'Member'}</div>
-                    <div class="user-email">${user.email}</div>
-                    <button class="logout-btn" onclick="logout()">LOGOUT</button>
+                    <h3 style="color:white; font-family:var(--font-head); margin-bottom:5px;">${user.displayName || 'VISIONARY'}</h3>
+                    <p style="color:#666; font-size:0.8rem; font-family:var(--font-tech); margin-bottom:30px;">${user.email}</p>
+                    
+                    <button onclick="logout()" style="border:1px solid #333; background:transparent; color:#888; padding:10px 30px; cursor:pointer; font-family:var(--font-tech);">TERMINATE SESSION</button>
                 </div>
             `;
         } else {
             icon.classList.remove('active');
             drawerContent.innerHTML = `
-                <div style="padding:40px; text-align:center;">
-                    <p style="color:#888; margin-bottom:20px;">Access your legacy.</p>
-                    <button class="btn-buy" style="width:100%;" onclick="toggleAuthModal(true)">LOGIN / JOIN</button>
+                <div style="text-align:center; padding:50px 20px;">
+                    <i class="fa-solid fa-fingerprint" style="font-size:3rem; color:#222; margin-bottom:20px;"></i>
+                    <p style="color:#888; margin-bottom:30px;">Identify yourself to access order history.</p>
+                    <button class="btn-buy" style="width:100%;" onclick="toggleAuthModal(true)">LOGIN / REGISTER</button>
                 </div>
             `;
         }
     });
 }
 
-function loginWithGoogle() { 
-    auth.signInWithPopup(provider)
-        .catch(e => alert(e.message)); 
-}
-
+function loginWithGoogle() { auth.signInWithPopup(provider).catch(e => alert(e.message)); }
 function handleEmailAuth(e) {
     e.preventDefault();
     const email = document.getElementById('auth-email').value;
     const pass = document.getElementById('auth-pass').value;
-    
     auth.signInWithEmailAndPassword(email, pass).catch(err => {
         if(err.code === 'auth/user-not-found') {
-            if(confirm("User not found. Create a new account with this email?")) {
-                auth.createUserWithEmailAndPassword(email, pass);
-            }
+            if(confirm("New user detected. Initialize account?")) auth.createUserWithEmailAndPassword(email, pass);
         } else {
-            document.getElementById('auth-error').innerText = err.message;
-            document.getElementById('auth-error').style.display = 'block';
+            alert(err.message);
         }
     });
 }
-
-function logout() { 
-    auth.signOut(); 
-    toggleAccount(); 
-}
+function logout() { auth.signOut(); toggleAccount(); }
 
 function toggleAuthModal(forceState) {
     const modal = document.getElementById('auth-modal');
     const overlay = document.querySelector('.cart-overlay');
+    const display = (typeof forceState !== 'undefined' ? forceState : modal.style.display === 'none') ? 'flex' : 'none';
     
-    if (typeof forceState !== 'undefined') {
-        modal.style.display = forceState ? 'block' : 'none';
-        overlay.style.display = forceState ? 'block' : 'none';
-    } else {
-        const isClosed = modal.style.display === 'none' || modal.style.display === '';
-        modal.style.display = isClosed ? 'block' : 'none';
-        overlay.style.display = isClosed ? 'block' : 'none';
-    }
+    modal.style.display = display;
+    overlay.style.display = display;
 }
 
 /* =========================================
-   8. UTILITIES (Navigation, Search, Drawers)
+   7. UTILITIES
    ========================================= */
 function closeAllDrawers() {
     document.getElementById('cart-drawer').classList.remove('open');
@@ -470,43 +411,19 @@ function closeAllDrawers() {
 function handleUserClick() { 
     const drawer = document.getElementById('account-drawer');
     const overlay = document.querySelector('.cart-overlay');
-    
     if(drawer.classList.contains('open')) {
-        drawer.classList.remove('open');
-        overlay.style.display = 'none';
+        drawer.classList.remove('open'); overlay.style.display = 'none';
     } else {
-        drawer.classList.add('open');
-        overlay.style.display = 'block';
+        drawer.classList.add('open'); overlay.style.display = 'block';
         document.getElementById('cart-drawer').classList.remove('open');
     }
 }
-
 function toggleAccount() { handleUserClick(); }
-
-function viewProduct(id) { 
-    window.location.href = `product.html?id=${id}`; 
-}
-
-function filterProducts(cat, btn) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    
-    renderShop(cat);
-}
-
+function viewProduct(id) { window.location.href = `product.html?id=${id}`; }
 function searchProducts() {
     const term = document.getElementById('shop-search').value.toLowerCase();
-    
     document.querySelectorAll('.shop-row').forEach(row => {
-        const title = row.querySelector('.row-title').innerText.toLowerCase();
-        if (title.includes(term)) {
-            row.style.display = 'flex';
-        } else {
-            row.style.display = 'none';
-        }
+        row.style.display = row.querySelector('.row-title').innerText.toLowerCase().includes(term) ? 'flex' : 'none';
     });
 }
-
-function toggleFaq(el) { 
-    el.classList.toggle('active'); 
-}
+function toggleFaq(el) { el.classList.toggle('active'); }

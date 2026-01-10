@@ -54,16 +54,27 @@ function fetchProducts() {
 
         snap.forEach((doc) => {
             let data = doc.data();
-            let pImage = '';
+            // ... inside fetchProducts loop ...
+            
+            // 1. Get Front Image
+            let pImage = ''; 
             if (data.images && data.images.length > 0) pImage = data.images[0];
             else if (data.image) pImage = data.image;
 
+            // 2. Get Back Image (Check for 2nd image in array OR a 'backImage' field)
+            let bImage = '';
+            if (data.images && data.images.length > 1) bImage = data.images[1];
+            else if (data.backImage) bImage = data.backImage;
+            
+            // If no back image is uploaded, we'll use a default dark color in the HTML later
+            
             products.push({
                 id: doc.id,
                 name: data.title || data.name || "Unnamed",
                 price: Number(data.price) || 0,
                 category: data.category || 'custom',
                 image: pImage,
+                backImage: bImage, // <--- We store it here
                 desc: data.description || "Transform your networking with premium NFC technology."
             });
         });

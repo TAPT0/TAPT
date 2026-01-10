@@ -508,104 +508,121 @@ nav {
 }
 
 /* =========================================
-   GLOBAL 3D FLIP & AURA ENGINE (PC + MOBILE)
-   Paste this at the very bottom of shop.css
+   ULTRA-PREMIUM 3D ENGINE (Aura + Physics + Sheen)
    ========================================= */
 
-/* 1. ENABLE 3D SPACE (Crucial for flip) */
+/* 1. ENABLE 3D SPACE */
 .row-image-box {
-    perspective: 1200px !important; /* Tells browser this is a 3D space */
-    z-index: 10; /* Bring above other elements so touch works */
+    perspective: 1200px !important; 
+    z-index: 10; 
 }
 
-/* 2. THE FLIPPER WRAPPER */
+/* 2. THE CARD CONTAINER (With Breathing Aura) */
+.digital-twin {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out; /* Fast response for mouse tilt */
+    
+    /* The Breathing Golden Aura Animation */
+    animation: auraPulse 4s ease-in-out infinite;
+}
+
+@keyframes auraPulse {
+    0%, 100% { 
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8), 
+                    0 0 0 1px rgba(212, 175, 55, 0.1), 
+                    0 0 30px rgba(212, 175, 55, 0.2); 
+    }
+    50% { 
+        box-shadow: 0 30px 60px rgba(0,0,0,0.9), 
+                    0 0 0 1px rgba(212, 175, 55, 0.3), 
+                    0 0 60px rgba(212, 175, 55, 0.5); /* Stronger glow */
+    }
+}
+
+/* 3. THE FLIPPER (With Spring Physics) */
 .twin-inner {
     width: 100%; 
     height: 100%;
     position: relative;
-    transform-style: preserve-3d; /* Keeps children in 3D */
-    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy premium flip */
+    transform-style: preserve-3d;
+    /* Custom Bezier = "Snap" Effect */
+    transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); 
 }
 
-/* 3. THE FLIPPED STATE (Triggered by JS) */
 .twin-inner.flipped {
-    transform: rotateY(180deg);
+    transform: rotateY(180deg) scale(1.1); /* Slight zoom when flipped */
 }
 
-/* 4. FACE VISIBILITY (Hides back when facing front) */
+/* 4. FACE VISIBILITY */
 .twin-face {
     position: absolute; 
     inset: 0; 
     width: 100%; 
     height: 100%;
-    backface-visibility: hidden; /* Key property! */
+    backface-visibility: hidden; 
     -webkit-backface-visibility: hidden;
-    border-radius: inherit;
+    border-radius: inherit; /* Crucial for Round Tags */
     overflow: hidden;
+    background: #050505; /* Base color to prevent see-through */
 }
 
-.twin-front { z-index: 2; transform: rotateY(0deg); }
+/* 5. FRONT FACE (With Auto-Sheen) */
+.twin-front { 
+    z-index: 2; 
+    transform: rotateY(0deg); 
+}
 
-/* 5. BACK FACE DESIGN */
+/* The Auto-Sheen: A light bar that sweeps across */
+.twin-front::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -150%;
+    width: 100%; height: 100%;
+    background: linear-gradient(
+        90deg, 
+        transparent, 
+        rgba(255,255,255,0.1), 
+        transparent
+    );
+    transform: skewX(-25deg);
+    pointer-events: none;
+    animation: sheenSweep 6s infinite ease-in-out;
+}
+
+@keyframes sheenSweep {
+    0%, 80% { left: -150%; opacity: 0; }
+    90% { opacity: 1; }
+    100% { left: 150%; opacity: 0; }
+}
+
+/* 6. BACK FACE DESIGN */
 .twin-back {
     transform: rotateY(180deg);
-    background: #080808; /* Dark gray back */
+    background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.8); /* Inner depth */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.8); 
 }
 
-.qr-placeholder { font-size: 3rem; color: var(--gold); margin-bottom: 10px; filter: drop-shadow(0 0 5px var(--gold)); }
-.serial-num { font-family: 'Syncopate'; font-size: 0.6rem; color: #666; letter-spacing: 2px; }
-
-/* 6. SUPER STRONG GOLDEN AURA (Global) */
-.digital-twin {
-    box-shadow: 
-        0 20px 50px rgba(0,0,0,0.8), /* Deep Black Shadow */
-        0 0 0 1px rgba(212, 175, 55, 0.2), /* Tiny Gold Border */
-        0 0 40px rgba(212, 175, 55, 0.25) !important; /* The Golden Glow */
+.qr-placeholder { 
+    font-size: 3rem; 
+    color: var(--gold); 
+    margin-bottom: 10px; 
+    filter: drop-shadow(0 0 8px var(--gold)); 
+    animation: pulseHint 2s infinite; /* QR Code pulses too */
 }
-/* =========================================
-   FLIP HINT & TAG FIXES
-   ========================================= */
-
-/* 1. The Subtle Flip Hint Icon */
-.flip-hint {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 1.2rem;
-    z-index: 20; /* Above everything */
-    pointer-events: none; /* Let clicks pass through to card */
-    animation: pulseHint 3s infinite;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+.serial-num { 
+    font-family: 'Syncopate'; 
+    font-size: 0.6rem; 
+    color: #666; 
+    letter-spacing: 3px; 
 }
 
-@keyframes pulseHint {
-    0%, 100% { opacity: 0.3; transform: rotate(0deg); }
-    50% { opacity: 0.8; transform: rotate(15deg); }
-}
-
-/* 2. HIDE HINT ON MOBILE (Optional: If you want it cleaner on phone) */
-@media (max-width: 900px) {
-    .flip-hint { bottom: 10px; right: 10px; font-size: 1rem; }
-}
-
-/* 3. FIX FOR ROUND TAGS (Crucial!) */
-.digital-twin.shape-tag, 
-.digital-twin.shape-tag .twin-inner,
-.digital-twin.shape-tag .twin-face, 
-.digital-twin.shape-tag .twin-front, 
-.digital-twin.shape-tag .twin-back {
-    border-radius: 50% !important; /* Force circle on ALL layers */
-}
-
-/* 4. ROUND BACK FACE BORDER */
-.digital-twin.shape-tag .twin-back {
-    border: 1px solid rgba(255,255,255,0.15); /* Ensure border follows circle */
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
-}
+/* 7. FORCE ROUND SHAPE FOR TAGS (Fixes the square flip issue) */
+.digital-twin.shape-tag { border-radius: 50% !important; }
+.digital-twin.shape-tag .twin-inner { border-radius: 50% !important; }
+.digital-twin.shape-tag .twin-face { border-radius: 50% !important; }

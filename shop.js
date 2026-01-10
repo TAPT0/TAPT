@@ -184,21 +184,19 @@ function renderShop(filter = 'all') {
         row.innerHTML = `
             <div class="row-image-box" onmousemove="tiltTwin(event, this)" onmouseleave="resetTwin(this)" onclick="flipCard(this)">
                 <div class="spotlight"></div>
-                <div class="flip-hint"><i class="fa-solid fa-arrows-rotate"></i></div>
+                <div class="flip-hint"><i class="fa-solid fa-arrows-rotate"></i> FLIP</div>
+                <div class="product-badge">${product.type.toUpperCase()}</div>
 
                 <div class="digital-twin ${shapeClass}">
                     <div class="twin-inner">
-                        
                         <div class="twin-face twin-front">
                             <div class="twin-layer twin-base" style="${bgStyle}"></div>
                             <div class="twin-layer" style="background:url('https://grainy-gradients.vercel.app/noise.svg'); opacity:0.15; mix-blend-mode:overlay;"></div>
                             ${brandingHTML}
                             <div class="twin-layer twin-glare"></div>
                         </div>
-
                         <div class="twin-face twin-back" style="${backBgStyle}">
                             <div class="twin-layer twin-glare"></div>
-                            
                             ${product.backImage ? `
                                 <div style="position:absolute; top:15%; width:100%; text-align:center; color:#ececec; font-family:'Syncopate'; font-size:0.75rem; font-weight:700; pointer-events:none; text-shadow:0 2px 5px rgba(0,0,0,0.9);">
                                     ${product.name.toUpperCase()}
@@ -215,7 +213,6 @@ function renderShop(filter = 'all') {
                                 </div>
                             `}
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -224,11 +221,16 @@ function renderShop(filter = 'all') {
                 <div class="row-cat">${product.type.toUpperCase()} SERIES</div>
                 <h2 class="row-title">${product.name}</h2>
                 <p class="row-desc">${product.desc}</p>
-                <div class="row-price">₹${product.price}</div>
-                
-                <div class="row-actions">
-                    <button class="btn-buy" onclick="addToCart('${product.id}')">ADD TO CART</button>
-                    <button class="btn-buy" style="background:transparent; color:white; border:1px solid #333; margin-left:10px;" onclick="viewProduct('${product.id}')">DETAILS</button>
+                <div class="row-price-section">
+                    <div class="row-price">₹${product.price}</div>
+                    <div class="row-actions">
+                        <button class="btn-buy" onclick="event.stopPropagation(); addToCart('${product.id}')" title="Add to Cart">
+                            <i class="fa-solid fa-bag-shopping"></i>
+                        </button>
+                        <button class="btn-buy" style="background:transparent; color:white; border:1px solid rgba(255,255,255,0.2);" onclick="event.stopPropagation(); viewProduct('${product.id}')" title="View Details">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
@@ -537,17 +539,7 @@ function initAuthListener() {
         
         if (user) {
             if(icon) icon.style.color = '#D4AF37';
-            drawerContent.innerHTML = `
-                <div style="text-align:center; padding:40px 20px;">
-                    <div style="width:70px; height:70px; border-radius:50%; background:#D4AF37; color:black; font-size:2rem; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-weight:bold;">
-                        ${user.email[0].toUpperCase()}
-                    </div>
-                    <h3 style="color:white; font-family:'Syncopate', sans-serif; margin-bottom:5px;">${user.displayName || 'MEMBER'}</h3>
-                    <p style="color:#666; font-size:0.8rem; font-family:'JetBrains Mono', monospace; margin-bottom:30px;">${user.email}</p>
-                    
-                    <button onclick="logout()" style="border:1px solid #333; background:transparent; color:#888; padding:10px 30px; cursor:pointer; font-family:'JetBrains Mono', monospace;">DISCONNECT</button>
-                </div>
-            `;
+            loadAccountDashboard(user);
         } else {
             if(icon) icon.style.color = 'white';
             drawerContent.innerHTML = `
@@ -559,6 +551,379 @@ function initAuthListener() {
             `;
         }
     });
+}
+
+/* =========================================
+   COMPLETE ACCOUNT SYSTEM
+   ========================================= */
+let currentAccountView = 'dashboard';
+
+function loadAccountDashboard(user) {
+    const drawerContent = document.getElementById('account-content');
+    currentAccountView = 'dashboard';
+    
+    // Fetch user orders
+    fetchUserOrders(user.uid).then(orders => {
+        drawerContent.innerHTML = `
+            <div class="account-dashboard">
+                <div class="account-header">
+                    <div class="account-avatar-large">
+                        ${user.photoURL ? `<img src="${user.photoURL}" alt="Avatar">` : `<div class="avatar-initial">${user.email[0].toUpperCase()}</div>`}
+                    </div>
+                    <div class="account-info">
+                        <h2 class="account-name">${user.displayName || 'MEMBER'}</h2>
+                        <p class="account-email">${user.email}</p>
+                        <div class="account-badge">
+                            <i class="fa-solid fa-shield-check"></i>
+                            VERIFIED MEMBER
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="account-nav-tabs">
+                    <button class="account-tab active" onclick="showAccountView('dashboard', '${user.uid}')">
+                        <i class="fa-solid fa-house"></i> Dashboard
+                    </button>
+                    <button class="account-tab" onclick="showAccountView('orders', '${user.uid}')">
+                        <i class="fa-solid fa-box"></i> Orders <span class="tab-badge">${orders.length}</span>
+                    </button>
+                    <button class="account-tab" onclick="showAccountView('addresses', '${user.uid}')">
+                        <i class="fa-solid fa-location-dot"></i> Addresses
+                    </button>
+                    <button class="account-tab" onclick="showAccountView('settings', '${user.uid}')">
+                        <i class="fa-solid fa-gear"></i> Settings
+                    </button>
+                </div>
+                
+                <div class="account-view-content">
+                    ${renderAccountDashboard(orders)}
+                </div>
+                
+                <div class="account-footer-actions">
+                    <button class="btn-account-secondary" onclick="logout()">
+                        <i class="fa-solid fa-sign-out"></i> LOGOUT
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+function renderAccountDashboard(orders) {
+    const recentOrders = orders.slice(0, 3);
+    const totalSpent = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+    
+    return `
+        <div class="dashboard-stats">
+            <div class="stat-card-account">
+                <div class="stat-icon-account"><i class="fa-solid fa-box"></i></div>
+                <div class="stat-info-account">
+                    <div class="stat-value-account">${orders.length}</div>
+                    <div class="stat-label-account">Total Orders</div>
+                </div>
+            </div>
+            <div class="stat-card-account">
+                <div class="stat-icon-account"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                <div class="stat-info-account">
+                    <div class="stat-value-account">₹${totalSpent.toLocaleString()}</div>
+                    <div class="stat-label-account">Total Spent</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="recent-orders-section">
+            <h3 class="section-title-account">RECENT ORDERS</h3>
+            ${recentOrders.length > 0 ? `
+                <div class="orders-list">
+                    ${recentOrders.map(order => renderOrderCard(order)).join('')}
+                </div>
+            ` : `
+                <div class="empty-state">
+                    <i class="fa-solid fa-box-open" style="font-size:3rem; color:#333; margin-bottom:15px;"></i>
+                    <p style="color:#666;">No orders yet</p>
+                    <button class="btn-account-primary" onclick="window.location.href='shop.html'">START SHOPPING</button>
+                </div>
+            `}
+        </div>
+    `;
+}
+
+function renderOrderCard(order) {
+    const statusColors = {
+        'pending': '#D4AF37',
+        'processing': '#2196F3',
+        'shipped': '#9C27B0',
+        'delivered': '#4CAF50',
+        'cancelled': '#F44336'
+    };
+    
+    const status = order.status || 'pending';
+    const date = order.createdAt ? new Date(order.createdAt.seconds * 1000).toLocaleDateString() : 'N/A';
+    
+    return `
+        <div class="order-card" onclick="viewOrderDetails('${order.id}')">
+            <div class="order-header">
+                <div class="order-id">#${order.id.substring(0,8).toUpperCase()}</div>
+                <div class="order-status" style="background:${statusColors[status] || '#666'}20; color:${statusColors[status] || '#666'}; border:1px solid ${statusColors[status] || '#666'}40;">
+                    ${status.toUpperCase()}
+                </div>
+            </div>
+            <div class="order-info">
+                <div class="order-date"><i class="fa-solid fa-calendar"></i> ${date}</div>
+                <div class="order-total">₹${order.total || 0}</div>
+            </div>
+            <div class="order-items-preview">
+                ${order.items && order.items.slice(0, 2).map(item => `
+                    <div class="order-item-preview">
+                        <span>${item.name} x${item.qty}</span>
+                    </div>
+                `).join('')}
+                ${order.items && order.items.length > 2 ? `<div class="order-item-more">+${order.items.length - 2} more</div>` : ''}
+            </div>
+        </div>
+    `;
+}
+
+async function fetchUserOrders(userId) {
+    try {
+        // First try with userId query
+        let ordersSnapshot = await store.collection('orders')
+            .where('userId', '==', userId)
+            .orderBy('createdAt', 'desc')
+            .limit(20)
+            .get();
+        
+        // If no results, also check email (for legacy orders)
+        if (ordersSnapshot.empty) {
+            const user = auth.currentUser;
+            if (user && user.email) {
+                ordersSnapshot = await store.collection('orders')
+                    .where('email', '==', user.email)
+                    .orderBy('date', 'desc')
+                    .limit(20)
+                    .get();
+            }
+        }
+        
+        return ordersSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        // Fallback: try without orderBy
+        try {
+            const ordersSnapshot = await store.collection('orders')
+                .where('userId', '==', userId)
+                .limit(20)
+                .get();
+            return ordersSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+        } catch (e) {
+            return [];
+        }
+    }
+}
+
+function showAccountView(view, userId) {
+    currentAccountView = view;
+    
+    // Update active tab
+    document.querySelectorAll('.account-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    if (event && event.target.closest('.account-tab')) {
+        event.target.closest('.account-tab').classList.add('active');
+    }
+    
+    const contentArea = document.querySelector('.account-view-content');
+    
+    switch(view) {
+        case 'dashboard':
+            fetchUserOrders(userId).then(orders => {
+                contentArea.innerHTML = renderAccountDashboard(orders);
+            });
+            break;
+        case 'orders':
+            loadAllOrders(userId);
+            break;
+        case 'addresses':
+            loadAddresses(userId);
+            break;
+        case 'settings':
+            loadSettings(userId);
+            break;
+    }
+}
+
+function loadAllOrders(userId) {
+    const contentArea = document.querySelector('.account-view-content');
+    contentArea.innerHTML = '<div style="text-align:center; padding:40px;"><div class="loading-text">LOADING ORDERS...</div></div>';
+    
+    fetchUserOrders(userId).then(orders => {
+        if (orders.length === 0) {
+            contentArea.innerHTML = `
+                <div class="empty-state">
+                    <i class="fa-solid fa-box-open" style="font-size:3rem; color:#333; margin-bottom:15px;"></i>
+                    <p style="color:#666;">No orders found</p>
+                    <button class="btn-account-primary" onclick="window.location.href='shop.html'">START SHOPPING</button>
+                </div>
+            `;
+        } else {
+            contentArea.innerHTML = `
+                <div class="orders-list-full">
+                    ${orders.map(order => renderOrderCard(order)).join('')}
+                </div>
+            `;
+        }
+    });
+}
+
+function loadAddresses(userId) {
+    const contentArea = document.querySelector('.account-view-content');
+    
+    // Fetch addresses from Firestore
+    store.collection('users').doc(userId).get().then(doc => {
+        const userData = doc.data();
+        const addresses = userData?.addresses || [];
+        
+        contentArea.innerHTML = `
+            <div class="addresses-section">
+                <button class="btn-account-primary" onclick="openAddressModal('add')" style="margin-bottom:30px;">
+                    <i class="fa-solid fa-plus"></i> ADD NEW ADDRESS
+                </button>
+                <div class="addresses-list">
+                    ${addresses.length > 0 ? addresses.map((addr, index) => renderAddressCard(addr, index)).join('') : `
+                        <div class="empty-state">
+                            <i class="fa-solid fa-location-dot" style="font-size:3rem; color:#333; margin-bottom:15px;"></i>
+                            <p style="color:#666;">No addresses saved</p>
+                        </div>
+                    `}
+                </div>
+            </div>
+        `;
+    });
+}
+
+function renderAddressCard(address, index) {
+    return `
+        <div class="address-card">
+            <div class="address-header">
+                <h4>${address.name || 'Address ' + (index + 1)}</h4>
+                ${address.isDefault ? '<span class="default-badge">DEFAULT</span>' : ''}
+            </div>
+            <div class="address-details">
+                <p>${address.street || ''}</p>
+                <p>${address.city || ''}, ${address.state || ''} ${address.pincode || ''}</p>
+                <p>${address.phone || ''}</p>
+            </div>
+            <div class="address-actions">
+                <button class="btn-address-action" onclick="editAddress(${index})">Edit</button>
+                <button class="btn-address-action" onclick="deleteAddress(${index})">Delete</button>
+                ${!address.isDefault ? `<button class="btn-address-action" onclick="setDefaultAddress(${index})">Set Default</button>` : ''}
+            </div>
+        </div>
+    `;
+}
+
+function loadSettings(userId) {
+    const contentArea = document.querySelector('.account-view-content');
+    
+    store.collection('users').doc(userId).get().then(doc => {
+        const userData = doc.data() || {};
+        const auth = firebase.auth();
+        const user = auth.currentUser;
+        
+        contentArea.innerHTML = `
+            <div class="settings-section">
+                <div class="settings-group">
+                    <h3 class="settings-title">PROFILE INFORMATION</h3>
+                    <div class="setting-item">
+                        <label>Display Name</label>
+                        <input type="text" id="displayName" value="${user.displayName || ''}" class="setting-input">
+                    </div>
+                    <div class="setting-item">
+                        <label>Email</label>
+                        <input type="email" id="userEmail" value="${user.email || ''}" class="setting-input" disabled>
+                    </div>
+                    <button class="btn-account-primary" onclick="updateProfile()">SAVE CHANGES</button>
+                </div>
+                
+                <div class="settings-group">
+                    <h3 class="settings-title">NOTIFICATIONS</h3>
+                    <div class="setting-toggle">
+                        <label>Order Updates</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" ${userData.notifications?.orders !== false ? 'checked' : ''} onchange="updateNotificationSetting('orders', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-toggle">
+                        <label>Promotional Emails</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" ${userData.notifications?.promotions !== false ? 'checked' : ''} onchange="updateNotificationSetting('promotions', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-group">
+                    <h3 class="settings-title">DANGER ZONE</h3>
+                    <button class="btn-account-danger" onclick="deleteAccount()">
+                        <i class="fa-solid fa-trash"></i> DELETE ACCOUNT
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+function updateProfile() {
+    const auth = firebase.auth();
+    const user = auth.currentUser;
+    const displayName = document.getElementById('displayName').value;
+    
+    user.updateProfile({ displayName }).then(() => {
+        alert('Profile updated successfully!');
+        loadAccountDashboard(user);
+    }).catch(error => {
+        alert('Error updating profile: ' + error.message);
+    });
+}
+
+function updateNotificationSetting(type, enabled) {
+    const auth = firebase.auth();
+    const user = auth.currentUser;
+    
+    store.collection('users').doc(user.uid).set({
+        notifications: {
+            [type]: enabled
+        }
+    }, { merge: true });
+}
+
+function viewOrderDetails(orderId) {
+    store.collection('orders').doc(orderId).get().then(doc => {
+        if (doc.exists) {
+            const order = { id: doc.id, ...doc.data() };
+            // Open order details modal or navigate to order page
+            alert(`Order Details:\nStatus: ${order.status}\nTotal: ₹${order.total}\nItems: ${order.items?.length || 0}`);
+        }
+    });
+}
+
+function deleteAccount() {
+    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+        const auth = firebase.auth();
+        const user = auth.currentUser;
+        user.delete().then(() => {
+            logout();
+        }).catch(error => {
+            alert('Error deleting account: ' + error.message);
+        });
+    }
 }
 
 function loginWithGoogle() { 

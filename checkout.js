@@ -18,6 +18,7 @@ if (!firebase.apps.length) {
 
 // Use Firestore to match Admin Panel
 const db = firebase.firestore();
+const auth = firebase.auth();
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -163,8 +164,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalText = document.getElementById('c-total').textContent.replace('₹', '').replace(/,/g, '');
         const totalValue = parseFloat(totalText);
 
+        // Get current user ID if logged in
+        const currentUser = auth.currentUser;
+        const userId = currentUser ? currentUser.uid : null;
+        
         const orderData = {
-            date: new Date().toISOString(),
+            userId: userId || 'guest',
             email: document.getElementById('email').value,
             paymentMethod: paymentMethod,
             shipping: {
@@ -172,17 +177,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 last: document.getElementById('l-name').value,
                 address: document.getElementById('address').value,
                 city: document.getElementById('city').value,
+                state: document.getElementById('state').value || '',
+                zip: document.getElementById('zip').value || '',
                 phone: document.getElementById('phone').value
             },
-            items: cart,
+            items: cart.map(item => ({
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                qty: item.qty,
+                img: item.img
+            })),
             total: totalValue,
-            status: paymentMethod === 'cod' ? 'pending_cod' : 'paid'
+            status: paymentMethod === 'cod' ? 'pending' : 'processing',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            date: new Date().toISOString()
         };
 
         // Save to Firestore "orders" collection
         db.collection("orders").add(orderData).then(() => {
+            localStorage.removeItem('TAPDCart');
             localStorage.removeItem('taptCart');
-            document.getElementById('success-overlay').style.display = 'flex';
+            if (document.getElementById('success-overlay')) {
+                document.getElementById('success-overlay').style.display = 'flex';
+            }
+            // Redirect to success page or show success message
+            setTimeout(() => {
+                window.location.href = 'track.html';
+            }, 2000);
         }).catch(err => {
             console.error(err);
             alert("Error placing order: " + err.message);

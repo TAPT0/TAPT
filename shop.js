@@ -54,7 +54,6 @@ function fetchProducts() {
 
         snap.forEach((doc) => {
             let data = doc.data();
-            // ... inside fetchProducts loop ...
             
             // 1. Get Front Image
             let pImage = ''; 
@@ -65,16 +64,14 @@ function fetchProducts() {
             let bImage = '';
             if (data.images && data.images.length > 1) bImage = data.images[1];
             else if (data.backImage) bImage = data.backImage;
-            
-            // If no back image is uploaded, we'll use a default dark color in the HTML later
-            
+
             products.push({
                 id: doc.id,
                 name: data.title || data.name || "Unnamed",
                 price: Number(data.price) || 0,
                 category: data.category || 'custom',
                 image: pImage,
-                backImage: bImage, // <--- We store it here
+                backImage: bImage, // Stored for later use
                 desc: data.description || "Transform your networking with premium NFC technology."
             });
         });
@@ -109,6 +106,12 @@ function renderShop(filter = 'all') {
         const hasCustomImage = product.image && !product.image.includes('placeholder') && product.image !== '';
         const bgStyle = hasCustomImage ? `background-image: url('${product.image}');` : `background: #111;`;
 
+        // Determine Back Background Style
+        // If a back image exists, use it. Otherwise, default to dark.
+        const backBgStyle = product.backImage 
+            ? `background-image: url('${product.backImage}'); background-size: 100% 100%;` 
+            : `background: #080808;`;
+
         let brandingHTML = '';
         if (!hasCustomImage) {
              brandingHTML = `
@@ -118,26 +121,48 @@ function renderShop(filter = 'all') {
              `;
         }
 
-        // --- UPDATED HTML (With Flip Hint) ---
+        // --- UPDATED HTML (With Flip Hint & Back Image Support) ---
         row.innerHTML = `
             <div class="row-image-box" onmousemove="tiltTwin(event, this)" onmouseleave="resetTwin(this)" onclick="flipCard(this)">
                 <div class="spotlight"></div>
-                
                 <div class="flip-hint"><i class="fa-solid fa-arrows-rotate"></i></div>
 
                 <div class="digital-twin ${shapeClass}">
                     <div class="twin-inner">
+                        
                         <div class="twin-face twin-front">
                             <div class="twin-layer twin-base" style="${bgStyle}"></div>
                             <div class="twin-layer twin-texture"></div>
                             ${brandingHTML}
                             <div class="twin-layer twin-glare"></div>
                         </div>
-                        <div class="twin-face twin-back">
-                            <div class="twin-layer twin-texture"></div>
-                            <i class="fa-solid fa-qrcode qr-placeholder"></i>
-                            <div class="serial-num">TAPD / ${product.id.substring(0,4).toUpperCase()}</div>
+
+                        <div class="twin-face twin-back" style="${backBgStyle}">
+                            <div class="twin-layer twin-glare"></div>
+                            
+                            ${product.backImage ? `
+                                <div style="
+                                    position: absolute; 
+                                    top: 15%; 
+                                    width: 100%; 
+                                    text-align: center; 
+                                    color: #ececec;
+                                    font-family: 'Syncopate', sans-serif; 
+                                    font-size: 0.8rem; 
+                                    font-weight: 700; 
+                                    letter-spacing: 2px;
+                                    text-shadow: 0 2px 5px rgba(0,0,0,0.9);
+                                    pointer-events: none;
+                                ">
+                                    ${product.name.toUpperCase()}
+                                </div>
+                            ` : `
+                                <div class="twin-layer twin-texture"></div>
+                                <i class="fa-solid fa-qrcode qr-placeholder"></i>
+                                <div class="serial-num">TAPD / ${product.id.substring(0,4).toUpperCase()}</div>
+                            `}
                         </div>
+
                     </div>
                 </div>
             </div>

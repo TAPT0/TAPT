@@ -20,18 +20,15 @@
     <div class="floating-assets">
         <div class="floater card left t1"></div>
         <div class="floater tag left t2"></div>
-        <div class="floater card left t3"></div>
-        
+        <div class="floater card right t3"></div>
         <div class="floater tag right t1"></div>
-        <div class="floater card right t2"></div>
-        <div class="floater tag right t3"></div>
     </div>
 
     <nav class="glass-nav">
         <a href="index.html" class="logo">TAPD<span>.</span></a>
         <div class="nav-right">
             <a href="customize.html" class="nav-link">Create</a>
-            <a href="track.html" class="nav-icon" title="Track Order"><i class="fa-solid fa-crosshairs"></i></a>
+            <a href="track.html" class="nav-icon" title="Track"><i class="fa-solid fa-crosshairs"></i></a>
             <div class="nav-icon" id="user-icon-trigger" onclick="handleUserClick()"><i class="fa-regular fa-circle-user"></i></div>
             <div class="cart-trigger" onclick="toggleCart()">
                 <i class="fa-solid fa-bag-shopping"></i>
@@ -63,7 +60,7 @@
     </div>
 
     <div class="showcase-container" id="shop-grid">
-        <div class="loading-text">INITIALIZING...</div>
+        <div class="loading-text">CONNECTING TO SERVER...</div>
     </div>
 
     <section class="core-section reveal">
@@ -87,12 +84,6 @@
             </div>
         </div>
     </section>
-
-    <div class="marquee-strip">
-        <div class="marquee-content">
-            TRUSTED BY 50,000+ VISIONARIES • NO MONTHLY FEES • SHIPPING WORLDWIDE • TRUSTED BY 50,000+ VISIONARIES • NO MONTHLY FEES •
-        </div>
-    </div>
 
     <section class="newsletter-section reveal">
         <div class="newsletter-box glass-hud">
@@ -170,10 +161,11 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script> 
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <script src="shop.js"></script>
 </body>
 </html>

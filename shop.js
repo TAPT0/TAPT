@@ -30,15 +30,57 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartCount();
     initAuthListener();
     
-    // Intersection Observer for Reveal Animations
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(e => { 
-            if(e.isIntersecting) e.target.classList.add('active'); 
-        });
-    }, { threshold: 0.1 });
+    // Premium Intersection Observer for Reveal Animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px' // Trigger slightly before element enters viewport
+    };
     
-    setInterval(() => { 
-        document.querySelectorAll('.reveal, .reveal-row, .fade-in, .fade-in-delay').forEach(el => observer.observe(el)); 
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => { 
+            if(entry.isIntersecting) {
+                // Staggered animation delay for premium effect
+                const delay = entry.target.classList.contains('shop-row') 
+                    ? entry.target.dataset.index * 0.15 
+                    : 0;
+                
+                setTimeout(() => {
+                    entry.target.classList.add('active');
+                }, delay * 1000);
+                
+                // Only observe once for performance
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    // Observe elements with staggered initialization
+    setTimeout(() => { 
+        document.querySelectorAll('.reveal, .reveal-row, .fade-in, .fade-in-delay').forEach((el, index) => {
+            if (el.classList.contains('shop-row')) {
+                el.dataset.index = index;
+            }
+            observer.observe(el);
+        }); 
+    }, 300);
+    
+    // Observe shop rows specifically for premium stagger
+    const shopRowsObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if(entry.isIntersecting) {
+                const delay = index * 0.1;
+                setTimeout(() => {
+                    entry.target.classList.add('active');
+                }, delay * 1000);
+            }
+        });
+    }, { threshold: 0.05, rootMargin: '0px 0px -100px 0px' });
+    
+    setTimeout(() => {
+        document.querySelectorAll('.shop-row').forEach((row, index) => {
+            row.dataset.index = index;
+            shopRowsObserver.observe(row);
+        });
     }, 500);
 });
 
@@ -98,16 +140,31 @@ function renderShop(filter = 'all') {
     const container = document.getElementById('shop-grid');
     if (!container) return;
 
-    container.innerHTML = '';
-    let visibleCount = 0;
+    // Premium fade-out transition before clearing
+    const existingRows = container.querySelectorAll('.shop-row');
+    if (existingRows.length > 0) {
+        existingRows.forEach((row, index) => {
+            setTimeout(() => {
+                row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(-20px) scale(0.95)';
+            }, index * 30);
+        });
+    }
 
-    products.forEach(product => {
-        // Filter by Type (Card vs Tag)
-        if (filter !== 'all' && product.type !== filter) return;
+    setTimeout(() => {
+        container.innerHTML = '';
+        let visibleCount = 0;
 
-        const reverseClass = visibleCount % 2 !== 0 ? 'reverse' : '';
-        const row = document.createElement('div');
-        row.className = `shop-row reveal-row ${reverseClass}`;
+        products.forEach(product => {
+            // Filter by Type (Card vs Tag)
+            if (filter !== 'all' && product.type !== filter) return;
+
+            const reverseClass = visibleCount % 2 !== 0 ? 'reverse' : '';
+            const row = document.createElement('div');
+            row.className = `shop-row reveal-row ${reverseClass}`;
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(50px)';
         
         // Apply Shape Class based on Admin Type
         const shapeClass = product.type === 'tag' ? 'shape-tag' : 'shape-card';
@@ -174,42 +231,159 @@ function renderShop(filter = 'all') {
             </div>
         `;
         
-        container.appendChild(row);
-        visibleCount++;
-    });
+            container.appendChild(row);
+            visibleCount++;
+            
+            // Premium staggered entry animation
+            setTimeout(() => {
+                row.style.transition = 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, visibleCount * 100);
+        });
+        
+        // Re-observe new rows for intersection
+        setTimeout(() => {
+            document.querySelectorAll('.shop-row').forEach((row, index) => {
+                row.dataset.index = index;
+                const shopRowsObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if(entry.isIntersecting) {
+                            entry.target.classList.add('active');
+                            shopRowsObserver.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                shopRowsObserver.observe(row);
+            });
+        }, 100);
+    }, existingRows.length > 0 ? 400 : 0);
 }
 
 /* =========================================
-   4. INTERACTION (TILT & FLIP)
+   4. PREMIUM INTERACTION (TILT & FLIP - Mobile Optimized)
    ========================================= */
 function tiltTwin(e, container) {
     const card = container.querySelector('.digital-twin');
     const glare = container.querySelector('.twin-glare');
+    const spotlight = container.querySelector('.spotlight');
+    if (!card) return;
+    
     const box = container.getBoundingClientRect();
-    const x = e.clientX - box.left - box.width / 2;
-    const y = e.clientY - box.top - box.height / 2;
+    const isTouch = e.touches ? true : false;
+    const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+    const clientY = isTouch ? e.touches[0].clientY : e.clientY;
     
-    const rotateX = -y / 25; 
-    const rotateY = x / 25;
+    const x = clientX - box.left - box.width / 2;
+    const y = clientY - box.top - box.height / 2;
     
-    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+    // Premium 3D tilt effect (subtle on mobile, stronger on desktop)
+    const isMobile = window.innerWidth <= 900;
+    const sensitivity = isMobile ? 35 : 25;
+    const maxTilt = isMobile ? 8 : 12;
+    
+    const rotateX = Math.max(-maxTilt, Math.min(maxTilt, -y / sensitivity)); 
+    const rotateY = Math.max(-maxTilt, Math.min(maxTilt, x / sensitivity));
+    const scale = isMobile ? 1.01 : 1.02;
+    
+    // Smooth transform with will-change optimization
+    card.style.transform = `perspective(1500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${scale}) translateZ(20px)`;
+    card.style.transition = 'transform 0.1s ease-out';
+    
+    // Enhanced glare effect
     if(glare) {
-        glare.style.transform = `translate(${x}px, ${y}px)`;
-        glare.style.opacity = '0.6';
+        const glareX = (x / box.width) * 100;
+        const glareY = (y / box.height) * 100;
+        glare.style.transform = `translate(${glareX}%, ${glareY}%) translate(-50%, -50%)`;
+        glare.style.opacity = '0.8';
+        glare.style.transition = 'opacity 0.3s ease';
+    }
+    
+    // Spotlight effect
+    if(spotlight) {
+        const spotlightX = (x / box.width) * 100;
+        const spotlightY = (y / box.height) * 100;
+        spotlight.style.transform = `translate(${spotlightX}%, ${spotlightY}%) translate(-50%, -50%)`;
+        spotlight.style.opacity = '0.6';
     }
 }
 
 function resetTwin(container) {
     const card = container.querySelector('.digital-twin');
     const glare = container.querySelector('.twin-glare');
-    card.style.transform = `rotateX(0) rotateY(0) scale(1)`;
-    if(glare) glare.style.opacity = '0';
+    const spotlight = container.querySelector('.spotlight');
+    
+    if(card) {
+        card.style.transform = 'perspective(1500px) rotateX(0) rotateY(0) scale(1) translateZ(0)';
+        card.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
+    }
+    
+    if(glare) {
+        glare.style.opacity = '0';
+        glare.style.transform = 'translate(50%, 50%) translate(-50%, -50%)';
+        glare.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    }
+    
+    if(spotlight) {
+        spotlight.style.opacity = '0';
+        spotlight.style.transform = 'translate(50%, 50%) translate(-50%, -50%)';
+    }
 }
 
 function flipCard(container) {
     const inner = container.querySelector('.twin-inner');
-    if (inner) inner.classList.toggle('flipped');
+    const card = container.querySelector('.digital-twin');
+    
+    if (inner) {
+        const isFlipped = inner.classList.contains('flipped');
+        
+        // Premium flip animation with sound feedback (optional)
+        if (!isFlipped) {
+            inner.classList.add('flipped');
+            // Add haptic feedback on mobile if available
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        } else {
+            inner.classList.remove('flipped');
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        }
+        
+        // Reset tilt after flip
+        if (card) {
+            setTimeout(() => {
+                resetTwin(container);
+            }, 800);
+        }
+    }
 }
+
+// Touch event handlers for mobile
+document.addEventListener('DOMContentLoaded', () => {
+    // Add touch event listeners to all image boxes
+    document.addEventListener('touchstart', (e) => {
+        const imageBox = e.target.closest('.row-image-box');
+        if (imageBox) {
+            tiltTwin(e, imageBox);
+        }
+    }, { passive: true });
+    
+    document.addEventListener('touchmove', (e) => {
+        const imageBox = e.target.closest('.row-image-box');
+        if (imageBox) {
+            tiltTwin(e, imageBox);
+        }
+    }, { passive: true });
+    
+    document.addEventListener('touchend', (e) => {
+        const imageBox = e.target.closest('.row-image-box');
+        if (imageBox) {
+            resetTwin(imageBox);
+        }
+    }, { passive: true });
+});
 
 /* =========================================
    5. CART & COUPONS (Restored)
@@ -450,17 +624,99 @@ function viewProduct(id) {
     window.location.href = `product.html?id=${id}`; 
 }
 
+function filterProducts(type, button) {
+    // Premium button animation
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.transition = 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)';
+        btn.style.transform = 'scale(1)';
+    });
+    
+    if (button) {
+        button.classList.add('active');
+        button.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            button.style.transform = 'scale(1)';
+        }, 150);
+    }
+    
+    // Haptic feedback on mobile
+    if (navigator.vibrate) {
+        navigator.vibrate(15);
+    }
+    
+    // Clear search input when filtering
+    const searchInput = document.getElementById('shop-search');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    
+    // Re-render with filter using premium animation
+    renderShop(type);
+}
+
 function searchProducts() {
     const term = document.getElementById('shop-search').value.toLowerCase();
+    const rows = document.querySelectorAll('.shop-row');
+    let visibleCount = 0;
     
-    document.querySelectorAll('.shop-row').forEach(row => {
-        const title = row.querySelector('.row-title').innerText.toLowerCase();
-        if (title.includes(term)) {
+    rows.forEach((row, index) => {
+        const title = row.querySelector('.row-title')?.innerText.toLowerCase() || '';
+        const desc = row.querySelector('.row-desc')?.innerText.toLowerCase() || '';
+        const matches = title.includes(term) || desc.includes(term);
+        
+        if (matches) {
+            row.classList.remove('filtered-out');
             row.style.display = 'flex';
+            // Staggered reveal animation
+            setTimeout(() => {
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0) scale(1)';
+                row.style.filter = 'blur(0)';
+            }, visibleCount * 50);
+            visibleCount++;
         } else {
-            row.style.display = 'none';
+            // Premium fade-out animation
+            row.style.transition = 'opacity 0.4s ease, transform 0.4s ease, filter 0.4s ease';
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(-20px) scale(0.95)';
+            row.style.filter = 'blur(5px)';
+            
+            setTimeout(() => {
+                row.classList.add('filtered-out');
+            }, 400);
         }
     });
+    
+    // Show no results message if needed
+    const container = document.getElementById('shop-grid');
+    let noResultsMsg = container.querySelector('.no-results-msg');
+    
+    if (visibleCount === 0 && term !== '') {
+        if (!noResultsMsg) {
+            noResultsMsg = document.createElement('div');
+            noResultsMsg.className = 'no-results-msg';
+            noResultsMsg.style.cssText = 'text-align:center; padding:80px 20px; color:#666; font-family:var(--font-tech); opacity:0; transition:opacity 0.5s ease;';
+            noResultsMsg.innerHTML = `
+                <i class="fa-solid fa-magnifying-glass" style="font-size:3rem; margin-bottom:20px; color:#333;"></i>
+                <h3 style="font-family:var(--font-head); color:#888; margin-bottom:10px;">NO MATCHES FOUND</h3>
+                <p style="font-size:0.8rem; color:#555;">Try a different search term</p>
+            `;
+            container.appendChild(noResultsMsg);
+        }
+        setTimeout(() => {
+            noResultsMsg.style.opacity = '1';
+        }, 500);
+    } else {
+        if (noResultsMsg) {
+            noResultsMsg.style.opacity = '0';
+            setTimeout(() => {
+                if (noResultsMsg && noResultsMsg.parentNode) {
+                    noResultsMsg.parentNode.removeChild(noResultsMsg);
+                }
+            }, 500);
+        }
+    }
 }
 
 function toggleFaq(el) { 

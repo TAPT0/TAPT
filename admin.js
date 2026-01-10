@@ -1,6 +1,7 @@
 /* --- CLOUDINARY CONFIGURATION --- */
-const cloudName = "dmsaqoa0l"; // Replace with your actual Cloud Name
-const uploadPreset = "tapd_preset"; // Replace with your actual Preset Name
+// REPLACE THESE WITH YOUR ACTUAL CLOUDINARY CREDENTIALS
+const cloudName = "YOUR_CLOUD_NAME"; 
+const uploadPreset = "YOUR_UPLOAD_PRESET"; 
 
 /* --- FIREBASE CONFIGURATION & SETUP --- */
 const firebaseConfig = {
@@ -23,6 +24,7 @@ const auth = firebase.auth();
 
 let allProductsCache = {};
 let tempEditImages = [];
+let newProductImages = []; // Stores images for new product uploads
 let unsubscribeProducts = null;
 let unsubscribeOrders = null;
 let unsubscribeCoupons = null;
@@ -94,56 +96,7 @@ function loadAllData() {
     loadCoupons();
 }
 
-/* --- HELPERS --- */
-const compressImage = (file, maxWidth, quality) => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-            if (width > maxWidth) {
-                height *= maxWidth / width;
-                width = maxWidth;
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            const dataUrl = canvas.toDataURL('image/jpeg', quality);
-            resolve(dataUrl);
-        };
-        img.onerror = (error) => reject(error);
-    };
-    reader.onerror = (error) => reject(error);
-});
-
-function previewImages(input, divId) {
-    const container = document.getElementById(divId);
-    if (!container) return;
-    
-    container.innerHTML = "";
-    if (input.files) {
-        Array.from(input.files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.createElement("img");
-                img.src = e.target.result;
-                img.classList.add("img-thumb");
-                const div = document.createElement("div");
-                div.className = "img-thumb-container";
-                div.appendChild(img);
-                container.appendChild(div);
-            }
-            reader.readAsDataURL(file);
-        });
-    }
-}
-
-/* --- PRODUCT MANAGEMENT --- */
+/* --- PRODUCT MANAGEMENT (CREATE) --- */
 async function uploadProduct() {
     // Safety checks for elements
     const titleEl = document.getElementById('p-title');
@@ -152,10 +105,9 @@ async function uploadProduct() {
     const categoryEl = document.getElementById('p-category');
     const typeEl = document.getElementById('p-type'); 
     const designJsonEl = document.getElementById('p-design-json');
-    const imageUrlEl = document.getElementById('p-image-url');
     const statusText = document.getElementById('upload-status');
 
-    if (!titleEl || !priceEl || !imageUrlEl) {
+    if (!titleEl || !priceEl) {
         console.error("Missing input elements in HTML");
         return;
     }
@@ -166,10 +118,10 @@ async function uploadProduct() {
     const category = categoryEl ? categoryEl.value : "custom";
     const type = typeEl ? typeEl.value : "card";
     const designJson = designJsonEl ? designJsonEl.value : "";
-    const imageUrl = imageUrlEl.value;
 
-    if(!title || !price || !imageUrl) {
-        alert("Please fill all fields and upload an image via Cloudinary");
+    // Validation: Require title, price, and at least ONE image
+    if(!title || !price || newProductImages.length === 0) {
+        alert("Please fill all fields and upload at least one image via Cloudinary");
         return;
     }
 
@@ -181,24 +133,52 @@ async function uploadProduct() {
         price: parseFloat(price),
         category: category,
         type: type, 
-        images: [imageUrl], // Saving the Cloudinary URL in an array
+        images: newProductImages, // Save the ARRAY of Cloudinary URLs
+        image: newProductImages[0], // Keep main image for legacy/thumbnail support
         designTemplate: designJson, 
         createdAt: new Date().toISOString()
     }).then(() => {
         if (statusText) statusText.textContent = "";
         showToast("Product Added!");
+        
         // Clear form
         titleEl.value = "";
         if (descEl) descEl.value = "";
         priceEl.value = "";
-        imageUrlEl.value = "";
-        const preview = document.getElementById('add-preview');
-        if (preview) preview.innerHTML = "";
+        if (designJsonEl) designJsonEl.value = "";
+        
+        // Clear images
+        newProductImages = []; 
+        updateImagePreview();
+        
     }).catch((error) => {
         if (statusText) statusText.textContent = "Error: " + error.message;
     });
 }
 
+function updateImagePreview() {
+    const container = document.getElementById('add-preview');
+    if(!container) return;
+    
+    container.innerHTML = ''; // Clear current
+    
+    newProductImages.forEach((url, index) => {
+        container.innerHTML += `
+            <div style="position: relative; display: inline-block; width: 80px; height: 80px; margin-right:10px;">
+                <img src="${url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #444;">
+                <button onclick="removeNewImage(${index})" style="position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+            </div>
+        `;
+    });
+}
+
+function removeNewImage(index) {
+    newProductImages.splice(index, 1);
+    updateImagePreview();
+}
+
+
+/* --- PRODUCT MANAGEMENT (READ/DELETE) --- */
 function loadProducts() {
     const container = document.getElementById('products-list-container');
     if (!container) return;
@@ -219,7 +199,8 @@ function loadProducts() {
             const key = doc.id;
             allProductsCache[key] = p;
 
-            const img = (p.images && p.images.length > 0) ? p.images[0] : '';
+            // Use first image in array, or legacy 'image' field
+            const img = (p.images && p.images.length > 0) ? p.images[0] : (p.image || '');
             
             const div = document.createElement('div');
             div.className = 'inventory-item';
@@ -273,16 +254,17 @@ function openEditModal(key) {
     setVal('edit-category', product.category || "custom");
     setVal('edit-design-json', product.designTemplate || ""); 
     
-    tempEditImages = product.images ? [...product.images] : [];
+    // Load images into temp array (handle both legacy 'image' and new 'images' array)
+    if (product.images && product.images.length > 0) {
+        tempEditImages = [...product.images];
+    } else if (product.image) {
+        tempEditImages = [product.image];
+    } else {
+        tempEditImages = [];
+    }
+    
     renderEditImages();
     
-    // Safely clear inputs
-    const newImagesInput = document.getElementById('edit-new-images');
-    if (newImagesInput) newImagesInput.value = "";
-    
-    const newPreview = document.getElementById('edit-new-preview');
-    if (newPreview) newPreview.innerHTML = "";
-
     const modal = document.getElementById('edit-modal');
     if (modal) {
         modal.classList.add('open');
@@ -326,12 +308,10 @@ function renderEditImages() {
 
 async function saveProductChanges() {
     const keyEl = document.getElementById('edit-key');
-    const imgEl = document.getElementById('edit-image-url');
     
     if (!keyEl) return;
     
     const key = keyEl.value;
-    const newImageUrl = imgEl ? imgEl.value : "";
     
     // Helper to safely get value
     const getVal = (id) => {
@@ -346,17 +326,13 @@ async function saveProductChanges() {
         type: getVal('edit-type'),
         category: getVal('edit-category'),
         designTemplate: getVal('edit-design-json'), 
+        images: tempEditImages, // Save the updated list of images
+        image: tempEditImages.length > 0 ? tempEditImages[0] : "", // Update legacy field
         updatedAt: new Date().toISOString()
     };
 
-    // Only update the image if a new one was uploaded
-    if (newImageUrl) {
-        updatedData.images = [newImageUrl];
-    }
-
     db.collection("products").doc(key).update(updatedData).then(() => {
         showToast("Product Updated!");
-        if (imgEl) imgEl.value = ""; // Clear for next use
         closeEditModal();
     });
 }
@@ -564,55 +540,47 @@ function deleteOrder(orderId) {
     }
 }
 
-/* --- CLOUDINARY WIDGET SETUP --- */
+/* --- CLOUDINARY WIDGET SETUP (UPDATED FOR MULTIPLE UPLOADS) --- */
 
 // Widget for ADDING new products
 var myWidget = cloudinary.createUploadWidget({
     cloudName: cloudName, 
     uploadPreset: uploadPreset,
+    multiple: true,  // <--- ENABLE MULTIPLE
+    maxFiles: 5,
     theme: "minimal",
     colors: { action: "#D4AF37", complete: "#20B832" }
 }, (error, result) => { 
     if (!error && result && result.event === "success") { 
-        const imageUrl = result.info.secure_url;
-        const urlInput = document.getElementById('p-image-url');
-        const preview = document.getElementById('add-preview');
-        
-        if (urlInput) urlInput.value = imageUrl; 
-        if (preview) preview.innerHTML = `<img src="${imageUrl}" class="img-thumb">`;
-        showToast("High-Res Image Ready");
+        console.log('Image uploaded: ', result.info.secure_url);
+        newProductImages.push(result.info.secure_url);
+        updateImagePreview();
+        showToast("Image Added");
     }
 });
 
-// Widget for EDITING existing products
+// Widget for EDITING existing products (Using temporary array)
 var editWidget = cloudinary.createUploadWidget({
     cloudName: cloudName, 
     uploadPreset: uploadPreset,
+    multiple: true,
     theme: "minimal",
     colors: { action: "#D4AF37", complete: "#20B832" }
 }, (error, result) => { 
     if (!error && result && result.event === "success") { 
-        const imageUrl = result.info.secure_url;
-        const urlInput = document.getElementById('edit-image-url');
-        const container = document.getElementById('edit-current-images');
-        
-        if (urlInput) urlInput.value = imageUrl;
-        if (container) container.innerHTML = `<img src="${imageUrl}" class="img-thumb">`;
-        showToast("Update Image Ready");
+        tempEditImages.push(result.info.secure_url);
+        renderEditImages();
+        showToast("Image Added to Edit List");
     }
 });
 
-// Attach listeners to buttons (FIXED: Safe Checks)
+// Attach listeners to buttons (Safe Checks)
 const uploadBtn = document.getElementById("upload_widget");
 if (uploadBtn) {
     uploadBtn.addEventListener("click", () => myWidget.open(), false);
-} else {
-    // console.warn("Upload widget button not found");
 }
 
 const editUploadBtn = document.getElementById("edit_upload_widget");
 if (editUploadBtn) {
     editUploadBtn.addEventListener("click", () => editWidget.open(), false);
-} else {
-    // console.warn("Edit upload widget button not found");
 }

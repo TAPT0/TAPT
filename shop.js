@@ -120,7 +120,7 @@ function renderShop(filter = 'all') {
                 </div>
              `;
         }
-        // --- UPDATED HTML (Text at Bottom + Business Name at Top) ---
+        // --- UPDATED HTML (Titanium Minimalist Layout) ---
         row.innerHTML = `
             <div class="row-image-box" onmousemove="tiltTwin(event, this)" onmouseleave="resetTwin(this)" onclick="flipCard(this)">
                 <div class="spotlight"></div>
@@ -131,11 +131,16 @@ function renderShop(filter = 'all') {
                         
                         <div class="twin-face twin-front">
                             <div class="twin-layer twin-base" style="${bgStyle}"></div>
-                            <div class="twin-layer twin-texture"></div>
-                            ${brandingHTML}
+                            <div class="twin-layer" style="background:url('https://grainy-gradients.vercel.app/noise.svg'); opacity:0.15; mix-blend-mode:overlay;"></div>
+                            
+                            ${!hasCustomImage ? `
+                                <div style="position:absolute; bottom:25px; right:25px;">
+                                    <div class="gold-foil" style="font-family:'Syncopate'; font-size:1.2rem; letter-spacing:2px;">TAPD.</div>
+                                </div>
+                            ` : ''}
+                            
                             <div class="twin-layer twin-glare"></div>
                         </div>
-
                         <div class="twin-face twin-back" style="${backBgStyle}">
                             <div class="twin-layer twin-glare"></div>
                             

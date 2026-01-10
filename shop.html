@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Collection | TAPD.</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <link rel="stylesheet" href="shop.css">
@@ -13,27 +13,16 @@
 <body>
 
     <div class="noise-overlay"></div>
-    <div class="floating-orbs-container">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-    </div>
-    <div class="ambient-light"></div>
+    <div class="cyber-grid"></div> <div class="spotlight-follow" id="spotlight"></div>
 
-    <nav>
+    <nav class="glass-nav">
         <a href="index.html" class="logo">TAPD<span>.</span></a>
         
         <div class="nav-right">
             <a href="customize.html" class="nav-link">Create</a>
-            <a href="track.html" class="nav-icon" title="Track Order">
-                <i class="fa-solid fa-truck-fast"></i>
-            </a>
-            
-            <div class="nav-icon" id="user-icon-trigger" onclick="handleUserClick()" title="Account">
-                <i class="fa-regular fa-user"></i>
-            </div>
-            
-            <div class="cart-trigger" onclick="toggleCart()" title="Cart">
+            <a href="track.html" class="nav-icon" title="Track Order"><i class="fa-solid fa-crosshairs"></i></a>
+            <div class="nav-icon" id="user-icon-trigger" onclick="handleUserClick()"><i class="fa-regular fa-circle-user"></i></div>
+            <div class="cart-trigger" onclick="toggleCart()">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <span id="cart-count">0</span>
             </div>
@@ -42,262 +31,162 @@
 
     <header class="shop-hero">
         <div class="hero-content">
-            <div class="badge-pill fade-in">2026 COLLECTION</div>
-            <h1 class="hero-title fade-in">Define Your <br><span class="gold-text">Legacy</span></h1>
-            <p class="hero-desc fade-in-delay">Hardware designed for the 1%. Waterproof, durable, and instantly impactful.</p>
-        </div>
-        
-        <div class="hero-3d-container fade-in-delay">
-            <div class="card-3d-float">
-                <div class="card-3d-body">
-                    <div class="card-shine"></div>
-                    <div class="card-front">
-                        <div class="card-chip"></div>
-                        <i class="fa-solid fa-wifi card-signal"></i>
-                        <div class="card-logo">TAPD.</div>
-                        <div class="card-type">TITANIUM EDITION</div>
-                    </div>
-                </div>
-            </div>
+            <div class="tech-tag fade-in">COLLECTION / 2026 / GEN-3</div>
+            <h1 class="hero-title fade-in">ENGINEERED <br><span class="gold-text">PERFECTION</span></h1>
+            <p class="hero-desc fade-in-delay">Networking hardware forged from matte polycarbonate and titanium alloy. Zero latency. Infinite impact.</p>
         </div>
     </header>
 
-    <div class="marquee-strip">
-        <div class="marquee-content">
-            PREMIUM HARDWARE • LIFETIME VALIDITY • NO MONTHLY FEES • SHIP WORLDWIDE • PREMIUM HARDWARE • LIFETIME VALIDITY • NO MONTHLY FEES • SHIP WORLDWIDE •
-        </div>
-    </div>
-
     <div class="sticky-controls reveal">
-        <div class="controls-inner">
+        <div class="controls-inner glass-hud">
             <div class="search-container">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="shop-search" placeholder="Search Collection..." onkeyup="searchProducts()">
+                <input type="text" id="shop-search" placeholder="SEARCH DATABASE..." onkeyup="searchProducts()">
             </div>
             <div class="filter-container">
-                <button class="filter-btn active" onclick="filterProducts('all', this)">All</button>
-                <button class="filter-btn" onclick="filterProducts('card', this)">Cards</button>
-                <button class="filter-btn" onclick="filterProducts('tag', this)">Tags</button>
+                <button class="filter-btn active" onclick="filterProducts('all', this)">ALL UNITS</button>
+                <button class="filter-btn" onclick="filterProducts('card', this)">CARDS</button>
+                <button class="filter-btn" onclick="filterProducts('tag', this)">TAGS</button>
             </div>
         </div>
     </div>
 
     <div class="showcase-container" id="shop-grid">
-        <div class="loading-text" style="color:#666; text-align:center; margin:50px;">Loading Legacy...</div>
-    </div>
-
-    <div class="cinematic-section reveal">
-        <div class="cinematic-overlay"></div>
-        <div class="cinematic-content">
-            <div class="play-btn"><i class="fa-solid fa-play"></i></div>
-            <h2 style="margin-top:20px;">The New Standard</h2>
-            <p style="color:#ccc;">Experience the seamless integration of physical and digital networking.</p>
-        </div>
-    </div>
-
-    <div class="stats-strip reveal">
-        <div class="stat-item">
-            <span class="stat-num">50K+</span>
-            <span class="stat-label">Connections Made</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-num">120+</span>
-            <span class="stat-label">Countries Shipped</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-num">0%</span>
-            <span class="stat-label">Monthly Fees</span>
-        </div>
+        <div class="loading-text">INITIALIZING...</div>
     </div>
 
     <section class="core-section reveal">
-        <h2 class="section-title">The <span class="gold-text">Core</span></h2>
-        <p style="color:#888; max-width:600px; text-align:center;">Built with military-grade encryption and durable materials.</p>
+        <div class="tech-divider"></div>
+        <h2 class="section-title">SYSTEM <span class="gold-text">CORE</span></h2>
         
-        <div class="layer-stack">
-            <div class="layer l3">NFC 216 CHIP</div>
-            <div class="layer l2">ANTENNA ARRAY</div>
-            <div class="layer l1">MATTE PVC SHELL</div>
-        </div>
-    </section>
-
-    <section class="blueprint-section reveal">
-        <div class="blueprint-content">
-            <h2 class="section-title">Why <span class="gold-text">TAPD?</span></h2>
-            <div class="blueprint-grid">
-                <div class="material-card">
-                    <div class="mat-icon"><i class="fa-solid fa-fingerprint"></i></div>
-                    <h3>Smart Access</h3>
-                    <p>Share socials, payments, and files with a single tap.</p>
+        <div class="blueprint-grid">
+            <div class="tech-card">
+                <div class="tech-header">
+                    <i class="fa-solid fa-microchip"></i>
+                    <span>NFC-216</span>
                 </div>
-                <div class="material-card">
-                    <div class="mat-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                    <h3>Durable Design</h3>
-                    <p>Waterproof, dustproof, and built to last a lifetime.</p>
+                <h3>ZERO CONTACT</h3>
+                <p>Embedded 13.56MHz chip. Instant data transmission to iOS & Android.</p>
+            </div>
+            <div class="tech-card">
+                <div class="tech-header">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>MATTE.PVC</span>
                 </div>
-                <div class="material-card">
-                    <div class="mat-icon"><i class="fa-solid fa-infinity"></i></div>
-                    <h3>Unlimited Use</h3>
-                    <p>No subscriptions. No limits. Total freedom.</p>
+                <h3>DURABLE BUILD</h3>
+                <p>Waterproof, dustproof, and resistant to bending. Built for life.</p>
+            </div>
+            <div class="tech-card">
+                <div class="tech-header">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>WEB.3.0</span>
                 </div>
+                <h3>DYNAMIC LINK</h3>
+                <p>Update your destination URL anytime. The hardware stays the same.</p>
             </div>
         </div>
     </section>
 
-    <section class="reviews-section reveal">
-        <h2 class="section-title">Client <span class="gold-text">Stories</span></h2>
-        <div class="review-scroller">
-            <div class="review-card">
-                <div class="stars">★★★★★</div>
-                <p>"The matte black finish is unreal. I closed a deal just by tapping this card."</p>
-                <div class="reviewer">
-                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
-                    <span>Alex R. <br><small>CEO, ArchTech</small></span>
-                </div>
-            </div>
-            <div class="review-card">
-                <div class="stars">★★★★★</div>
-                <p>"Setup took 30 seconds. Now my entire portfolio is in my pocket."</p>
-                <div class="reviewer">
-                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User">
-                    <span>Sarah J. <br><small>Photographer</small></span>
-                </div>
-            </div>
-            <div class="review-card">
-                <div class="stars">★★★★★</div>
-                <p>"Simply the best NFC hardware on the market. No monthly fees is a huge plus."</p>
-                <div class="reviewer">
-                    <img src="https://randomuser.me/api/portraits/men/85.jpg" alt="User">
-                    <span>David K. <br><small>Real Estate Agent</small></span>
-                </div>
-            </div>
+    <div class="marquee-strip">
+        <div class="marquee-content">
+            TRUSTED BY 50,000+ VISIONARIES • NO MONTHLY FEES • SHIPPING WORLDWIDE • TRUSTED BY 50,000+ VISIONARIES • NO MONTHLY FEES •
         </div>
-    </section>
+    </div>
 
     <section class="newsletter-section reveal">
-        <div class="newsletter-box">
-            <h3>Join The Inner Circle</h3>
-            <p>Get exclusive access to limited drops and 10% off your first order.</p>
+        <div class="newsletter-box glass-hud">
+            <h3>SECURE YOUR ACCESS</h3>
+            <p>Join the inner circle for exclusive drops and 10% off.</p>
             <div class="newsletter-input">
-                <input type="email" placeholder="Enter your email">
-                <button>JOIN</button>
+                <input type="email" placeholder="EMAIL ADDRESS">
+                <button>INITIATE</button>
             </div>
         </div>
     </section>
 
     <section class="faq-section reveal">
-        <h2 class="section-title">Common <span class="gold-text">Questions</span></h2>
+        <h2 class="section-title">DATA <span class="gold-text">BANK</span></h2>
         <div class="faq-container">
             <div class="faq-item" onclick="toggleFaq(this)">
-                <div class="faq-q">Does it work on iPhone and Android? <i class="fa-solid fa-plus"></i></div>
-                <div class="faq-a">Yes. TAPD works seamlessly with all modern smartphones (iPhone XR and newer, almost all Androids) without any app.</div>
+                <div class="faq-q"><span>01</span> DEVICE COMPATIBILITY <i class="fa-solid fa-chevron-down"></i></div>
+                <div class="faq-a">Universal support for all modern smartphones (iPhone XR+, Androids). No app required for the receiver.</div>
             </div>
             <div class="faq-item" onclick="toggleFaq(this)">
-                <div class="faq-q">Can I change my link later? <i class="fa-solid fa-plus"></i></div>
-                <div class="faq-a">Absolutely. Update your links, bio, and socials anytime instantly via the portal. The card hardware does not need to be changed.</div>
-            </div>
-            <div class="faq-item" onclick="toggleFaq(this)">
-                <div class="faq-q">Do I need an app? <i class="fa-solid fa-plus"></i></div>
-                <div class="faq-a">No. The other person does not need an app to receive your info. Just tap and go.</div>
+                <div class="faq-q"><span>02</span> LIFETIME VALIDITY <i class="fa-solid fa-chevron-down"></i></div>
+                <div class="faq-a">One-time purchase. No monthly subscriptions. Unlimited taps.</div>
             </div>
         </div>
     </section>
-
-    <div class="drawer" id="account-drawer">
-        <div class="drawer-header">
-            <h2>My Legacy</h2>
-            <button class="close-btn" onclick="toggleAccount()">×</button>
-        </div>
-        <div class="drawer-content" id="account-content">
-            <p style="text-align:center; margin-top:20px; color:#666;">Loading...</p>
-        </div>
-    </div>
-
-    <div class="drawer" id="cart-drawer">
-        <div class="drawer-header">
-            <h2>Your Bag</h2>
-            <button class="close-btn" onclick="toggleCart()">×</button>
-        </div>
-        <div class="cart-items" id="cart-items-container"></div>
-        <div class="cart-footer">
-            <div class="coupon-wrapper">
-                <input type="text" id="coupon-code" placeholder="PROMO CODE">
-                <button onclick="applyCoupon()">APPLY</button>
-            </div>
-            <div id="coupon-msg" style="font-size:0.8rem; margin-bottom:10px; display:none;"></div>
-            
-            <div class="summary-row"><span>Subtotal</span><span class="val" id="cart-subtotal">₹0</span></div>
-            <div class="summary-row discount" id="discount-row" style="display:none; color:var(--gold);">
-                <span>Discount</span><span class="val" id="cart-discount">-₹0</span>
-            </div>
-            <div class="summary-row total"><span>Total</span><span class="val" id="cart-total">₹0</span></div>
-            
-            <button class="checkout-btn" onclick="window.location.href='checkout.html'">CHECKOUT</button>
-        </div>
-    </div>
-    
-    <div class="auth-modal" id="auth-modal">
-        <div class="auth-content">
-            <h2 style="color:white; font-family:'Syncopate'; margin-bottom:20px;">Access</h2>
-            <button class="auth-btn-google" onclick="loginWithGoogle()">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Continue with Google
-            </button>
-            <div class="auth-divider">OR</div>
-            <form onsubmit="handleEmailAuth(event)">
-                <input type="email" id="auth-email" class="auth-input" placeholder="Email Address" required>
-                <input type="password" id="auth-pass" class="auth-input" placeholder="Password" required>
-                <button type="submit" class="auth-btn-submit" id="auth-submit-btn">Login / Signup</button>
-            </form>
-            <p id="auth-error" style="color:red; font-size:0.8rem; margin-top:10px; display:none;"></p>
-            <button onclick="toggleAuthModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Close</button>
-        </div>
-    </div>
-
-    <div id="celebration-overlay" class="celebration-overlay">
-        <div class="confetti-container" id="confetti-container"></div>
-        <div class="celebration-card">
-            <div class="check-circle"><i class="fa-solid fa-check"></i></div>
-            <h2 class="celeb-title">CODE APPLIED</h2>
-            <p class="celeb-desc">Legacy secured. Discount unlocked.</p>
-            <button class="celeb-btn" onclick="closeCelebration()">CONTINUE</button>
-        </div>
-    </div>
-
-    <div class="cart-overlay" onclick="closeAllDrawers()"></div>
 
     <footer class="TAPD-footer">
         <div class="footer-content">
             <div class="footer-brand">
                 <h2 class="footer-logo">TAPD.</h2>
-                <p class="footer-tagline">The future of connection. Designed for visionaries.</p>
+                <p>The future is contactless.</p>
             </div>
             <div class="footer-links-group">
                 <ul class="footer-nav">
-                    <li><span class="nav-head">Explore</span></li>
-                    <li><a href="shop.html">Shop</a></li>
-                    <li><a href="customize.html">Customize</a></li>
-                    <li><a href="about.html">About Us</a></li>
-                </ul>
-                <ul class="footer-nav">
-                    <li><span class="nav-head">Connect</span></li>
-                    <li><a href="contact.html">Contact</a></li>
-                    <li><a href="#">Instagram ↗</a></li>
-                </ul>
-                <ul class="footer-nav">
-                    <li><span class="nav-head">Legal</span></li>
-                    <li><a href="#">Privacy</a></li>
-                    <li><a href="#">Terms</a></li>
+                    <li><a href="#">LEGAL</a></li>
+                    <li><a href="#">PRIVACY</a></li>
+                    <li><a href="#">TERMS</a></li>
                 </ul>
             </div>
         </div>
-        <div class="footer-bottom"><p>&copy; 2026 TAPD. Hardware.</p></div>
+        <div class="footer-bottom"><p>SYSTEM ONLINE // 2026 TAPD.</p></div>
     </footer>
+
+    <div class="drawer" id="cart-drawer">
+        <div class="drawer-header">
+            <h2>INVENTORY</h2>
+            <button class="close-btn" onclick="toggleCart()">&times;</button>
+        </div>
+        <div class="cart-items" id="cart-items-container"></div>
+        <div class="cart-footer">
+            <div class="coupon-wrapper">
+                <input type="text" id="coupon-code" placeholder="ACCESS CODE">
+                <button onclick="applyCoupon()">APPLY</button>
+            </div>
+            <div class="summary-row total"><span>TOTAL</span><span class="val" id="cart-total">₹0</span></div>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">PROCEED</button>
+        </div>
+    </div>
+
+    <div class="drawer" id="account-drawer">
+        <div class="drawer-header">
+            <h2>PROFILE</h2>
+            <button class="close-btn" onclick="toggleAccount()">&times;</button>
+        </div>
+        <div class="drawer-content" id="account-content">Loading...</div>
+    </div>
+
+    <div class="auth-modal glass-hud" id="auth-modal">
+        <div class="auth-content">
+            <h2>IDENTIFY</h2>
+            <button class="auth-btn-google" onclick="loginWithGoogle()">Google Access</button>
+            <div class="auth-divider">OR</div>
+            <form onsubmit="handleEmailAuth(event)">
+                <input type="email" id="auth-email" class="auth-input" placeholder="EMAIL" required>
+                <input type="password" id="auth-pass" class="auth-input" placeholder="KEY" required>
+                <button type="submit" class="auth-btn-submit">AUTHENTICATE</button>
+            </form>
+            <button onclick="toggleAuthModal()" class="close-auth">ABORT</button>
+        </div>
+    </div>
+
+    <div class="cart-overlay" onclick="closeAllDrawers()"></div>
+    <div id="celebration-overlay" class="celebration-overlay">
+        <div class="celebration-card glass-hud">
+            <i class="fa-solid fa-check-circle" style="font-size:3rem; color:var(--gold);"></i>
+            <h2>ACCESS GRANTED</h2>
+            <p>Discount applied.</p>
+            <button class="celeb-btn" onclick="closeCelebration()">CONTINUE</button>
+        </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script> 
-    
     <script src="shop.js"></script>
 </body>
 </html>

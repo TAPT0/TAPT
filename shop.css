@@ -44,7 +44,41 @@ body {
 @keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
 
 /* =========================================
-   2. NAVIGATION (Glass Tech)
+   2. NEW: FLOATING 3D BACKGROUND ASSETS
+   ========================================= */
+.floating-assets {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0; overflow: hidden;
+}
+
+.floater {
+    position: absolute; opacity: 0.3;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.02);
+    backdrop-filter: blur(2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    animation: fallAndSpin linear infinite;
+}
+
+.floater.card { width: 120px; height: 75px; border-radius: 8px; }
+.floater.tag { width: 80px; height: 80px; border-radius: 50%; }
+
+/* Positioning (Left & Right Gutters) */
+.floater.left { left: 5%; }
+.floater.right { right: 5%; }
+
+/* Timing Variations */
+.t1 { animation-duration: 15s; animation-delay: 0s; top: -20%; }
+.t2 { animation-duration: 22s; animation-delay: -5s; top: -30%; width: 140px; }
+.t3 { animation-duration: 18s; animation-delay: -10s; top: -40%; }
+
+@keyframes fallAndSpin {
+    0% { transform: translateY(-100px) rotate3d(1, 1, 1, 0deg); top: -20%; }
+    100% { transform: translateY(120vh) rotate3d(1, 1, 1, 360deg); top: 120%; }
+}
+
+/* =========================================
+   3. NAVIGATION (Glass Tech)
    ========================================= */
 .glass-nav {
     display: flex; justify-content: space-between; align-items: center;
@@ -66,7 +100,7 @@ body {
 }
 
 /* =========================================
-   3. HERO & HUD
+   4. HERO & HUD
    ========================================= */
 .shop-hero {
     height: 70vh; display: flex; align-items: center; justify-content: center;
@@ -101,9 +135,9 @@ body {
 .filter-btn.active, .filter-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.05); }
 
 /* =========================================
-   4. TITANIUM CARD ENGINE + ZIG ZAG ANIMATIONS
+   5. TITANIUM CARD ENGINE + ZIG ZAG ANIMATIONS
    ========================================= */
-.showcase-container { padding: 100px 5%; max-width: 1400px; margin: 0 auto; }
+.showcase-container { padding: 100px 5%; max-width: 1400px; margin: 0 auto; position: relative; z-index: 5; }
 
 /* ZIG ZAG LAYOUT */
 .shop-row { 
@@ -121,8 +155,8 @@ body {
 .shop-row:nth-child(even).active .row-image-box { animation: slideInRight 1s forwards; }
 .shop-row:nth-child(even).active .row-content   { animation: slideInLeft 1s forwards; }
 
-@keyframes slideInLeft { from { opacity: 0; transform: translateX(-100px) scale(0.9); } to { opacity: 1; transform: translateX(0) scale(1); } }
-@keyframes slideInRight { from { opacity: 0; transform: translateX(100px) scale(0.9); } to { opacity: 1; transform: translateX(0) scale(1); } }
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-100px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
 
 /* 3D Card Container */
 .row-image-box { flex: 1; height: 400px; perspective: 1500px; z-index: 10; cursor: pointer; }
@@ -195,7 +229,7 @@ body {
 @keyframes pulse { 0%{opacity:0.3} 50%{opacity:0.8} 100%{opacity:0.3} }
 
 /* =========================================
-   5. PREMIUM DRAWERS (Glass & Gold)
+   6. PREMIUM DRAWERS (Glass & Gold)
    ========================================= */
 .drawer {
     position: fixed; top: 0; right: -420px; width: 100%; max-width: 420px; height: 100%;
@@ -247,7 +281,7 @@ body {
 .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: none; backdrop-filter: blur(5px); }
 
 /* =========================================
-   6. MISC UI (Newsletter, FAQ, Footer)
+   7. MISC UI (Newsletter, FAQ, Footer)
    ========================================= */
 .newsletter-box { text-align: center; padding: 60px 20px; border: 1px solid var(--border); background: rgba(10,10,10,0.8); backdrop-filter: blur(10px); border-radius: 20px; margin: 100px 5%; }
 .newsletter-input { display: flex; justify-content: center; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
@@ -278,7 +312,7 @@ body {
 }
 .auth-input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: white; margin-bottom: 10px; border-radius: 4px; }
 .auth-btn-submit { width: 100%; padding: 12px; background: var(--gold); border: none; font-weight: bold; cursor: pointer; margin-top: 10px; font-family: var(--font-head); }
-.auth-btn-google { width: 100%; padding: 12px; background: white; border: none; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+.auth-btn-google { width: 100%; padding: 12px; background: white; border: none; font-weight: bold; cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
 .close-auth { background: none; border: none; color: #666; margin-top: 20px; cursor: pointer; text-decoration: underline; }
 
 .celebration-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
@@ -307,7 +341,7 @@ body {
 .footer-bottom { text-align: center; margin-top: 60px; color: #444; font-size: 0.7rem; font-family: var(--font-tech); }
 
 /* =========================================
-   9. MOBILE OPTIMIZATION & TRUNCATION
+   8. MOBILE OPTIMIZATION & TRUNCATION
    ========================================= */
 @media (max-width: 900px) {
     .hero-title { font-size: 2.5rem; }
@@ -343,4 +377,7 @@ body {
         text-overflow: ellipsis;
         max-height: 4.8em; /* Fallback */
     }
+    
+    /* Hide Floaters on Mobile to save battery */
+    .floating-assets { display: none; }
 }

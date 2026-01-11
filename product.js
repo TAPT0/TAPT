@@ -70,6 +70,27 @@ async function loadProductDetails() {
 }
 
 function renderProductPage(data) {
+    // 0. Detect Product Type & Apply Shape
+    const cardWrapper = document.getElementById('card-wrapper');
+    let productType = data.type || 'card'; // Default to card
+    
+    // Fallback detection if type is not explicitly set
+    if (!data.type) {
+        if (data.title && (data.title.toLowerCase().includes('tag') || data.title.toLowerCase().includes('button'))) {
+            productType = 'tag';
+        } else if (data.id && data.id.toLowerCase().includes('tag')) {
+            productType = 'tag';
+        }
+    }
+
+    if (cardWrapper) {
+        if (productType === 'tag') {
+            cardWrapper.classList.add('shape-tag');
+        } else {
+            cardWrapper.classList.remove('shape-tag');
+        }
+    }
+
     // 1. Title & Subtitle
     const titleEl = document.getElementById('dynamic-title');
     const subEl = document.getElementById('dynamic-subtitle');
@@ -81,7 +102,7 @@ function renderProductPage(data) {
     
     // Generate a subtitle if missing
     if(subEl) {
-        subEl.innerText = data.type === 'tag' ? "The Premium Smart Tag." : "The Last Business Card You'll Ever Need.";
+        subEl.innerText = productType === 'tag' ? "The Premium Smart Tag." : "The Last Business Card You'll Ever Need.";
     }
 
     // 2. Price

@@ -113,6 +113,24 @@ function renderProductPage(data) {
     // We can try to update the name on the card to match the user or product
     const cardName = document.querySelector('.card-name');
     if(cardName) cardName.innerText = "YOUR NAME"; // Keep generic for product page
+
+    // 6. Update 3D Card Images (Dynamic)
+    const frontImg = document.getElementById('card-front-img');
+    const backImg = document.getElementById('card-back-img');
+
+    if (data.frontImage && frontImg) {
+        frontImg.src = data.frontImage;
+        frontImg.style.display = 'block';
+    }
+    if (data.backImage && backImg) {
+        backImg.src = data.backImage;
+        backImg.style.display = 'block';
+    }
+
+    // 7. Load Reviews
+    if (data.id) {
+        loadReviews(data.id);
+    }
 }
 
 /* =========================================
@@ -200,35 +218,151 @@ window.addToBag = function() {
         alert("Product data is loading. Please wait...");
         return;
     }
-
-    // Product Details from Global State
-    const product = {
-        id: currentProductData.id,
-        title: currentProductData.title,
-        price: currentProductData.price,
-        image: (currentProductData.images && currentProductData.images.length > 0) ? currentProductData.images[0] : (currentProductData.image || 'https://via.placeholder.com/150'),
-        qty: pageQty
-    };
     
-    // Add to Global Cart (handled in script.js)
-    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
-    let existingItem = cart.find(i => i.id === product.id);
-    
-    if (existingItem) {
-        existingItem.qty += pageQty;
+    // Use the global cart function if available, or simpler implementation
+    if (typeof window.addToCart === 'function') {
+        window.addToCart(currentProductData.id, pageQty);
     } else {
-        cart.push(product);
+        // Fallback: Add to local storage manually
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const existingItem = cart.find(item => item.id === currentProductData.id);
+        
+        if (existingItem) {
+            existingItem.quantity += pageQty;
+        } else {
+            cart.push({
+                id: currentProductData.id,
+                title: currentProductData.title,
+                price: currentProductData.price,
+                image: currentProductData.image || currentProductData.frontImage, // Use frontImage if image is missing
+                quantity: pageQty
+            });
+        }
+        
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount(); // Assuming this is in script.js
+        toggleCart(); // Open cart drawer
     }
+};
+
+/* =========================================
+   3. REVIEWS LOGIC
+   ========================================= */
+async function loadReviews(productId) {
+    const listEl = document.getElementById('reviews-list');
+    if(!listEl) return;
     
-    localStorage.setItem('taptCart', JSON.stringify(cart));
-    
-    // Trigger UI Update
-    if (window.updateCartUI) window.updateCartUI();
-    
-    // Open Cart
-    if (window.toggleCart) window.toggleCart();
-    
-    // Reset Page Qty
-    pageQty = 1;
-    updatePageQtyUI();
+    listEl.innerHTML = '<div style="text-align:center; color:#888; padding: 20px;">Loading reviews...</div>';
+
+    try {
+        const snapshot = await db.collection('reviews')
+            .where('productId', '==', productId)
+            .orderBy('createdAt', 'desc')
+            .limit(20)
+            .get();
+
+        if (snapshot.empty) {
+            listEl.innerHTML = '<div style="text-align:center; color:#888; padding: 20px;">No reviews yet. Be the first!</div>';
+            return;
+        }
+
+        listEl.innerHTML = '';
+        snapshot.forEach(doc => {
+            const r = doc.data();
+            const date = r.createdAt ? new Date(r.createdAt.seconds * 1000).toLocaleDateString() : 'Just now';
+            const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+            
+            const item = document.createElement('div');
+            item.className = 'review-card';
+            item.innerHTML = `
+                <div class="review-header">
+                    <span class="reviewer-name">${r.userName || 'Anonymous'}</span>
+                    <span class="review-date">${date}</span>
+                </div>
+                <div class="star-rating">${stars}</div>
+                <div class="review-text">${r.text}</div>
+            `;
+            listEl.appendChild(item);
+        });
+
+    } catch (error) {
+        console.error("Error loading reviews:", error);
+        // Sometimes indexes are required for compound queries (where + orderBy)
+        // If that fails, try simple load without order by first
+        try {
+            const snapshotFallback = await db.collection('reviews')
+                .where('productId', '==', productId)
+                .get();
+            
+            if (snapshotFallback.empty) {
+                listEl.innerHTML = '<div style="text-align:center; color:#888; padding: 20px;">No reviews yet. Be the first!</div>';
+                return;
+            }
+
+            listEl.innerHTML = '';
+            snapshotFallback.forEach(doc => {
+                 const r = doc.data();
+                 // ... same render ...
+                 const date = r.createdAt ? new Date(r.createdAt.seconds * 1000).toLocaleDateString() : 'Just now';
+                 const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+                
+                 const item = document.createElement('div');
+                 item.className = 'review-card';
+                 item.innerHTML = `
+                    <div class="review-header">
+                        <span class="reviewer-name">${r.userName || 'Anonymous'}</span>
+                        <span class="review-date">${date}</span>
+                    </div>
+                    <div class="star-rating">${stars}</div>
+                    <div class="review-text">${r.text}</div>
+                `;
+                listEl.appendChild(item);
+            });
+            
+        } catch (e2) {
+             console.error("Fallback error:", e2);
+             listEl.innerHTML = '<div style="text-align:center; color:#red; padding: 20px;">Failed to load reviews.</div>';
+        }
+    }
+}
+
+window.handleReviewSubmit = async function(e) {
+    e.preventDefault();
+    if (!currentProductData || !currentProductData.id) {
+        alert("Product not loaded properly.");
+        return;
+    }
+
+    const name = document.getElementById('review-name').value;
+    const rating = parseInt(document.getElementById('review-rating').value);
+    const text = document.getElementById('review-text').value;
+    const btn = document.querySelector('.submit-review-btn');
+
+    btn.disabled = true;
+    btn.innerText = "Submitting...";
+
+    try {
+        await db.collection('reviews').add({
+            productId: currentProductData.id,
+            userName: name,
+            rating: rating,
+            text: text,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Reset form
+        document.getElementById('review-form').reset();
+        btn.innerText = "SUBMIT REVIEW";
+        btn.disabled = false;
+        
+        // Reload reviews
+        loadReviews(currentProductData.id);
+        alert("Review submitted successfully!");
+
+    } catch (error) {
+        console.error("Error submitting review:", error);
+        alert("Failed to submit review. Please try again.");
+        btn.disabled = false;
+        btn.innerText = "SUBMIT REVIEW";
+    }
 };

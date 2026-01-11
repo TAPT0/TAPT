@@ -130,12 +130,7 @@ function renderProductPage(data) {
         });
     }
 
-    // 5. Update 3D Card Text (Name/Logo)
-    // We can try to update the name on the card to match the user or product
-    const cardName = document.querySelector('.card-name');
-    if(cardName) cardName.innerText = "YOUR NAME"; // Keep generic for product page
-
-    // 6. Update 3D Card Images (Dynamic)
+    // 5. Update 3D Card Images (Dynamic)
     const frontImg = document.getElementById('card-front-img');
     const backImg = document.getElementById('card-back-img');
 

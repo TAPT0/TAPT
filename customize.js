@@ -26,6 +26,11 @@ const canvas = new fabric.Canvas('editor-canvas', {
 
 let currentProduct = null;
 let currentPrice = 499;
+let bgColorPicker = null;
+let textColorPicker = null;
+let gridEnabled = false;
+let snapEnabled = false;
+const gridSize = 20;
 
 // 2. INITIALIZATION
 document.addEventListener('DOMContentLoaded', () => {
@@ -56,11 +61,12 @@ function loadTemplate(id) {
                     canvas.renderAll();
                     // Sync color picker
                     const bgColor = canvas.backgroundColor;
-                    if(bgColor) document.getElementById('bg-color-picker').value = bgColor;
+                    if(bgColor && bgColorPicker) bgColorPicker.setColor(bgColor);
                     
                     // Re-apply mode to ensure shape is correct after load
                     if(data.type === 'tag') setMode('tag');
                     else setMode('card');
+                    renderLayerPanel();
                 });
             } else {
                 if(data.type === 'tag') setMode('tag');
@@ -180,23 +186,118 @@ function deleteSelected() {
 
 // 6. SETUP LISTENERS (Events)
 function setupEventListeners() {
-    // Background Color
-    document.getElementById('bg-color-picker').addEventListener('input', function(e) {
-        canvas.setBackgroundColor(e.target.value, canvas.renderAll.bind(canvas));
+    // --- Initialize Color Pickers ---
+    const pickrOptions = {
+        theme: 'nano',
+        swatches: [
+            '#D4AF37', '#C0C0C0', '#000000', '#FFFFFF',
+            '#F44336', '#E91E63', '#9C27B0', '#673AB7',
+            '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4',
+            '#009688', '#4CAF50', '#8BC34A', '#CDDC39',
+            '#FFEB3B', '#FFC107', '#FF9800', '#FF5722'
+        ],
+        components: {
+            preview: true,
+            opacity: true,
+            hue: true,
+            interaction: {
+                hex: true,
+                rgba: true,
+                hsla: true,
+                input: true,
+                clear: true,
+                save: true
+            }
+        }
+    };
+
+    // Background Color Picker
+    bgColorPicker = Pickr.create({ ...pickrOptions, el: '#bg-color-picker', default: '#0a0a0a' });
+    bgColorPicker.on('save', (color) => {
+        canvas.setBackgroundColor(color.toRGBA().toString(), canvas.renderAll.bind(canvas));
+        bgColorPicker.hide();
+    });
+
+    // Text Color Picker
+    textColorPicker = Pickr.create({ ...pickrOptions, el: '#txt-color-picker', default: '#ffffff' });
+    textColorPicker.on('save', (color) => {
+        const active = canvas.getActiveObject();
+        if (active && active.type === 'i-text') {
+            active.set('fill', color.toRGBA().toString());
+            canvas.renderAll();
+        }
+        textColorPicker.hide();
     });
 
     // Selection Events
-    canvas.on('selection:created', updateControls);
-    canvas.on('selection:updated', updateControls);
+    canvas.on('selection:created', (e) => {
+        updateControls();
+        renderLayerPanel();
+        checkContrast();
+    });
+    canvas.on('selection:updated', (e) => {
+        updateControls();
+        renderLayerPanel();
+        checkContrast();
+    });
     canvas.on('selection:cleared', () => {
         document.getElementById('layer-controls').style.display = 'none';
+        renderLayerPanel();
+    });
+
+    // Layer Events
+    canvas.on('object:added', renderLayerPanel);
+    canvas.on('object:removed', renderLayerPanel);
+    canvas.on('object:modified', renderLayerPanel);
+
+    // Grid Snapping
+    canvas.on('object:moving', (options) => {
+        if (snapEnabled) {
+            options.target.set({
+                left: Math.round(options.target.left / gridSize) * gridSize,
+                top: Math.round(options.target.top / gridSize) * gridSize
+            });
+        }
     });
 
     // Text & Controls Inputs
-    const props = ['txt-content', 'txt-font', 'txt-color', 'common-scale'];
+    const props = ['txt-content', 'txt-font', 'txt-size', 'txt-weight', 'txt-spacing', 'txt-lineheight', 'common-scale', 'img-opacity', 'img-x', 'img-y'];
     props.forEach(id => {
         const el = document.getElementById(id);
         if(el) el.addEventListener('input', updateCanvasFromInput);
+    });
+
+    const alignButtons = ['align-left', 'align-center', 'align-right'];
+    alignButtons.forEach(id => {
+        document.getElementById(id).addEventListener('click', () => {
+            const active = canvas.getActiveObject();
+            if (active && active.type === 'i-text') {
+                active.set('textAlign', id.split('-')[1]);
+                canvas.renderAll();
+                updateControls(); 
+            }
+        });
+    });
+
+    // Drag & Drop Support
+    const wrapper = document.getElementById('canvas-wrapper');
+    wrapper.addEventListener('dragover', (e) => { e.preventDefault(); });
+    wrapper.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (f) => {
+                fabric.Image.fromURL(f.target.result, (img) => {
+                    const scale = (canvas.width * 0.5) / img.width;
+                    img.scale(scale);
+                    canvas.add(img);
+                    canvas.centerObject(img);
+                    canvas.setActiveObject(img);
+                    canvas.renderAll();
+                });
+            };
+            reader.readAsDataURL(e.dataTransfer.files[0]);
+        }
     });
 }
 
@@ -209,8 +310,18 @@ function updateCanvasFromInput(e) {
     if (active.type === 'i-text') {
         if(id === 'txt-content') active.set('text', val);
         if(id === 'txt-font') active.set('fontFamily', val);
-        if(id === 'txt-color') active.set('fill', val);
+        if(id === 'txt-size') active.set('fontSize', parseInt(val, 10));
+        if(id === 'txt-weight') active.set('fontWeight', val);
+        if(id === 'txt-spacing') active.set('charSpacing', parseInt(val, 10));
+        if(id === 'txt-lineheight') active.set('lineHeight', parseFloat(val));
     }
+    
+    if (active.type === 'image') {
+        if(id === 'img-opacity') active.set('opacity', parseFloat(val));
+        if(id === 'img-x') active.set('left', parseFloat(val));
+        if(id === 'img-y') active.set('top', parseFloat(val));
+    }
+
     if(id === 'common-scale') active.scale(parseFloat(val));
     
     canvas.renderAll();
@@ -222,17 +333,198 @@ function updateControls() {
 
     document.getElementById('layer-controls').style.display = 'block';
     
-    // Show/Hide text tools
     const textTools = document.getElementById('text-tools');
+    const imageTools = document.getElementById('image-tools');
+
+    // Reset Tools
+    textTools.style.display = 'none';
+    imageTools.style.display = 'none';
+
     if (active.type === 'i-text') {
         textTools.style.display = 'block';
         document.getElementById('txt-content').value = active.text;
         document.getElementById('txt-font').value = active.fontFamily;
-        document.getElementById('txt-color').value = active.fill;
-    } else {
-        textTools.style.display = 'none';
+        if(textColorPicker) textColorPicker.setColor(active.fill);
+        document.getElementById('txt-size').value = active.fontSize;
+        document.getElementById('txt-weight').value = active.fontWeight;
+        document.getElementById('txt-spacing').value = active.charSpacing || 0;
+        document.getElementById('txt-lineheight').value = active.lineHeight || 1.2;
+
+        // Update alignment buttons
+        const align = active.textAlign || 'left';
+        ['align-left', 'align-center', 'align-right'].forEach(id => {
+            document.getElementById(id).classList.remove('active');
+        });
+        document.getElementById(`align-${align}`).classList.add('active');
+
+    } else if (active.type === 'image') {
+        imageTools.style.display = 'block';
+        document.getElementById('img-opacity').value = active.opacity || 1;
+        document.getElementById('img-x').value = Math.round(active.left || 0);
+        document.getElementById('img-y').value = Math.round(active.top || 0);
     }
-    document.getElementById('common-scale').value = active.scaleX;
+    
+    document.getElementById('common-scale').value = active.scaleX || 1;
+}
+
+// --- LAYER MANAGEMENT ---
+function renderLayerPanel() {
+    const panel = document.getElementById('layer-panel');
+    if (!panel) return;
+    
+    panel.innerHTML = '';
+    const objects = canvas.getObjects().slice().reverse(); // Show top layers first
+    const activeObj = canvas.getActiveObject();
+
+    objects.forEach((obj, index) => {
+        // Skip clip path objects if any
+        if (obj === canvas.clipPath) return;
+
+        const div = document.createElement('div');
+        div.className = 'layer-item';
+        if (activeObj === obj) div.classList.add('active');
+
+        let icon = 'fa-layer-group';
+        let name = 'Layer ' + (objects.length - index);
+
+        if (obj.type === 'i-text') {
+            icon = 'fa-font';
+            name = obj.text || 'Text Layer';
+        } else if (obj.type === 'image') {
+            icon = 'fa-image';
+            name = 'Image Layer';
+        }
+
+        div.innerHTML = `<i class="fas ${icon}"></i> <span>${name}</span>`;
+        div.onclick = () => {
+            canvas.setActiveObject(obj);
+            canvas.renderAll();
+        };
+
+        panel.appendChild(div);
+    });
+}
+
+function moveLayerUp() {
+    const active = canvas.getActiveObject();
+    if (active) {
+        canvas.bringForward(active);
+        canvas.renderAll();
+        renderLayerPanel();
+    }
+}
+
+function moveLayerDown() {
+    const active = canvas.getActiveObject();
+    if (active) {
+        canvas.sendBackwards(active);
+        canvas.renderAll();
+        renderLayerPanel();
+    }
+}
+
+// --- GRID SYSTEM ---
+function toggleGrid() {
+    gridEnabled = !gridEnabled;
+    if (gridEnabled) {
+        const gridGroup = new fabric.Group([], { selectable: false, evented: false, id: 'grid-lines' });
+        
+        for (let i = 0; i < (canvas.width / gridSize); i++) {
+            gridGroup.addWithUpdate(new fabric.Line([ i * gridSize, 0, i * gridSize, canvas.height], { stroke: '#333', selectable: false }));
+            gridGroup.addWithUpdate(new fabric.Line([ 0, i * gridSize, canvas.width, i * gridSize], { stroke: '#333', selectable: false }));
+        }
+        
+        canvas.add(gridGroup);
+        canvas.sendToBack(gridGroup);
+    } else {
+        const objects = canvas.getObjects();
+        objects.forEach(obj => {
+            if(obj.id === 'grid-lines') canvas.remove(obj);
+        });
+    }
+    canvas.renderAll();
+}
+
+function toggleSnap() {
+    snapEnabled = !snapEnabled;
+}
+
+// --- TEMPLATE SYSTEM ---
+function saveTemplate() {
+    const name = prompt("Enter a name for your design:");
+    if (!name) return;
+
+    const designJson = JSON.stringify(canvas.toJSON());
+    const templates = JSON.parse(localStorage.getItem('TAPDTemplates')) || [];
+    
+    templates.push({
+        name: name,
+        date: new Date().toLocaleDateString(),
+        json: designJson
+    });
+
+    localStorage.setItem('TAPDTemplates', JSON.stringify(templates));
+    alert("Design saved successfully!");
+    if(document.getElementById('saved-templates-list').style.display === 'block') {
+        renderSavedTemplates();
+    }
+}
+
+function toggleTemplates() {
+    const list = document.getElementById('saved-templates-list');
+    if (list.style.display === 'none') {
+        list.style.display = 'block';
+        renderSavedTemplates();
+    } else {
+        list.style.display = 'none';
+    }
+}
+
+function renderSavedTemplates() {
+    const list = document.getElementById('saved-templates-list');
+    const templates = JSON.parse(localStorage.getItem('TAPDTemplates')) || [];
+    
+    list.innerHTML = '';
+    if (templates.length === 0) {
+        list.innerHTML = '<div style="color:#888; padding:10px; text-align:center;">No saved designs</div>';
+        return;
+    }
+
+    templates.forEach((t, i) => {
+        const div = document.createElement('div');
+        div.className = 'layer-item';
+        div.innerHTML = `
+            <div style="flex:1" onclick="loadSavedTemplate(${i})">
+                <div style="color:white; font-weight:bold;">${t.name}</div>
+                <div style="color:#666; font-size:0.8rem;">${t.date}</div>
+            </div>
+            <i class="fas fa-trash" onclick="deleteSavedTemplate(${i})" style="color:#ff4444; cursor:pointer;"></i>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function loadSavedTemplate(index) {
+    const templates = JSON.parse(localStorage.getItem('TAPDTemplates')) || [];
+    if (templates[index]) {
+        canvas.loadFromJSON(templates[index].json, function() {
+            canvas.renderAll();
+            renderLayerPanel();
+            // Sync background color picker if applicable
+            if(canvas.backgroundColor && bgColorPicker) {
+                bgColorPicker.setColor(canvas.backgroundColor);
+            }
+        });
+    }
+}
+
+function deleteSavedTemplate(index) {
+    if(!confirm("Delete this design?")) return;
+    
+    const templates = JSON.parse(localStorage.getItem('TAPDTemplates')) || [];
+    templates.splice(index, 1);
+    localStorage.setItem('TAPDTemplates', JSON.stringify(templates));
+    renderSavedTemplates();
 }
 
 /* --- REPLACE FROM LINE: function finishDesign() DOWNWARDS --- */
@@ -256,24 +548,11 @@ function finishDesign() {
     const productName = currentProduct ? currentProduct.name + " (Custom)" : "Custom Design";
     
     // Pass both Image AND Json
-    addToCart(productID, productName, currentPrice, designImage, designJson);
-}
-
-function addToCart(id, name, price, img, json) {
-    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
-    
-    cart.push({
-        id: id,
-        name: name,
-        price: price,
-        img: img,
-        designJson: json, // <--- SAVING THE CODE HERE
-        qty: 1
-    });
-
-    localStorage.setItem('TAPDCart', JSON.stringify(cart));
-    updateCartCount();
-    toggleCart(); 
+    if(window.addToCart) {
+        window.addToCart(productName, currentPrice, designImage, productID, designJson);
+    } else {
+        alert("Cart Error: Please refresh the page.");
+    }
 }
 
 // 8. ADMIN TOOL
@@ -284,51 +563,3 @@ function exportDesignJSON() {
     });
 }
 
-// 9. UTILS
-function updateCartCount() {
-    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
-    let qty = cart.reduce((acc, item) => acc + item.qty, 0);
-    const badge = document.getElementById('cart-count');
-    if(badge) { badge.innerText = qty; badge.style.display = qty > 0 ? 'flex' : 'none'; }
-}
-
-function toggleCart() {
-    document.getElementById('cart-drawer').classList.toggle('open');
-    renderCartContents();
-}
-
-function closeAllDrawers() {
-    document.getElementById('cart-drawer').classList.remove('open');
-}
-
-function renderCartContents() {
-    const container = document.getElementById('cart-items-container');
-    const totalEl = document.getElementById('cart-total');
-    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
-    let total = 0;
-
-    container.innerHTML = '';
-    cart.forEach((item, index) => {
-        total += item.price * item.qty;
-        const div = document.createElement('div');
-        div.className = 'cart-item';
-        div.innerHTML = `
-            <img src="${item.img}" style="width:60px; height:60px; object-fit:contain; background:#222; border-radius:4px;">
-            <div style="flex:1; margin-left:10px;">
-                <div style="color:white; font-size:0.9rem;">${item.name}</div>
-                <div style="color:#888;">₹${item.price}</div>
-            </div>
-            <span onclick="removeItem(${index})" style="color:#ff4444; cursor:pointer;">×</span>
-        `;
-        container.appendChild(div);
-    });
-    if(totalEl) totalEl.innerText = "₹" + total;
-}
-
-function removeItem(index) {
-    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
-    cart.splice(index, 1);
-    localStorage.setItem('TAPDCart', JSON.stringify(cart));
-    renderCartContents();
-    updateCartCount();
-}

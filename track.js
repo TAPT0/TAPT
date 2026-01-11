@@ -1,5 +1,7 @@
 /* --- track.js --- */
 
+let threeJsScene = null; // For 3D preview
+
 // 1. CONFIGURATION
 const firebaseConfig = {
     apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
@@ -78,6 +80,90 @@ function renderOrder(id, data) {
 
     // Show Result
     resultDiv.style.display = 'block';
+    
+    // Show 3D Preview if there are items
+    if(data.items && data.items.length > 0) {
+        show3DPreview(data.items[0]);
+    }
+}
+
+function show3DPreview(item) {
+    const container = document.getElementById('track-3d-preview');
+    if (!container || !window.THREE) return;
+
+    container.style.display = 'block';
+    
+    if(threeJsScene) {
+        while(threeJsScene.scene.children.length > 0){ 
+            threeJsScene.scene.remove(threeJsScene.scene.children[0]); 
+        }
+    } else {
+        threeJsScene = init3DTrack(container);
+    }
+
+    const { scene, camera, renderer } = threeJsScene;
+
+    // Add lighting
+    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambient);
+    const directional = new THREE.DirectionalLight(0xffffff, 0.8);
+    directional.position.set(5, 10, 5);
+    scene.add(directional);
+    const pointLight = new THREE.PointLight(0xD4AF37, 0.5);
+    pointLight.position.set(-5, 5, 5);
+    scene.add(pointLight);
+
+    // Create product preview
+    const loader = new THREE.TextureLoader();
+    const imgUrl = item.img || 'https://via.placeholder.com/300/0a0a0a/D4AF37?text=TAPD';
+    
+    loader.load(imgUrl, function(texture) {
+        texture.encoding = THREE.sRGBEncoding;
+        const material = new THREE.MeshStandardMaterial({ 
+            map: texture,
+            metalness: 0.3,
+            roughness: 0.4
+        });
+        
+        // Default to card shape, can be enhanced to detect product type
+        const geometry = new THREE.BoxGeometry(2.5, 1.6, 0.08);
+        const model = new THREE.Mesh(geometry, material);
+        scene.add(model);
+
+        let rotationY = 0;
+        function animate() {
+            requestAnimationFrame(animate);
+            rotationY += 0.01;
+            model.rotation.y = rotationY;
+            renderer.render(scene, camera);
+        }
+        animate();
+    }, undefined, function(err) {
+        console.error('Error loading texture:', err);
+    });
+}
+
+function init3DTrack(container) {
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    container.innerHTML = '';
+    container.appendChild(renderer.domElement);
+    
+    camera.position.z = 3.5;
+
+    window.addEventListener('resize', () => {
+        if (!container.clientWidth || !container.clientHeight) return;
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+
+    return { scene, camera, renderer };
 }
 
 function updateProgressBar(status) {

@@ -301,7 +301,7 @@ window.populateAccountData = function() {
    ========================================= */
 let activeCoupon = null;
 
-window.addToCart = function(title, price, image = '', id = null) {
+window.addToCart = function(title, price, image = '', id = null, designJson = null) {
     let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
     const itemId = id || title.replace(/\s+/g, '-').toLowerCase() + Date.now(); 
     
@@ -310,8 +310,9 @@ window.addToCart = function(title, price, image = '', id = null) {
     
     if(existingItem) {
         existingItem.qty++;
+        if(designJson) existingItem.designJson = designJson; // Update design if provided
     } else {
-        cart.push({ id: itemId, title, price, image, qty: 1 });
+        cart.push({ id: itemId, title, price, image, qty: 1, designJson: designJson });
     }
     
     localStorage.setItem('taptCart', JSON.stringify(cart));
@@ -520,6 +521,14 @@ window.updateCartUI = function() {
 
 // Initial Load
 document.addEventListener('DOMContentLoaded', updateCartUI);
+
+// --- NEW: Cross-Tab Synchronization ---
+window.addEventListener('storage', (e) => {
+    if (e.key === 'taptCart') {
+        updateCartUI();
+    }
+});
+
 
 /* =========================================
    7. 3D TILT EFFECT

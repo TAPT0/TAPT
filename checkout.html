@@ -6,6 +6,8 @@
     <title>Secure Checkout | TAPD.</title>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Three.js for Premium 3D Elements -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <style>
         /* --- PREMIUM DARK THEME --- */
@@ -258,6 +260,16 @@
         .pay-btn:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 0 30px rgba(212,175,55,0.3); }
         .pay-btn:disabled { background: #333; cursor: not-allowed; opacity: 0.5; box-shadow: none; }
 
+        .checkout-3d-preview {
+            position: relative;
+            width: 100%;
+            height: 250px; /* Adjust as needed */
+            background: #111;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none; /* Initially hidden */
+        }
+
         /* Loader */
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95);
@@ -351,6 +363,7 @@
 
             <div class="checkout-right">
                 <div class="summary-card">
+                    <div id="checkout-3d-preview" class="checkout-3d-preview"></div>
                     <h3>Order Summary</h3>
                     
                     <div class="checkout-items" id="checkout-items-list">
@@ -416,6 +429,7 @@
         let discount = 0;
         let finalTotal = 0;
         let appliedCoupon = null;
+        let threeJsScene = null; // For 3D preview
 
         // --- 2. INITIALIZATION ---
         window.onload = function() {
@@ -482,18 +496,42 @@
             container.innerHTML = '';
             subtotal = 0;
 
+            // Hide 3D preview initially
+            const previewContainer = document.getElementById('checkout-3d-preview');
+            if(previewContainer) previewContainer.style.display = 'none';
+            if(threeJsScene) {
+                threeJsScene.isAnimating = false; // Stop any running animation
+                if(threeJsScene.renderer) threeJsScene.renderer.clear();
+            }
+
             if(cart.length === 0 || !Array.isArray(cart)) {
                 container.innerHTML = '<p style="color:#666; text-align:center; padding: 20px;">Your cart is empty.</p>';
                 document.getElementById('pay-btn').disabled = true;
                 document.getElementById('pay-btn').innerText = "Cart Empty";
+                if(appliedCoupon) applyFirebaseCoupon(true); else calculateTotals();
+                updateUI();
                 return;
             }
 
+            let previewShown = false;
             cart.forEach((item, index) => {
                 let price = Number(item.price) || 0;
                 let qty = Number(item.qty) || 1;
                 let name = item.name || "Product";
                 let img = item.img || 'https://via.placeholder.com/60?text=IMG';
+
+                if(item.designJson) {
+                    try {
+                        const design = JSON.parse(item.designJson);
+                        if(design.preview) img = design.preview;
+                        
+                        // Show 3D preview for the first item with a design
+                        if (!previewShown) {
+                            show3DPreview(item.designJson);
+                            previewShown = true;
+                        }
+                    } catch(e) { console.error("Error parsing designJson", e); }
+                }
 
                 subtotal += (price * qty);
                 
@@ -520,8 +558,94 @@
             updateUI();
         }
 
+        function show3DPreview(designJson) {
+            const container = document.getElementById('checkout-3d-preview');
+            if (!container || !window.THREE) return;
+
+            container.style.display = 'block';
+            
+            if(threeJsScene) {
+                while(threeJsScene.scene.children.length > 0){ 
+                    threeJsScene.scene.remove(threeJsScene.scene.children[0]); 
+                }
+            } else {
+                threeJsScene = init3D(container);
+            }
+
+            const { scene, camera, renderer } = threeJsScene;
+
+            const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambient);
+            const directional = new THREE.DirectionalLight(0xffffff, 0.7);
+            directional.position.set(3, 8, 5);
+            scene.add(directional);
+
+            let designData;
+            try { designData = JSON.parse(designJson); } catch(e) { return; }
+
+            if (!designData.preview) return;
+
+            const loader = new THREE.TextureLoader();
+            loader.load(designData.preview, function(texture) {
+                texture.encoding = THREE.sRGBEncoding;
+                const material = new THREE.MeshStandardMaterial({ 
+                    map: texture,
+                    metalness: 0.2,
+                    roughness: 0.6
+                });
+                
+                const isCard = designData.productType === 'card';
+                const geometry = isCard 
+                    ? new THREE.BoxGeometry(3, 1.8, 0.05) 
+                    : new THREE.CylinderGeometry(1.2, 1.2, 0.1, 64);
+
+                const model = new THREE.Mesh(geometry, material);
+                scene.add(model);
+
+                let rotationY = model.rotation.y;
+                function animate() {
+                    const animationId = requestAnimationFrame(animate);
+                    if (!threeJsScene.isAnimating) {
+                        cancelAnimationFrame(animationId);
+                        return;
+                    }
+                    rotationY += 0.005;
+                    model.rotation.y = rotationY;
+                    renderer.render(scene, camera);
+                }
+                threeJsScene.isAnimating = true;
+                animate();
+            }, undefined, function(err) {
+                console.error('An error occurred loading the texture: ', err);
+            });
+        }
+
+        function init3D(container) {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            container.innerHTML = ''; // Clear previous canvas
+            container.appendChild(renderer.domElement);
+            
+            camera.position.z = 3;
+
+            window.addEventListener('resize', () => {
+                if (!container.clientWidth || !container.clientHeight) return;
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+
+            return { scene, camera, renderer, isAnimating: false };
+        }
+
         // --- NEW: UPDATE QUANTITY ON PAGE ---
         function updateItemQty(index, change) {
+            if(threeJsScene) threeJsScene.isAnimating = false; // Stop animation on cart change
             cart[index].qty += change;
             if(cart[index].qty <= 0) {
                 if(confirm("Remove this item?")) {

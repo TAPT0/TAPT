@@ -118,12 +118,22 @@ function renderProductPage(data) {
     const frontImg = document.getElementById('card-front-img');
     const backImg = document.getElementById('card-back-img');
 
-    if (data.frontImage && frontImg) {
-        frontImg.src = data.frontImage;
+    // Resolve Front Image
+    let fSrc = data.frontImage;
+    if (!fSrc && data.images && data.images.length > 0) fSrc = data.images[0];
+    if (!fSrc && data.image) fSrc = data.image;
+
+    if (fSrc && frontImg) {
+        frontImg.src = fSrc;
         frontImg.style.display = 'block';
     }
-    if (data.backImage && backImg) {
-        backImg.src = data.backImage;
+
+    // Resolve Back Image
+    let bSrc = data.backImage;
+    if (!bSrc && data.images && data.images.length > 1) bSrc = data.images[1];
+    
+    if (bSrc && backImg) {
+        backImg.src = bSrc;
         backImg.style.display = 'block';
     }
 

@@ -202,28 +202,6 @@ body.premium-product-page {
 
 .card-back { transform: rotateY(180deg); background: #080808; }
 
-.card-chip {
-    width: 45px;
-    height: 35px;
-    background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%);
-    border-radius: 6px;
-    position: relative;
-    margin-top: 10px;
-}
-.card-chip::before {
-    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSIzNSI+PHBhdGggZD0iTTAgMTBoNDVNMCAyNWg0NSIgc3Ryb2tlPSJyZ2JhKDAsMCwwLDAuMykiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==');
-    opacity: 0.5;
-}
-
-.card-logo {
-    font-family: 'Syncopate', sans-serif;
-    font-weight: 700;
-    color: white;
-    font-size: 1.2rem;
-    align-self: flex-end;
-}
-
 .card-name {
     font-family: 'Inter', sans-serif;
     font-size: 1.1rem;
@@ -249,14 +227,6 @@ body.premium-product-page {
     margin-top: 20px;
     background-image: url('https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=TAPD');
     background-size: cover;
-}
-
-.card-text {
-    text-align: center;
-    color: #666;
-    font-size: 0.8rem;
-    margin-bottom: 10px;
-    letter-spacing: 1px;
 }
 
 /* Visual Controls */
@@ -297,20 +267,9 @@ body.premium-product-page {
 }
 
 /* Hide card-specific elements on tags if needed */
-.card-3d-wrapper.shape-tag .card-chip,
 .card-3d-wrapper.shape-tag .card-name,
-.card-3d-wrapper.shape-tag .card-text,
 .card-3d-wrapper.shape-tag .qr-code {
     display: none; /* Usually tags rely on the image */
-}
-
-/* Center the logo on tags if no image */
-.card-3d-wrapper.shape-tag .card-logo {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0;
-    font-size: 1.5rem;
 }
 
 

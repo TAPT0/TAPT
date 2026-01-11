@@ -263,11 +263,49 @@
         .checkout-3d-preview {
             position: relative;
             width: 100%;
-            height: 250px; /* Adjust as needed */
-            background: #111;
+            height: 250px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
             border-radius: 8px;
             margin-bottom: 20px;
-            display: none; /* Initially hidden */
+            display: none;
+            border: 1px solid var(--tapd-border);
+            overflow: hidden;
+            cursor: grab;
+        }
+        
+        .checkout-3d-preview:active {
+            cursor: grabbing;
+        }
+        
+        .checkout-3d-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 12px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .checkout-3d-controls button {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #ccc;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: 0.2s;
+        }
+        
+        .checkout-3d-controls button:hover,
+        .checkout-3d-controls button.active {
+            background: var(--tapd-gold);
+            color: black;
+            border-color: var(--tapd-gold);
         }
 
         /* Loader */
@@ -363,7 +401,16 @@
 
             <div class="checkout-right">
                 <div class="summary-card">
-                    <div id="checkout-3d-preview" class="checkout-3d-preview"></div>
+                    <div id="checkout-3d-preview" class="checkout-3d-preview">
+                        <div class="checkout-3d-controls" style="display:none;">
+                            <button onclick="toggle3DRotation()" id="btn-rotate-3d" class="active">
+                                <i class="fa-solid fa-rotate"></i> Auto
+                            </button>
+                            <button onclick="reset3DView()" id="btn-reset-3d">
+                                <i class="fa-solid fa-arrows-rotate"></i> Reset
+                            </button>
+                        </div>
+                    </div>
                     <h3>Order Summary</h3>
                     
                     <div class="checkout-items" id="checkout-items-list">
@@ -430,6 +477,11 @@
         let finalTotal = 0;
         let appliedCoupon = null;
         let threeJsScene = null; // For 3D preview
+        let is3DRotating = true; // Auto-rotation state
+        let threeJsModel = null; // Reference to the 3D model
+        let mouseDown = false;
+        let mouseX = 0;
+        let mouseY = 0;
 
         // --- 2. INITIALIZATION ---
         window.onload = function() {
@@ -563,6 +615,8 @@
             if (!container || !window.THREE) return;
 
             container.style.display = 'block';
+            const controls = container.querySelector('.checkout-3d-controls');
+            if(controls) controls.style.display = 'flex';
             
             if(threeJsScene) {
                 while(threeJsScene.scene.children.length > 0){ 
@@ -570,15 +624,20 @@
                 }
             } else {
                 threeJsScene = init3D(container);
+                setup3DInteractions(container);
             }
 
             const { scene, camera, renderer } = threeJsScene;
 
-            const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+            // Enhanced lighting
+            const ambient = new THREE.AmbientLight(0xffffff, 0.5);
             scene.add(ambient);
-            const directional = new THREE.DirectionalLight(0xffffff, 0.7);
+            const directional = new THREE.DirectionalLight(0xffffff, 0.8);
             directional.position.set(3, 8, 5);
             scene.add(directional);
+            const pointLight = new THREE.PointLight(0xD4AF37, 0.4);
+            pointLight.position.set(-5, 5, 5);
+            scene.add(pointLight);
 
             let designData;
             try { designData = JSON.parse(designJson); } catch(e) { return; }
@@ -590,8 +649,8 @@
                 texture.encoding = THREE.sRGBEncoding;
                 const material = new THREE.MeshStandardMaterial({ 
                     map: texture,
-                    metalness: 0.2,
-                    roughness: 0.6
+                    metalness: 0.3,
+                    roughness: 0.5
                 });
                 
                 const isCard = designData.productType === 'card';
@@ -599,18 +658,20 @@
                     ? new THREE.BoxGeometry(3, 1.8, 0.05) 
                     : new THREE.CylinderGeometry(1.2, 1.2, 0.1, 64);
 
-                const model = new THREE.Mesh(geometry, material);
-                scene.add(model);
+                threeJsModel = new THREE.Mesh(geometry, material);
+                scene.add(threeJsModel);
 
-                let rotationY = model.rotation.y;
+                let rotationY = 0;
                 function animate() {
                     const animationId = requestAnimationFrame(animate);
                     if (!threeJsScene.isAnimating) {
                         cancelAnimationFrame(animationId);
                         return;
                     }
-                    rotationY += 0.005;
-                    model.rotation.y = rotationY;
+                    if(is3DRotating) {
+                        rotationY += 0.005;
+                        threeJsModel.rotation.y = rotationY;
+                    }
                     renderer.render(scene, camera);
                 }
                 threeJsScene.isAnimating = true;
@@ -618,6 +679,59 @@
             }, undefined, function(err) {
                 console.error('An error occurred loading the texture: ', err);
             });
+        }
+        
+        function setup3DInteractions(container) {
+            container.addEventListener('mousedown', (e) => {
+                mouseDown = true;
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+            
+            container.addEventListener('mouseup', () => {
+                mouseDown = false;
+            });
+            
+            container.addEventListener('mousemove', (e) => {
+                if(mouseDown && threeJsModel && !is3DRotating) {
+                    const deltaX = e.clientX - mouseX;
+                    const deltaY = e.clientY - mouseY;
+                    threeJsModel.rotation.y += deltaX * 0.01;
+                    threeJsModel.rotation.x += deltaY * 0.01;
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                    if(threeJsScene && threeJsScene.renderer) {
+                        threeJsScene.renderer.render(threeJsScene.scene, threeJsScene.camera);
+                    }
+                }
+            });
+            
+            container.addEventListener('mouseleave', () => {
+                mouseDown = false;
+            });
+        }
+        
+        function toggle3DRotation() {
+            is3DRotating = !is3DRotating;
+            const btn = document.getElementById('btn-rotate-3d');
+            if(btn) {
+                if(is3DRotating) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            }
+        }
+        
+        function reset3DView() {
+            if(threeJsModel) {
+                threeJsModel.rotation.x = 0;
+                threeJsModel.rotation.y = 0;
+                threeJsModel.rotation.z = 0;
+                if(threeJsScene && threeJsScene.renderer) {
+                    threeJsScene.renderer.render(threeJsScene.scene, threeJsScene.camera);
+                }
+            }
         }
 
         function init3D(container) {

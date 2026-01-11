@@ -118,6 +118,8 @@ async function uploadProduct() {
     const category = categoryEl ? categoryEl.value : "custom";
     const type = typeEl ? typeEl.value : "card";
     const designJson = designJsonEl ? designJsonEl.value : "";
+    const featuresEl = document.getElementById('p-features');
+    const features = featuresEl && featuresEl.value ? featuresEl.value.split(',').map(s => s.trim()).filter(s => s) : [];
 
     // Validation: Require title, price, and at least ONE image
     if(!title || !price || newProductImages.length === 0) {
@@ -136,6 +138,7 @@ async function uploadProduct() {
         images: newProductImages, // Save the ARRAY of Cloudinary URLs
         image: newProductImages[0], // Keep main image for legacy/thumbnail support
         designTemplate: designJson, 
+        features: features,
         createdAt: new Date().toISOString()
     }).then(() => {
         if (statusText) statusText.textContent = "";
@@ -325,6 +328,7 @@ async function saveProductChanges() {
         price: parseFloat(getVal('edit-price') || 0),
         type: getVal('edit-type'),
         category: getVal('edit-category'),
+        features: getVal('edit-features').split(',').map(s => s.trim()).filter(s => s),
         designTemplate: getVal('edit-design-json'), 
         images: tempEditImages, // Save the updated list of images
         image: tempEditImages.length > 0 ? tempEditImages[0] : "", // Update legacy field

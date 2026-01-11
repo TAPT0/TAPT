@@ -2,12 +2,118 @@ let pageQty = 1;
 let currentRotation = 0;
 let isFloating = false;
 let floatInterval;
+let currentProductData = null; // Store fetched product data
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     init3DViewer();
     updatePageQtyUI();
+    loadProductDetails(); // New function call
 });
+
+/* =========================================
+   0. PRODUCT DATA FETCHING (NEW)
+   ========================================= */
+async function loadProductDetails() {
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get('id');
+
+    // Default to a known ID or fetch the most recent one if no ID provided
+    let query = db.collection('products');
+    
+    if (productId) {
+        query = query.doc(productId);
+    } else {
+        // Fallback: Get the most recent product
+        query = query.orderBy('createdAt', 'desc').limit(1);
+    }
+
+    try {
+        let doc;
+        if (productId) {
+            doc = await query.get();
+        } else {
+            const snapshot = await query.get();
+            if (!snapshot.empty) {
+                doc = snapshot.docs[0];
+            }
+        }
+
+        if (doc && doc.exists) {
+            const data = doc.data();
+            data.id = doc.id; // Ensure ID is part of data
+            currentProductData = data;
+            renderProductPage(data);
+        } else if (doc && !productId) {
+             // Handled inside renderProductPage if data is passed, 
+             // but here doc is a QueryDocumentSnapshot if from query
+             const data = doc.data();
+             data.id = doc.id;
+             currentProductData = data;
+             renderProductPage(data);
+        } else {
+            console.error("Product not found");
+            document.getElementById('dynamic-title').innerText = "PRODUCT NOT FOUND";
+        }
+    } catch (error) {
+        console.error("Error loading product:", error);
+        // If error (e.g., offline), maybe show fallback content or hardcoded default
+        renderProductPage({
+            id: 'black-card-premium',
+            title: 'Black Card Premium',
+            price: 1999,
+            description: 'Forged from premium matte PVC with a soft-touch finish. Embedded with a high-frequency NFC chip for instant data transfer. No app required for the receiver.',
+            features: ['NFC Enabled', 'iOS & Android', 'Waterproof'],
+            image: 'https://via.placeholder.com/150/000000/FFFFFF?text=BLACK+CARD'
+        });
+    }
+}
+
+function renderProductPage(data) {
+    // 1. Title & Subtitle
+    const titleEl = document.getElementById('dynamic-title');
+    const subEl = document.getElementById('dynamic-subtitle');
+    
+    if(titleEl) {
+        titleEl.innerText = data.title;
+        titleEl.setAttribute('data-text', data.title);
+    }
+    
+    // Generate a subtitle if missing
+    if(subEl) {
+        subEl.innerText = data.type === 'tag' ? "The Premium Smart Tag." : "The Last Business Card You'll Ever Need.";
+    }
+
+    // 2. Price
+    const priceEl = document.getElementById('dynamic-price');
+    if(priceEl) priceEl.innerText = data.price.toLocaleString();
+
+    // 3. Description
+    const descEl = document.getElementById('dynamic-description');
+    if(descEl) descEl.innerText = data.description || "No description available.";
+
+    // 4. Features (Dynamic or Static Defaults)
+    const featContainer = document.getElementById('dynamic-features');
+    if(featContainer) {
+        featContainer.innerHTML = ''; // Clear loading
+        const feats = [
+            { icon: 'fa-solid fa-wifi', text: 'NFC Enabled' },
+            { icon: 'fa-brands fa-apple', text: 'iOS & Android' },
+            { icon: 'fa-solid fa-droplet', text: 'Waterproof' }
+        ];
+        
+        feats.forEach(f => {
+            featContainer.innerHTML += `
+                <div class="feat-item"><i class="${f.icon}"></i> ${f.text}</div>
+            `;
+        });
+    }
+
+    // 5. Update 3D Card Text (Name/Logo)
+    // We can try to update the name on the card to match the user or product
+    const cardName = document.querySelector('.card-name');
+    if(cardName) cardName.innerText = "YOUR NAME"; // Keep generic for product page
+}
 
 /* =========================================
    1. 3D INTERACTION LOGIC
@@ -90,25 +196,21 @@ function updatePageQtyUI() {
 }
 
 window.addToBag = function() {
-    // Product Details
+    if (!currentProductData) {
+        alert("Product data is loading. Please wait...");
+        return;
+    }
+
+    // Product Details from Global State
     const product = {
-        id: 'black-card-premium',
-        title: 'Black Card Premium',
-        price: 1999,
-        image: 'https://via.placeholder.com/150/000000/FFFFFF?text=BLACK+CARD', // Replace with real image
+        id: currentProductData.id,
+        title: currentProductData.title,
+        price: currentProductData.price,
+        image: (currentProductData.images && currentProductData.images.length > 0) ? currentProductData.images[0] : (currentProductData.image || 'https://via.placeholder.com/150'),
         qty: pageQty
     };
     
     // Add to Global Cart (handled in script.js)
-    // We need to loop because addToCart adds 1 or increments. 
-    // Ideally script.js should support adding multiple.
-    // We'll modify script.js or just loop here.
-    
-    // Better: Update addToCart in script.js to accept qty, but for now let's just push.
-    // Actually, looking at script.js:
-    // existingItem.qty++;
-    // So we can manually update localStorage to be safe and efficient.
-    
     let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
     let existingItem = cart.find(i => i.id === product.id);
     

@@ -48,22 +48,20 @@
                 <a href="index.html">Home</a> / <a href="shop.html">Collection</a> / <span class="current">Black Card</span>
             </div>
             
-            <h1 class="p-title" data-text="BLACK CARD">BLACK CARD</h1>
-            <div class="p-subtitle">The Last Business Card You'll Ever Need.</div>
+            <h1 class="p-title" id="dynamic-title" data-text="LOADING...">LOADING...</h1>
+            <div class="p-subtitle" id="dynamic-subtitle">Loading product details...</div>
             
             <div class="p-price-container">
                 <span class="currency">₹</span>
-                <span class="amount" id="product-price">1,999</span>
+                <span class="amount" id="dynamic-price">--</span>
             </div>
 
-            <div class="p-features">
-                <div class="feat-item"><i class="fa-solid fa-wifi"></i> NFC Enabled</div>
-                <div class="feat-item"><i class="fa-brands fa-apple"></i> iOS & Android</div>
-                <div class="feat-item"><i class="fa-solid fa-droplet"></i> Waterproof</div>
+            <div class="p-features" id="dynamic-features">
+                <!-- Features will be injected here -->
             </div>
 
             <div class="p-description">
-                <p>Forged from premium matte PVC with a soft-touch finish. Embedded with a high-frequency NFC chip for instant data transfer. No app required for the receiver.</p>
+                <p id="dynamic-description">Please wait while we fetch the latest details from our secure vault.</p>
             </div>
 
             <div class="p-actions">

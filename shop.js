@@ -1,18 +1,20 @@
 /* =========================================
-   1. FIREBASE CONFIGURATION
+   FIREBASE CONFIG - CENTRALIZED
    ========================================= */
-const firebaseConfig = {
-    apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
-    authDomain: "tapt-337b8.firebaseapp.com",
-    databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
-    projectId: "tapt-337b8",
-    storageBucket: "tapt-337b8.firebasestorage.app",
-    messagingSenderId: "887956121124",
-    appId: "1:887956121124:web:6856680bf75aa3bacddab1",
-    measurementId: "G-2CB8QXYNJY"
-};
-
-if (!firebase.apps.length) {
+// Use centralized config from index.html to avoid duplicates
+if (typeof firebase === 'undefined') {
+    console.warn('Firebase not loaded');
+} else if (!firebase.apps.length) {
+    const firebaseConfig = {
+        apiKey: "AIzaSyBmCVQan3wclKDTG2yYbCf_oMO6t0j17wI",
+        authDomain: "tapt-337b8.firebaseapp.com",
+        databaseURL: "https://tapt-337b8-default-rtdb.firebaseio.com",
+        projectId: "tapt-337b8",
+        storageBucket: "tapt-337b8.firebasestorage.app",
+        messagingSenderId: "887956121124",
+        appId: "1:887956121124:web:6856680bf75aa3bacddab1",
+        measurementId: "G-2CB8QXYNJY"
+    };
     firebase.initializeApp(firebaseConfig);
 }
 

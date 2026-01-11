@@ -28,6 +28,10 @@ let currentProduct = null;
 let currentPrice = 499;
 let bgColorPicker = null;
 let textColorPicker = null;
+let gradientColorPicker1 = null;
+let gradientColorPicker2 = null;
+let currentBgMode = 'solid';
+
 let gridEnabled = false;
 let snapEnabled = false;
 const gridSize = 20;
@@ -45,7 +49,60 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if(typeof window.updateCartCount === 'function') window.updateCartCount();
     setupEventListeners();
+    setColorMode('solid'); // Initialize
+    renderColorPresets();
 });
+
+// NEW: Color Presets
+const colorPresets = [
+    { name: 'Midnight Gold', colors: ['#000000', '#D4AF37'] },
+    { name: 'Oceanic', colors: ['#0575E6', '#021B79'] },
+    { name: 'Sunset', colors: ['#FF512F', '#DD2476'] },
+    { name: 'Emerald', colors: ['#004D40', '#009688'] },
+    { name: 'Charcoal', colors: ['#2c3e50', '#34495e'] },
+    { name: 'Rose Gold', colors: ['#f7cac9', '#e6a4b4'] },
+];
+
+function renderColorPresets() {
+    const panel = document.getElementById('color-presets-panel');
+    if (!panel) return;
+
+    panel.innerHTML = '';
+    colorPresets.forEach((preset, index) => {
+        const div = document.createElement('div');
+        div.className = 'preset-item';
+        div.onclick = () => applyColorPreset(index);
+
+        const preview = document.createElement('div');
+        preview.className = 'preset-preview';
+        preview.style.background = `linear-gradient(45deg, ${preset.colors[0]}, ${preset.colors[1] || preset.colors[0]})`;
+
+        const name = document.createElement('span');
+        name.innerText = preset.name;
+
+        div.appendChild(preview);
+        div.appendChild(name);
+        panel.appendChild(div);
+    });
+}
+
+function applyColorPreset(index) {
+    const preset = colorPresets[index];
+    if (!preset) return;
+
+    if (preset.colors.length > 1) {
+        // Apply as gradient
+        setColorMode('gradient');
+        gradientColorPicker1.setColor(preset.colors[0]);
+        gradientColorPicker2.setColor(preset.colors[1]);
+        updateGradientBackground();
+    } else {
+        // Apply as solid color
+        setColorMode('solid');
+        bgColorPicker.setColor(preset.colors[0]);
+        canvas.setBackgroundColor(preset.colors[0], canvas.renderAll.bind(canvas));
+    }
+}
 
 // 3. LOAD TEMPLATE
 function loadTemplate(id) {
@@ -61,7 +118,16 @@ function loadTemplate(id) {
                     canvas.renderAll();
                     // Sync color picker
                     const bgColor = canvas.backgroundColor;
-                    if(bgColor && bgColorPicker) bgColorPicker.setColor(bgColor);
+                    if(typeof bgColor === 'string' && bgColorPicker) {
+                        bgColorPicker.setColor(bgColor);
+                        setColorMode('solid');
+                    } else if (typeof bgColor === 'object' && bgColor.colorStops) {
+                        // It's a gradient
+                        if(gradientColorPicker1) gradientColorPicker1.setColor(bgColor.colorStops[0].color);
+                        if(gradientColorPicker2) gradientColorPicker2.setColor(bgColor.colorStops[1].color);
+                        // Angle might need to be stored separately if we want to restore it
+                        setColorMode('gradient');
+                    }
                     
                     // Re-apply mode to ensure shape is correct after load
                     if(data.type === 'tag') setMode('tag');
@@ -74,6 +140,31 @@ function loadTemplate(id) {
             }
         }
     });
+}
+
+// NEW: Set Color Mode
+function setColorMode(mode) {
+    currentBgMode = mode;
+    const solidControls = document.getElementById('solid-color-controls');
+    const gradientControls = document.getElementById('gradient-color-controls');
+    const btnSolid = document.getElementById('btn-solid');
+    const btnGradient = document.getElementById('btn-gradient');
+
+    if (mode === 'solid') {
+        solidControls.style.display = 'block';
+        gradientControls.style.display = 'none';
+        btnSolid.classList.add('active');
+        btnGradient.classList.remove('active');
+        // Re-apply solid color
+        canvas.setBackgroundColor(bgColorPicker.getColor().toRGBA().toString(), canvas.renderAll.bind(canvas));
+
+    } else { // Gradient
+        solidControls.style.display = 'none';
+        gradientControls.style.display = 'block';
+        btnSolid.classList.remove('active');
+        btnGradient.classList.add('active');
+        updateGradientBackground();
+    }
 }
 
 // 4. MODE SWITCHING (THE FIX IS HERE)
@@ -214,9 +305,27 @@ function setupEventListeners() {
     // Background Color Picker
     bgColorPicker = Pickr.create({ ...pickrOptions, el: '#bg-color-picker', default: '#0a0a0a' });
     bgColorPicker.on('save', (color) => {
-        canvas.setBackgroundColor(color.toRGBA().toString(), canvas.renderAll.bind(canvas));
+        if (currentBgMode === 'solid') {
+            canvas.setBackgroundColor(color.toRGBA().toString(), canvas.renderAll.bind(canvas));
+        }
         bgColorPicker.hide();
     });
+
+    // Gradient Pickers
+    gradientColorPicker1 = Pickr.create({ ...pickrOptions, el: '#gradient-color-1', default: '#000000' });
+    gradientColorPicker1.on('save', (color) => {
+        updateGradientBackground();
+        gradientColorPicker1.hide();
+    });
+
+    gradientColorPicker2 = Pickr.create({ ...pickrOptions, el: '#gradient-color-2', default: '#D4AF37' });
+    gradientColorPicker2.on('save', (color) => {
+        updateGradientBackground();
+        gradientColorPicker2.hide();
+    });
+
+    document.getElementById('gradient-angle').addEventListener('input', updateGradientBackground);
+
 
     // Text Color Picker
     textColorPicker = Pickr.create({ ...pickrOptions, el: '#txt-color-picker', default: '#ffffff' });
@@ -299,6 +408,33 @@ function setupEventListeners() {
             reader.readAsDataURL(e.dataTransfer.files[0]);
         }
     });
+}
+
+function updateGradientBackground() {
+    if (currentBgMode !== 'gradient') return;
+
+    const angle = parseInt(document.getElementById('gradient-angle').value, 10);
+    const color1 = gradientColorPicker1.getColor().toRGBA().toString();
+    const color2 = gradientColorPicker2.getColor().toRGBA().toString();
+
+    // Convert angle to coordinates
+    const anglePI = -parseInt(angle, 10) * (Math.PI / 180);
+    const x1 = Math.round(50 + Math.sin(anglePI) * 50) / 100;
+    const y1 = Math.round(50 + Math.cos(anglePI) * 50) / 100;
+    const x2 = Math.round(50 + Math.sin(anglePI + Math.PI) * 50) / 100;
+    const y2 = Math.round(50 + Math.cos(anglePI + Math.PI) * 50) / 100;
+
+    const gradient = new fabric.Gradient({
+        type: 'linear',
+        gradientUnits: 'percentage',
+        coords: { x1, y1, x2, y2 },
+        colorStops: [
+            { offset: 0, color: color1 },
+            { offset: 1, color: color2 }
+        ]
+    });
+
+    canvas.setBackgroundColor(gradient, canvas.renderAll.bind(canvas));
 }
 
 function updateCanvasFromInput(e) {

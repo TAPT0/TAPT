@@ -4,15 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Design Studio | TAPD.</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&family=Playfair+Display:wght@400;700&family=Courier+Prime&family=Montserrat:wght@300;400;700&family=Lato:wght@300;400;700&family=Roboto:wght@300;400;700&family=Poppins:wght@300;400;600;700&family=Raleway:wght@300;400;600;700&family=Oswald:wght@400;600;700&family=Ubuntu:wght@300;400;700&family=Open+Sans:wght@300;400;600;700&family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css"/> <!-- Pickr theme -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
     <link rel="stylesheet" href="customize.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 </head>
 <body>
 
@@ -90,8 +92,37 @@
             </div>
 
             <div class="control-group">
-                <label>Base Color</label>
-                <div class="color-picker-container" id="bg-color-picker"></div>
+                <label>Base</label>
+                <div class="toggle-switch">
+                    <button class="toggle-btn active" id="btn-solid" onclick="setColorMode('solid')">Solid</button>
+                    <button class="toggle-btn" id="btn-gradient" onclick="setColorMode('gradient')">Gradient</button>
+                </div>
+                
+                <div id="solid-color-controls">
+                    <div class="color-picker-container" id="bg-color-picker"></div>
+                </div>
+
+                <div id="gradient-color-controls" style="display:none;">
+                    <div class="control-row">
+                        <div class="input-group">
+                            <label>Color 1</label>
+                            <div class="color-picker-container" id="gradient-color-1"></div>
+                        </div>
+                        <div class="input-group">
+                            <label>Color 2</label>
+                            <div class="color-picker-container" id="gradient-color-2"></div>
+                        </div>
+                    </div>
+                    <div class="slider-group">
+                        <label>Angle</label>
+                        <input type="range" id="gradient-angle" min="0" max="360" value="90">
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Color Presets</label>
+                <div id="color-presets-panel"></div>
             </div>
 
             <div class="control-group">
@@ -187,6 +218,9 @@
                             <input type="number" id="img-y" class="TAPD-input" step="1">
                         </div>
                     </div>
+                    <button class="add-text-btn" onclick="openCropper()" style="margin-top:15px;">
+                        <i class="fas fa-crop-alt"></i> Crop Image
+                    </button>
                 </div>
 
                 <div class="slider-group" style="margin-top:15px;">
@@ -224,6 +258,20 @@
         <button onclick="exportDesignJSON()" style="background:red; color:white; border:none; padding:10px; cursor:pointer; font-weight:bold;">
             ADMIN: COPY JSON
         </button>
+    </div>
+
+    <!-- CROPPER MODAL -->
+    <div id="cropper-modal" style="display:none;">
+        <div class="modal-content">
+            <h2>Crop Image</h2>
+            <div class="cropper-container">
+                <img id="cropper-image" src="">
+            </div>
+            <div class="modal-actions">
+                <button onclick="cancelCrop()">Cancel</button>
+                <button onclick="applyCrop()">Apply Crop</button>
+            </div>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>

@@ -15,13 +15,20 @@
 
     <style>
         /* =========================================
-           PREMIUM BASE STYLES
+           PREMIUM BASE STYLES - OPTIMIZED
            ========================================= */
         :root {
             --gold: #D4AF37;
             --bg: #050505;
             --glass: rgba(255, 255, 255, 0.03);
             --border: rgba(255, 255, 255, 0.1);
+            --accent-cyan: #00ffff;
+            --shadow-gold: rgba(212, 175, 55, 0.3);
+        }
+
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
@@ -30,7 +37,7 @@
             overflow-x: hidden;
             margin: 0;
             font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased; 
+            transform: translateZ(0); /* Hardware acceleration */
         }
 
         ::-webkit-scrollbar { width: 8px; }
@@ -58,7 +65,7 @@
         .logo { font-family: 'Syncopate', sans-serif; font-weight: 700; font-size: 1.5rem; letter-spacing: -1px; }
         .logo span { color: var(--gold); }
 
-        /* --- HERO SECTION --- */
+        /* --- HERO SECTION WITH 3D ENHANCEMENTS --- */
         .hero-section {
             min-height: 100vh;
             display: flex;
@@ -68,6 +75,33 @@
             padding: 120px 20px 60px;
             overflow: hidden;
             perspective: 1200px;
+            background: radial-gradient(ellipse at center, rgba(212,175,55,0.05) 0%, transparent 50%);
+        }
+
+        /* 3D Floating Particles */
+        .hero-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--gold);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: floatParticle 20s infinite linear;
+        }
+        @keyframes floatParticle {
+            0% { transform: translateY(100vh) translateX(0) scale(0); }
+            10% { transform: translateY(80vh) translateX(10px) scale(1); }
+            90% { transform: translateY(10vh) translateX(-10px) scale(1); }
+            100% { transform: translateY(-10vh) translateX(0) scale(0); }
         }
 
         .hero-content {
@@ -80,12 +114,12 @@
             width: 100%;
         }
 
-        /* 3D CARD ANIMATION LOGIC */
+        /* 3D CARD ANIMATION LOGIC - OPTIMIZED */
         .hero-card-wrapper {
             width: 340px; height: 215px; margin-bottom: 50px; position: relative;
             transform-style: preserve-3d;
             animation: cardEntrance 2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-            opacity: 0; will-change: transform;
+            opacity: 0; will-change: transform, opacity;
         }
         @keyframes cardEntrance {
             0% { transform: translateY(150px) rotateX(40deg) rotateY(-20deg) scale(0.9); opacity: 0; }
@@ -102,13 +136,26 @@
             75% { transform: translateY(-10px) rotateX(-2deg) rotateY(2deg); }
         }
 
+        /* Enhanced 3D Card with Holographic Effect */
         .card-3d {
             width: 100%; height: 100%;
-            background: linear-gradient(135deg, #1a1a1a 0%, #050505 100%);
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 50%, #050505 100%);
             border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(255,255,255,0.05);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9), 
+                        inset 0 0 0 1px rgba(255,255,255,0.05),
+                        0 0 50px var(--shadow-gold);
             position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 30px;
             box-sizing: border-box; transform-style: preserve-3d; overflow: hidden; backface-visibility: hidden;
+        }
+        .card-3d::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(212,175,55,0.1) 50%, transparent 70%);
+            animation: holographicShift 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes holographicShift {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
         }
         .card-3d::before {
             content: ''; position: absolute; inset: 0;
@@ -266,7 +313,7 @@
 
         .reveal.active { opacity: 1; transform: translateY(0); }
 
-        /* --- MOBILE RESPONSIVE --- */
+        /* --- MOBILE RESPONSIVE - OPTIMIZED --- */
         @media (max-width: 900px) {
             .hero-section { padding-top: 140px; align-items: flex-start; perspective: 800px; }
             .hero-card-wrapper { width: 280px; height: 177px; margin-bottom: 30px; animation: cardEntranceMobile 1.5s ease-out forwards; }
@@ -279,6 +326,19 @@
             .showcase-grid, .persona-grid { grid-template-columns: 1fr; }
             .showcase-panel .hero-card-wrapper { transform: scale(1) !important; width: 100%; height: 180px; }
             .impact-stat { font-size: 2.2rem; }
+            
+            /* Disable heavy animations on mobile for performance */
+            .particle { display: none; }
+            .card-3d::before { animation: none; }
+        }
+
+        /* Reduce motion for users who prefer it */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
     </style>
 </head>
@@ -297,6 +357,7 @@
     </nav>
 
     <section class="hero-section">
+        <div class="hero-particles" id="particles"></div>
         <div class="hero-content">
             <div class="hero-card-wrapper">
                 <div class="hero-card-float">
@@ -591,6 +652,19 @@
 
         // --- SCROLL REVEAL ANIMATION ---
         document.addEventListener('DOMContentLoaded', () => {
+            // Generate 3D floating particles
+            const particlesContainer = document.getElementById('particles');
+            if (particlesContainer) {
+                for (let i = 0; i < 20; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 20 + 's';
+                    particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                    particlesContainer.appendChild(particle);
+                }
+            }
+
             const reveals = document.querySelectorAll('.reveal');
 
             const revealOnScroll = () => {

@@ -14,13 +14,20 @@
 
     <style>
         /* =========================================
-           PREMIUM ABOUT STYLES
+           PREMIUM ABOUT STYLES - ENHANCED 3D
            ========================================= */
         :root {
             --gold: #D4AF37;
             --bg: #050505;
             --glass: rgba(255, 255, 255, 0.03);
             --border: rgba(255, 255, 255, 0.1);
+            --accent-cyan: #00ffff;
+            --shadow-gold: rgba(212, 175, 55, 0.3);
+        }
+
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
@@ -29,6 +36,7 @@
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
             margin: 0;
+            transform: translateZ(0); /* Hardware acceleration */
         }
 
         /* --- NAV --- */
@@ -50,7 +58,7 @@
         .logo { font-family: 'Syncopate', sans-serif; font-weight: 700; font-size: 1.5rem; letter-spacing: -1px; }
         .logo span { color: var(--gold); }
 
-        /* --- HERO SECTION --- */
+        /* --- HERO SECTION WITH 3D ENHANCEMENTS --- */
         .about-hero {
             min-height: 90vh;
             display: flex;
@@ -61,6 +69,37 @@
             position: relative;
             padding: 100px 20px;
             overflow: hidden;
+            perspective: 1200px;
+        }
+
+        /* 3D Floating Elements */
+        .hero-3d-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .floating-3d-card {
+            position: absolute;
+            width: 120px;
+            height: 75px;
+            background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 8px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            animation: float3DCard 15s infinite ease-in-out;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes float3DCard {
+            0%, 100% { transform: translateY(0) rotateX(0deg) rotateY(0deg) translateZ(0); }
+            25% { transform: translateY(-20px) rotateX(5deg) rotateY(10deg) translateZ(50px); }
+            50% { transform: translateY(10px) rotateX(-3deg) rotateY(-5deg) translateZ(30px); }
+            75% { transform: translateY(-15px) rotateX(2deg) rotateY(8deg) translateZ(40px); }
         }
 
         /* Cinematic Background Glow */
@@ -435,6 +474,11 @@
     </nav>
 
     <section class="about-hero">
+        <div class="hero-3d-elements">
+            <div class="floating-3d-card" style="top: 20%; left: 10%; animation-delay: 0s;"></div>
+            <div class="floating-3d-card" style="top: 60%; right: 15%; animation-delay: 5s;"></div>
+            <div class="floating-3d-card" style="top: 40%; left: 70%; animation-delay: 10s;"></div>
+        </div>
         <div class="hero-glow"></div>
         <div class="hero-label">THE GENESIS</div>
         <h1 class="hero-title">The Future <br>Is Contactless</h1>

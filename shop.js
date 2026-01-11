@@ -396,18 +396,20 @@ function addToCart(id) {
     const product = products.find(p => p.id === id);
     if(!product) return;
     
-    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
-    let item = cart.find(i => i.id === id);
+    // Use unified cart storage
+    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+    let item = cart.find(i => i.id === id && !i.designJson);
     
-    if(item) item.qty++;
-    else {
+    if(item) {
+        item.qty = (item.qty || 1) + 1;
+    } else {
         const cartImg = (product.image && product.image !== '') ? product.image : 'https://via.placeholder.com/80?text=TAPD';
         cart.push({ 
-            id: product.id, name: product.name, price: product.price, img: cartImg, qty: 1 
+            id: product.id, title: product.name, price: product.price, image: cartImg, qty: 1 
         });
     }
     
-    localStorage.setItem('TAPDCart', JSON.stringify(cart));
+    localStorage.setItem('taptCart', JSON.stringify(cart));
     updateCartCount();
     
     const drawer = document.getElementById('cart-drawer');
@@ -416,11 +418,11 @@ function addToCart(id) {
 }
 
 function updateCartCount() {
-    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
     const badge = document.getElementById('cart-count');
     if(badge) { 
-        const count = cart.reduce((a, c) => a + c.qty, 0);
-        badge.innerText = count; 
+        const count = cart.reduce((a, c) => a + (c.qty || 1), 0);
+        badge.textContent = count; 
         badge.style.display = count > 0 ? 'flex' : 'none'; 
     }
 }
@@ -443,48 +445,74 @@ function toggleCart() {
 function renderCartItems() {
     const container = document.getElementById('cart-items-container');
     const totalEl = document.getElementById('cart-total');
-    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
-    let subtotal = cart.reduce((a, c) => a + (c.price * c.qty), 0);
+    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+    let subtotal = cart.reduce((a, c) => a + (c.price * (c.qty || 1)), 0);
     
     container.innerHTML = '';
     
     if(cart.length === 0) {
-        // --- PREMIUM EMPTY STATE ---
         container.innerHTML = `
             <div style="text-align:center; margin-top:120px; opacity:0.6;">
-                <i class="fa-solid fa-microchip" style="font-size:3rem; margin-bottom:20px; color:#333; animation:pulse 3s infinite;"></i>
+                <i class="fa-solid fa-microchip" style="font-size:3rem; margin-bottom:20px; color:#333;"></i>
                 <h3 style="font-family:'Syncopate', sans-serif; font-size:1rem; margin-bottom:5px; color:white;">NO HARDWARE</h3>
                 <p style="font-family:'Inter', sans-serif; color:#666; font-size:0.8rem;">Inventory scan required.</p>
                 <button onclick="toggleCart()" style="margin-top:20px; background:transparent; border:1px solid #D4AF37; color:#D4AF37; padding:10px 20px; cursor:pointer; font-family:'JetBrains Mono', monospace; font-size:0.7rem;">INITIATE BROWSE</button>
             </div>
         `;
-        totalEl.innerText = "₹0";
+        totalEl.textContent = "₹0";
         return;
     }
 
-    cart.forEach((item, idx) => {
-        container.innerHTML += `
-            <div class="cart-item" style="display:flex; gap:15px; margin-bottom:15px; padding:15px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:10px;">
-                <img src="${item.img}" style="width:60px; height:60px; object-fit:cover; border-radius:6px; border:1px solid #333;">
-                <div style="flex:1;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <h4 style="margin:0; font-size:0.8rem; color:white; font-family:'Syncopate', sans-serif;">${item.name}</h4>
-                        <span onclick="removeItem(${idx})" style="cursor:pointer; color:#666; font-size:1.2rem;">&times;</span>
-                    </div>
-                    <p style="color:#D4AF37; font-size:0.8rem; margin-top:5px; font-family:'JetBrains Mono', monospace;">₹${item.price} <span style="color:#666;">x ${item.qty}</span></p>
+    cart.forEach((item) => {
+        const itemName = item.title || item.name;
+        const itemImg = item.image || item.img;
+        const itemQty = item.qty || 1;
+        const itemId = item.id;
+        const itemPrice = item.price || 0;
+        
+        const itemEl = document.createElement('div');
+        itemEl.className = 'cart-item';
+        itemEl.style.cssText = 'display:flex; gap:15px; margin-bottom:15px; padding:15px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:10px; position:relative;';
+        itemEl.innerHTML = `
+            <img src="${itemImg}" style="width:60px; height:60px; object-fit:cover; border-radius:6px; border:1px solid #333;" alt="${itemName}">
+            <div style="flex:1;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4 style="margin:0; font-size:0.8rem; color:white; font-family:\'Syncopate\', sans-serif;">${itemName}</h4>
+                    <span onclick="removeItem('${itemId}')" style="cursor:pointer; color:#666; font-size:1.2rem; position:absolute; top:10px; right:10px;">&times;</span>
+                </div>
+                <p style="color:#D4AF37; font-size:0.8rem; margin-top:5px; font-family:\'JetBrains Mono\', monospace;">₹${itemPrice}</p>
+                <div class="qty-controls" style="display:flex; align-items:center; gap:10px; margin-top:8px; background:rgba(0,0,0,0.3); padding:4px 8px; border-radius:20px; width:fit-content;">
+                    <button class="qty-btn" onclick="updateCartQty('${itemId}', -1)" style="background:none; border:none; color:white; cursor:pointer; width:24px; height:24px; display:flex; align-items:center; justify-content:center;">-</button>
+                    <span style="font-size:0.9rem; min-width:20px; text-align:center;">${itemQty}</span>
+                    <button class="qty-btn" onclick="updateCartQty('${itemId}', 1)" style="background:none; border:none; color:white; cursor:pointer; width:24px; height:24px; display:flex; align-items:center; justify-content:center;">+</button>
                 </div>
             </div>
         `;
+        container.appendChild(itemEl);
     });
     
     let final = subtotal - appliedDiscount;
-    totalEl.innerText = "₹" + (final > 0 ? Math.floor(final) : 0);
+    totalEl.textContent = "₹" + (final > 0 ? Math.floor(final) : 0);
 }
 
-function removeItem(idx) {
-    let cart = JSON.parse(localStorage.getItem('TAPDCart'));
-    cart.splice(idx, 1);
-    localStorage.setItem('TAPDCart', JSON.stringify(cart));
+function updateCartQty(id, change) {
+    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+    const item = cart.find(i => i.id == id);
+    if(item) {
+        item.qty = (item.qty || 1) + change;
+        if(item.qty <= 0) {
+            cart = cart.filter(i => i.id != id);
+        }
+        localStorage.setItem('taptCart', JSON.stringify(cart));
+        renderCartItems();
+        updateCartCount();
+    }
+}
+
+function removeItem(id) {
+    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+    cart = cart.filter(i => i.id != id);
+    localStorage.setItem('taptCart', JSON.stringify(cart));
     if(cart.length === 0) appliedDiscount = 0; 
     renderCartItems();
     updateCartCount();
@@ -500,10 +528,10 @@ async function applyCoupon() {
         const doc = await store.collection('coupons').doc(code).get();
         if (doc.exists) {
             const data = doc.data();
-            let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+            let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
             if(cart.length === 0) return alert("Cart is empty");
 
-            let subtotal = cart.reduce((a, c) => a + (c.price * c.qty), 0);
+            let subtotal = cart.reduce((a, c) => a + (c.price * (c.qty || 1)), 0);
             
             appliedDiscount = data.type === 'percentage' 
                 ? (subtotal * data.value) / 100 

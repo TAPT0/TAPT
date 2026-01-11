@@ -532,7 +532,8 @@
 
         // --- 4. SMART CART LOADER & QUANTITY CONTROLS ---
         function loadCartSmartly() {
-            let rawData = localStorage.getItem('TAPDCart') || localStorage.getItem('cart');
+            // Use unified cart system (taptCart)
+            let rawData = localStorage.getItem('taptCart') || localStorage.getItem('TAPDCart') || localStorage.getItem('cart');
             
             if (rawData) {
                 try { cart = JSON.parse(rawData); } catch(e) { cart = []; }
@@ -768,7 +769,7 @@
                     cart[index].qty = 1; // Revert if cancelled
                 }
             }
-            localStorage.setItem('TAPDCart', JSON.stringify(cart));
+            localStorage.setItem('taptCart', JSON.stringify(cart));
             renderCartItems();
         }
 
@@ -980,7 +981,7 @@
             msg += `*REF:* ${pRef}\n`;
             
             // Clear Data
-            ['cart', 'TAPDCart', 'items', 'tapd_active_coupon'].forEach(k => localStorage.removeItem(k));
+            ['cart', 'TAPDCart', 'taptCart', 'items', 'tapd_active_coupon'].forEach(k => localStorage.removeItem(k));
 
             window.location.href = `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(msg)}`;
         }

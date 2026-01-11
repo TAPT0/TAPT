@@ -301,18 +301,19 @@ window.populateAccountData = function() {
    ========================================= */
 let activeCoupon = null;
 
-window.addToCart = function(title, price, image = '', id = null, designJson = null) {
+window.addToCart = function(title, price, image = '', id = null, designJson = null, quantity = 1) {
     let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
     const itemId = id || title.replace(/\s+/g, '-').toLowerCase() + Date.now(); 
     
-    // Check if simple item exists, otherwise add new (for custom designs we usually add new)
-    const existingItem = id ? cart.find(i => i.id === id) : null;
+    // Check if simple item exists (by id), otherwise add new
+    // For custom designs with designJson, always add as new item
+    const existingItem = (id && !designJson) ? cart.find(i => i.id === id && !i.designJson) : null;
     
     if(existingItem) {
-        existingItem.qty++;
+        existingItem.qty = (existingItem.qty || 1) + quantity;
         if(designJson) existingItem.designJson = designJson; // Update design if provided
     } else {
-        cart.push({ id: itemId, title, price, image, qty: 1, designJson: designJson });
+        cart.push({ id: itemId, title, price, image, qty: quantity, designJson: designJson });
     }
     
     localStorage.setItem('taptCart', JSON.stringify(cart));
@@ -446,6 +447,16 @@ window.applyCoupon = function() {
     });
 };
 
+// Unified cart count update function
+window.updateCartCount = function() {
+    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+    const totalCount = cart.reduce((acc, item) => acc + (item.qty || 1), 0);
+    const badges = document.querySelectorAll('#cart-count, .cart-badge');
+    badges.forEach(badge => {
+        if(badge) badge.textContent = totalCount;
+    });
+};
+
 window.updateCartUI = function() {
     let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
     const container = document.getElementById('cart-items-container');
@@ -457,9 +468,8 @@ window.updateCartUI = function() {
     const discountEl = document.getElementById('cart-discount');
     const totalEl = document.getElementById('cart-total');
 
-    // 1. Badge
-    const totalCount = cart.reduce((acc, item) => acc + item.qty, 0);
-    if (badge) badge.textContent = totalCount;
+    // 1. Badge (update all cart count badges)
+    window.updateCartCount();
 
     // 2. Render Items
     if (container) {

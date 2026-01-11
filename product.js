@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     init3DViewer();
     updatePageQtyUI();
     loadProductDetails(); // New function call
+    // Update cart count on page load
+    if(typeof window.updateCartCount === 'function') window.updateCartCount();
 });
 
 /* =========================================
@@ -245,29 +247,40 @@ window.addToBag = function() {
         return;
     }
     
-    // Use the global cart function if available, or simpler implementation
+    // Use unified cart system from script.js
+    const productImage = currentProductData.frontImage || currentProductData.image || currentProductData.images?.[0] || '';
+    const productTitle = currentProductData.title || currentProductData.name;
+    
     if (typeof window.addToCart === 'function') {
-        window.addToCart(currentProductData.id, pageQty);
+        window.addToCart(
+            productTitle,
+            currentProductData.price,
+            productImage,
+            currentProductData.id,
+            null, // designJson - null for regular products
+            pageQty // quantity
+        );
     } else {
-        // Fallback: Add to local storage manually
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        const existingItem = cart.find(item => item.id === currentProductData.id);
+        // Fallback: Use unified cart storage directly
+        let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
+        const existingItem = cart.find(item => item.id === currentProductData.id && !item.designJson);
         
         if (existingItem) {
-            existingItem.quantity += pageQty;
+            existingItem.qty += pageQty;
         } else {
             cart.push({
                 id: currentProductData.id,
-                title: currentProductData.title,
+                title: productTitle,
                 price: currentProductData.price,
-                image: currentProductData.image || currentProductData.frontImage, // Use frontImage if image is missing
-                quantity: pageQty
+                image: productImage,
+                qty: pageQty
             });
         }
         
-        localStorage.setItem('cart', JSON.stringify(cart));
-        updateCartCount(); // Assuming this is in script.js
-        toggleCart(); // Open cart drawer
+        localStorage.setItem('taptCart', JSON.stringify(cart));
+        if(typeof window.updateCartUI === 'function') window.updateCartUI();
+        if(typeof window.updateCartCount === 'function') window.updateCartCount();
+        if(typeof window.toggleCart === 'function') window.toggleCart();
     }
 };
 

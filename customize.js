@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setMode('card');
     }
     
-    updateCartCount();
+    if(typeof window.updateCartCount === 'function') window.updateCartCount();
     setupEventListeners();
 });
 

@@ -61,30 +61,11 @@ function renderOrder(id, data) {
     // Render Items
     const itemsContainer = document.getElementById('res-items');
     itemsContainer.innerHTML = '';
-    let previewShown = false;
     data.items.forEach(item => {
         const div = document.createElement('div');
         div.className = 'item-mini';
-        
-        let displayImage = item.img || 'img/placeholder.png';
-        if(item.designJson) {
-            try {
-                const design = JSON.parse(item.designJson);
-                if(design.preview) displayImage = design.preview;
-                
-                if (!previewShown) {
-                    show3DPreview(item.designJson);
-                    previewShown = true;
-                }
-            } catch(e) { console.error("Error parsing designJson", e); }
-        } else if (!previewShown) {
-            // Fallback to showing 3D of the first item even if no designJson
-            show3DPreview(JSON.stringify({ preview: displayImage, productType: 'card' }));
-            previewShown = true;
-        }
-
         div.innerHTML = `
-            <img src="${displayImage}" alt="Product">
+            <img src="${item.img}" alt="Product">
             <div style="flex:1;">
                 <div style="color:white; font-size:0.9rem;">${item.name}</div>
                 <div style="color:#666; font-size:0.8rem;">Qty: ${item.qty}</div>
@@ -99,9 +80,14 @@ function renderOrder(id, data) {
 
     // Show Result
     resultDiv.style.display = 'block';
+    
+    // Show 3D Preview if there are items
+    if(data.items && data.items.length > 0) {
+        show3DPreview(data.items[0]);
+    }
 }
 
-function show3DPreview(designJson) {
+function show3DPreview(item) {
     const container = document.getElementById('track-3d-preview');
     if (!container || !window.THREE) return;
 
@@ -117,49 +103,43 @@ function show3DPreview(designJson) {
 
     const { scene, camera, renderer } = threeJsScene;
 
-    const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+    // Add lighting
+    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambient);
-    const directional = new THREE.DirectionalLight(0xffffff, 0.7);
-    directional.position.set(3, 8, 5);
+    const directional = new THREE.DirectionalLight(0xffffff, 0.8);
+    directional.position.set(5, 10, 5);
     scene.add(directional);
+    const pointLight = new THREE.PointLight(0xD4AF37, 0.5);
+    pointLight.position.set(-5, 5, 5);
+    scene.add(pointLight);
 
-    let designData;
-    try { designData = JSON.parse(designJson); } catch(e) { return; }
-
-    if (!designData.preview) return;
-
+    // Create product preview
     const loader = new THREE.TextureLoader();
-    loader.load(designData.preview, function(texture) {
+    const imgUrl = item.img || 'https://via.placeholder.com/300/0a0a0a/D4AF37?text=TAPD';
+    
+    loader.load(imgUrl, function(texture) {
         texture.encoding = THREE.sRGBEncoding;
         const material = new THREE.MeshStandardMaterial({ 
             map: texture,
-            metalness: 0.2,
-            roughness: 0.6
+            metalness: 0.3,
+            roughness: 0.4
         });
         
-        const isCard = designData.productType === 'card';
-        const geometry = isCard 
-            ? new THREE.BoxGeometry(3, 1.8, 0.05) 
-            : new THREE.CylinderGeometry(1.2, 1.2, 0.1, 64);
-
+        // Default to card shape, can be enhanced to detect product type
+        const geometry = new THREE.BoxGeometry(2.5, 1.6, 0.08);
         const model = new THREE.Mesh(geometry, material);
         scene.add(model);
 
-        let rotationY = model.rotation.y;
+        let rotationY = 0;
         function animate() {
-            const animationId = requestAnimationFrame(animate);
-            if (!threeJsScene.isAnimating) {
-                cancelAnimationFrame(animationId);
-                return;
-            }
-            rotationY += 0.005;
+            requestAnimationFrame(animate);
+            rotationY += 0.01;
             model.rotation.y = rotationY;
             renderer.render(scene, camera);
         }
-        threeJsScene.isAnimating = true;
         animate();
     }, undefined, function(err) {
-        console.error('An error occurred loading the texture: ', err);
+        console.error('Error loading texture:', err);
     });
 }
 
@@ -174,7 +154,7 @@ function init3DTrack(container) {
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
     
-    camera.position.z = 3;
+    camera.position.z = 3.5;
 
     window.addEventListener('resize', () => {
         if (!container.clientWidth || !container.clientHeight) return;
@@ -183,7 +163,7 @@ function init3DTrack(container) {
         renderer.setSize(container.clientWidth, container.clientHeight);
     });
 
-    return { scene, camera, renderer, isAnimating: false };
+    return { scene, camera, renderer };
 }
 
 function updateProgressBar(status) {

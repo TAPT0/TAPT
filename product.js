@@ -196,12 +196,23 @@ window.rotateCard = function(view) {
     const btns = document.querySelectorAll('.v-btn');
     
     btns.forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
+    const mapping = { front: 0, back: 1, float: 2 };
+    const index = mapping[view];
+    if (typeof index === 'number' && btns[index]) {
+        btns[index].classList.add('active');
+    }
 
     if (view === 'float') {
-        isFloating = true;
-        cardWrapper.style.animation = 'floatCard 6s ease-in-out infinite';
-        return;
+        const isMobile = window.matchMedia && window.matchMedia('(max-width: 900px)').matches;
+        if (isMobile) {
+            isFloating = false;
+            cardWrapper.style.animation = '';
+            return;
+        } else {
+            isFloating = true;
+            cardWrapper.style.animation = 'floatCard 6s ease-in-out infinite';
+            return;
+        }
     }
 
     isFloating = false;

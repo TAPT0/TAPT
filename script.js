@@ -70,6 +70,8 @@ function injectGlobalElements() {
     
     <div id="celebration-overlay" onclick="closeCelebration()">
         <div class="celebration-content">
+            <h2>UNLOCKED</h2>
+            <p id="celeb-discount-amount">SAVED ₹0</p>
             <div id="confetti-container"></div>
         </div>
     </div>
@@ -299,19 +301,17 @@ window.populateAccountData = function() {
    ========================================= */
 let activeCoupon = null;
 
-window.addToCart = function(title, price, image = '', id = null, designJson = null, quantity = 1) {
+window.addToCart = function(title, price, image = '', id = null) {
     let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
     const itemId = id || title.replace(/\s+/g, '-').toLowerCase() + Date.now(); 
     
-    // Check if simple item exists (by id), otherwise add new
-    // For custom designs with designJson, always add as new item
-    const existingItem = (id && !designJson) ? cart.find(i => i.id === id && !i.designJson) : null;
+    // Check if simple item exists, otherwise add new (for custom designs we usually add new)
+    const existingItem = id ? cart.find(i => i.id === id) : null;
     
     if(existingItem) {
-        existingItem.qty = (existingItem.qty || 1) + quantity;
-        if(designJson) existingItem.designJson = designJson; // Update design if provided
+        existingItem.qty++;
     } else {
-        cart.push({ id: itemId, title, price, image, qty: quantity, designJson: designJson });
+        cart.push({ id: itemId, title, price, image, qty: 1 });
     }
     
     localStorage.setItem('taptCart', JSON.stringify(cart));
@@ -347,8 +347,10 @@ window.removeFromCart = function(id) {
 /* --- CELEBRATION ANIMATION LOGIC (NEW) --- */
 function showCelebration(amountOff) {
     const overlay = document.getElementById('celebration-overlay');
+    const discountText = document.getElementById('celeb-discount-amount');
     
-    if(overlay) {
+    if(overlay && discountText) {
+        discountText.innerText = `SAVED ₹${amountOff.toLocaleString()}`;
         overlay.classList.add('active');
         createConfetti();
     }
@@ -443,16 +445,6 @@ window.applyCoupon = function() {
     });
 };
 
-// Unified cart count update function
-window.updateCartCount = function() {
-    let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
-    const totalCount = cart.reduce((acc, item) => acc + (item.qty || 1), 0);
-    const badges = document.querySelectorAll('#cart-count, .cart-badge');
-    badges.forEach(badge => {
-        if(badge) badge.textContent = totalCount;
-    });
-};
-
 window.updateCartUI = function() {
     let cart = JSON.parse(localStorage.getItem('taptCart')) || [];
     const container = document.getElementById('cart-items-container');
@@ -464,8 +456,9 @@ window.updateCartUI = function() {
     const discountEl = document.getElementById('cart-discount');
     const totalEl = document.getElementById('cart-total');
 
-    // 1. Badge (update all cart count badges)
-    window.updateCartCount();
+    // 1. Badge
+    const totalCount = cart.reduce((acc, item) => acc + item.qty, 0);
+    if (badge) badge.textContent = totalCount;
 
     // 2. Render Items
     if (container) {
@@ -527,14 +520,6 @@ window.updateCartUI = function() {
 
 // Initial Load
 document.addEventListener('DOMContentLoaded', updateCartUI);
-
-// --- NEW: Cross-Tab Synchronization ---
-window.addEventListener('storage', (e) => {
-    if (e.key === 'taptCart') {
-        updateCartUI();
-    }
-});
-
 
 /* =========================================
    7. 3D TILT EFFECT

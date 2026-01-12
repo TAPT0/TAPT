@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Premium NFC-enabled business card. Works with Android and iOS. Matte finish, waterproof, instant contact sharing.">
+    <meta name="theme-color" content="#0a0a0a">
     <title>Black Card | TAPD. Premium</title>
     
     <!-- Fonts -->
@@ -29,18 +31,18 @@
         <a href="index.html" class="logo">TAPD<span>.</span></a>
         <div class="nav-right">
             <a href="shop.html" class="nav-link">COLLECTION</a>
-            <div class="nav-icon cart-trigger" onclick="toggleCart()">
+            <div class="nav-icon cart-trigger" onclick="toggleCart()" aria-label="Open cart">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <span id="cart-count">0</span>
             </div>
-            <div class="nav-icon" onclick="toggleAccount()">
+            <div class="nav-icon" onclick="toggleAccount()" aria-label="Account">
                 <i class="fa-regular fa-user"></i>
             </div>
         </div>
     </nav>
 
     <!-- Main Product Layout -->
-    <main class="product-hero">
+    <main class="product-hero site-main">
         
         <!-- Left: Product Info -->
         <section class="product-details">
@@ -48,12 +50,12 @@
                 <a href="index.html">Home</a> / <a href="shop.html">Collection</a> / <span class="current">Black Card</span>
             </div>
             
-            <h1 class="p-title" id="dynamic-title" data-text="LOADING...">LOADING...</h1>
+            <h1 class="p-title" id="dynamic-title" data-text="LOADING..." aria-live="polite">LOADING...</h1>
             <div class="p-subtitle" id="dynamic-subtitle">Loading product details...</div>
             
             <div class="p-price-container">
                 <span class="currency">₹</span>
-                <span class="amount" id="dynamic-price">--</span>
+                <span class="amount" id="dynamic-price" aria-live="polite">--</span>
             </div>
 
             <div class="p-features" id="dynamic-features">
@@ -89,13 +91,13 @@
             <div class="card-3d-wrapper" id="card-wrapper">
                 <div class="card-3d-inner">
                     <div class="card-front" style="background: none; border: none; padding: 0; overflow: hidden; position: relative;">
-                        <img id="card-front-img" src="" alt="Card Front" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px; display: none; position: absolute; inset: 0; z-index: 1;">
+                        <img id="card-front-img" src="" alt="Card Front" decoding="async" fetchpriority="high" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px; display: none; position: absolute; inset: 0; z-index: 1;">
                         
                         <!-- Overlay Elements (z-index higher than img) -->
                         <div class="card-shine" style="z-index: 3;"></div>
                     </div>
                     <div class="card-back" style="background: none; border: none; padding: 0; overflow: hidden; position: relative;">
-                         <img id="card-back-img" src="" alt="Card Back" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px; display: none; position: absolute; inset: 0; z-index: 1;">
+                         <img id="card-back-img" src="" alt="Card Back" decoding="async" fetchpriority="high" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px; display: none; position: absolute; inset: 0; z-index: 1;">
                          
                         <div class="qr-code" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2;"></div>
                     </div>

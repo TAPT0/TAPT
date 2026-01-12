@@ -2,19 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Design Studio | TAPD.</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&family=Playfair+Display:wght@400;700&family=Courier+Prime&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css"/> <!-- Pickr theme -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
     <link rel="stylesheet" href="customize.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 </head>
 <body>
 
@@ -31,6 +27,8 @@
             </div>
         </div>
     </nav>
+
+    <main class="site-main">
 
     <div class="studio-container">
         
@@ -57,13 +55,6 @@
             </div>
 
             <div class="control-group">
-                <button class="toggle-btn" onclick="toggleTemplates()" style="width:100%; margin-bottom:10px;">
-                    <i class="fa-solid fa-folder-open"></i> My Saved Designs
-                </button>
-                <div id="saved-templates-list" style="display:none; max-height:200px; overflow-y:auto;"></div>
-            </div>
-
-            <div class="control-group">
                 <label>Hardware Type</label>
                 <div class="toggle-switch">
                     <button class="toggle-btn active" onclick="setMode('card')" id="btn-card">Card</button>
@@ -72,57 +63,11 @@
             </div>
 
             <div class="control-group">
-                <div class="control-row" style="justify-content: space-between; align-items: center;">
-                    <label style="margin:0;">Show Grid</label>
-                    <input type="checkbox" id="toggle-grid" onchange="toggleGrid()">
+                <label>Base Color</label>
+                <div style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:5px; border:1px solid rgba(255,255,255,0.1);">
+                    <input type="color" id="bg-color-picker" value="#0a0a0a" style="border:none; width:40px; height:40px; cursor:pointer; background:none;">
+                    <span style="font-size:0.8rem; color:#888;">Tap to change color</span>
                 </div>
-                <div class="control-row" style="justify-content: space-between; align-items: center; margin-top:10px;">
-                    <label style="margin:0;">Snap to Grid</label>
-                    <input type="checkbox" id="snap-grid" onchange="toggleSnap()">
-                </div>
-            </div>
-
-            <div class="control-group">
-                <h3>Layers</h3>
-                <div id="layer-panel"></div>
-                <div class="layer-actions">
-                    <button onclick="moveLayerUp()"><i class="fas fa-arrow-up"></i></button>
-                    <button onclick="moveLayerDown()"><i class="fas fa-arrow-down"></i></button>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label>Base</label>
-                <div class="toggle-switch">
-                    <button class="toggle-btn active" id="btn-solid" onclick="setColorMode('solid')">Solid</button>
-                    <button class="toggle-btn" id="btn-gradient" onclick="setColorMode('gradient')">Gradient</button>
-                </div>
-                
-                <div id="solid-color-controls">
-                    <div class="color-picker-container" id="bg-color-picker"></div>
-                </div>
-
-                <div id="gradient-color-controls" style="display:none;">
-                    <div class="control-row">
-                        <div class="input-group">
-                            <label>Color 1</label>
-                            <div class="color-picker-container" id="gradient-color-1"></div>
-                        </div>
-                        <div class="input-group">
-                            <label>Color 2</label>
-                            <div class="color-picker-container" id="gradient-color-2"></div>
-                        </div>
-                    </div>
-                    <div class="slider-group">
-                        <label>Angle</label>
-                        <input type="range" id="gradient-angle" min="0" max="360" value="90">
-                    </div>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label>Color Presets</label>
-                <div id="color-presets-panel"></div>
             </div>
 
             <div class="control-group">
@@ -142,85 +87,22 @@
                         <label>Content</label>
                         <input type="text" id="txt-content" class="TAPD-input">
                     </div>
-                    <div class="input-group">
-                        <label>Font Family</label>
-                        <select id="txt-font" class="TAPD-select">
-                            <option value="Syncopate">Syncopate</option>
-                            <option value="Inter">Inter</option>
-                            <option value="Playfair Display">Playfair Display</option>
-                            <option value="Courier Prime">Courier Prime</option>
-                            <option value="Montserrat">Montserrat</option>
-                            <option value="Lato">Lato</option>
-                            <option value="Roboto">Roboto</option>
-                            <option value="Poppins">Poppins</option>
-                            <option value="Raleway">Raleway</option>
-                            <option value="Oswald">Oswald</option>
-                            <option value="Ubuntu">Ubuntu</option>
-                            <option value="Open Sans">Open Sans</option>
-                            <option value="Roboto Condensed">Roboto Condensed</option>
-                        </select>
-                    </div>
-                    <div class="control-row">
-                        <div class="input-group">
-                            <label>Font Size</label>
-                            <input type="number" id="txt-size" class="TAPD-input" value="24">
-                        </div>
-                        <div class="input-group">
-                            <label>Font Weight</label>
-                            <select id="txt-weight" class="TAPD-select">
-                                <option value="300">Light</option>
-                                <option value="400">Regular</option>
-                                <option value="700">Bold</option>
+                    
+                    <div class="slider-row">
+                        <div class="slider-group" style="flex:2;">
+                            <label>Font</label>
+                            <select id="txt-font" class="TAPD-select">
+                                <option value="'Syncopate', sans-serif">Modern</option>
+                                <option value="'Inter', sans-serif">Clean</option>
+                                <option value="'Playfair Display', serif">Luxury</option>
+                                <option value="'Courier Prime', monospace">Retro</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="control-row">
-                        <div class="input-group">
-                            <label>Align</label>
-                            <div class="btn-group">
-                                <button id="align-left"><i class="fas fa-align-left"></i></button>
-                                <button id="align-center"><i class="fas fa-align-center"></i></button>
-                                <button id="align-right"><i class="fas fa-align-right"></i></button>
-                            </div>
-                        </div>
-                        <div class="input-group">
+                        <div class="slider-group" style="flex:1; align-items:flex-end; display:flex; flex-direction:column;">
                             <label>Color</label>
-                            <div class="color-picker-container" id="txt-color-picker"></div>
-                            <div id="contrast-warning" style="display:none; color:#ffaa00; font-size:0.7rem; margin-top:5px;">
-                                <i class="fas fa-exclamation-triangle"></i> Low Contrast
-                            </div>
+                            <input type="color" id="txt-color" style="height:40px; width:100%; border:1px solid #333;">
                         </div>
                     </div>
-                    <div class="control-row">
-                        <div class="slider-group">
-                            <label>Character Spacing</label>
-                            <input type="range" id="txt-spacing" min="-100" max="500" value="0">
-                        </div>
-                        <div class="slider-group">
-                            <label>Line Height</label>
-                            <input type="range" id="txt-lineheight" min="0.5" max="3" step="0.1" value="1.2">
-                        </div>
-                    </div>
-                </div>
-
-                <div id="image-tools" style="display:none;">
-                    <div class="slider-group">
-                        <label>Opacity</label>
-                        <input type="range" id="img-opacity" min="0" max="1" step="0.1" value="1">
-                    </div>
-                    <div class="control-row">
-                        <div class="input-group">
-                            <label>X Position</label>
-                            <input type="number" id="img-x" class="TAPD-input" step="1">
-                        </div>
-                        <div class="input-group">
-                            <label>Y Position</label>
-                            <input type="number" id="img-y" class="TAPD-input" step="1">
-                        </div>
-                    </div>
-                    <button class="add-text-btn" onclick="openCropper()" style="margin-top:15px;">
-                        <i class="fas fa-crop-alt"></i> Crop Image
-                    </button>
                 </div>
 
                 <div class="slider-group" style="margin-top:15px;">
@@ -242,14 +124,15 @@
                     <span>Total</span>
                     <span id="display-price" style="color:var(--tapd-gold); font-size:1.5rem;">--</span>
                 </div>
-                <div style="display:flex; gap:10px;">
-                    <button class="add-cart-btn" onclick="saveTemplate()" style="background:#333; flex:1;">SAVE</button>
-                    <button class="add-cart-btn" onclick="finishDesign()" style="flex:2;">ADD TO BAG</button>
-                </div>
+                <button class="add-cart-btn" onclick="finishDesign()">ADD TO BAG</button>
             </div>
 
         </div>
     </div>
+
+    </div>
+
+    </main>
 
     <div class="cart-overlay" onclick="closeAllDrawers()"></div>
     <!-- Cart Drawer Injected via script.js -->
@@ -258,20 +141,6 @@
         <button onclick="exportDesignJSON()" style="background:red; color:white; border:none; padding:10px; cursor:pointer; font-weight:bold;">
             ADMIN: COPY JSON
         </button>
-    </div>
-
-    <!-- CROPPER MODAL -->
-    <div id="cropper-modal" style="display:none;">
-        <div class="modal-content">
-            <h2>Crop Image</h2>
-            <div class="cropper-container">
-                <img id="cropper-image" src="">
-            </div>
-            <div class="modal-actions">
-                <button onclick="cancelCrop()">Cancel</button>
-                <button onclick="applyCrop()">Apply Crop</button>
-            </div>
-        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>

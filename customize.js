@@ -26,17 +26,6 @@ const canvas = new fabric.Canvas('editor-canvas', {
 
 let currentProduct = null;
 let currentPrice = 499;
-let bgColorPicker = null;
-let textColorPicker = null;
-let gradientColorPicker1 = null;
-let gradientColorPicker2 = null;
-let currentBgMode = 'solid';
-let cropper = null;
-let originalImageURL = null;
-
-let gridEnabled = false;
-let snapEnabled = false;
-const gridSize = 20;
 
 // 2. INITIALIZATION
 document.addEventListener('DOMContentLoaded', () => {
@@ -49,154 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
         setMode('card');
     }
     
-    if(typeof window.updateCartCount === 'function') window.updateCartCount();
+    updateCartCount();
     setupEventListeners();
-    setColorMode('solid'); // Initialize
-    renderColorPresets();
 });
-
-// Cropper Functions
-function openCropper() {
-    const activeObject = canvas.getActiveObject();
-    if (!activeObject || activeObject.type !== 'image' || !originalImageURL) {
-        alert("Please select an image to crop.");
-        return;
-    }
-
-    const modal = document.getElementById('cropper-modal');
-    const image = document.getElementById('cropper-image');
-    
-    image.src = originalImageURL;
-    modal.style.display = 'flex';
-
-    cropper = new Cropper(image, {
-        aspectRatio: 0,
-        viewMode: 1,
-    });
-}
-
-function cancelCrop() {
-    const modal = document.getElementById('cropper-modal');
-    modal.style.display = 'none';
-    if (cropper) {
-        cropper.destroy();
-        cropper = null;
-    }
-}
-
-function applyCrop() {
-    if (!cropper) return;
-
-    const activeObject = canvas.getActiveObject();
-    if (!activeObject || activeObject.type !== 'image') return;
-
-    const croppedCanvas = cropper.getCroppedCanvas();
-    if (!croppedCanvas) return;
-
-    const croppedImageData = croppedCanvas.toDataURL();
-
-    // Preserve position and scale
-    const { left, top, scaleX, scaleY } = activeObject;
-
-    fabric.Image.fromURL(croppedImageData, (newImg) => {
-        newImg.set({
-            left,
-            top,
-            scaleX,
-            scaleY,
-            originX: 'left',
-            originY: 'top'
-        });
-
-        canvas.remove(activeObject);
-        canvas.add(newImg);
-        canvas.setActiveObject(newImg);
-        canvas.renderAll();
-    });
-
-    cancelCrop();
-}
-
-// NEW: Color Presets
-const colorPresets = [
-    { name: 'Midnight Gold', colors: ['#000000', '#D4AF37'], category: 'metallic' },
-    { name: 'Oceanic', colors: ['#0575E6', '#021B79'], category: 'nature' },
-    { name: 'Sunset', colors: ['#FF512F', '#DD2476'], category: 'vibrant' },
-    { name: 'Emerald', colors: ['#004D40', '#009688'], category: 'nature' },
-    { name: 'Charcoal', colors: ['#2c3e50', '#34495e'], category: 'elegant' },
-    { name: 'Rose Gold', colors: ['#f7cac9', '#e6a4b4'], category: 'elegant' },
-    { name: 'Royal Purple', colors: ['#4A00E0', '#8E2DE2'], category: 'elegant' },
-    { name: 'Fire', colors: ['#F12711', '#F5AF19'], category: 'vibrant' },
-    { name: 'Forest', colors: ['#134E5E', '#71B280'], category: 'nature' },
-    { name: 'Silver', colors: ['#E0E0E0', '#757575'], category: 'metallic' },
-];
-
-function renderColorPresets() {
-    const panel = document.getElementById('color-presets-panel');
-    if (!panel) return;
-
-    panel.innerHTML = '';
-    colorPresets.forEach((preset, index) => {
-        const div = document.createElement('div');
-        div.className = 'preset-item';
-        if (preset.category) {
-            div.setAttribute('data-category', preset.category);
-        }
-        div.onclick = () => applyColorPreset(index);
-        div.title = `Apply ${preset.name} color scheme`;
-
-        const preview = document.createElement('div');
-        preview.className = 'preset-preview';
-        preview.style.background = `linear-gradient(45deg, ${preset.colors[0]}, ${preset.colors[1] || preset.colors[0]})`;
-
-        const name = document.createElement('span');
-        name.innerText = preset.name;
-
-        div.appendChild(preview);
-        div.appendChild(name);
-        panel.appendChild(div);
-    });
-}
-
-function applyColorPreset(index) {
-    const preset = colorPresets[index];
-    if (!preset) return;
-
-    // Add visual feedback
-    const presetItems = document.querySelectorAll('.preset-item');
-    presetItems.forEach((item, i) => {
-        if (i === index) {
-            item.style.borderColor = '#D4AF37';
-            item.style.boxShadow = '0 0 20px rgba(212, 175, 55, 0.3)';
-            item.style.transform = 'translateY(-2px) scale(1.02)';
-        } else {
-            item.style.borderColor = '#333';
-            item.style.boxShadow = 'none';
-            item.style.transform = 'none';
-        }
-    });
-
-    if (preset.colors.length > 1) {
-        // Apply as gradient
-        setColorMode('gradient');
-        gradientColorPicker1.setColor(preset.colors[0]);
-        gradientColorPicker2.setColor(preset.colors[1]);
-        updateGradientBackground();
-    } else {
-        // Apply as solid color
-        setColorMode('solid');
-        bgColorPicker.setColor(preset.colors[0]);
-        canvas.setBackgroundColor(preset.colors[0], canvas.renderAll.bind(canvas));
-    }
-
-    // Reset feedback after animation
-    setTimeout(() => {
-        const activeItem = presetItems[index];
-        if (activeItem) {
-            activeItem.style.transform = 'translateY(-2px)';
-        }
-    }, 300);
-}
 
 // 3. LOAD TEMPLATE
 function loadTemplate(id) {
@@ -212,21 +56,11 @@ function loadTemplate(id) {
                     canvas.renderAll();
                     // Sync color picker
                     const bgColor = canvas.backgroundColor;
-                    if(typeof bgColor === 'string' && bgColorPicker) {
-                        bgColorPicker.setColor(bgColor);
-                        setColorMode('solid');
-                    } else if (typeof bgColor === 'object' && bgColor.colorStops) {
-                        // It's a gradient
-                        if(gradientColorPicker1) gradientColorPicker1.setColor(bgColor.colorStops[0].color);
-                        if(gradientColorPicker2) gradientColorPicker2.setColor(bgColor.colorStops[1].color);
-                        // Angle might need to be stored separately if we want to restore it
-                        setColorMode('gradient');
-                    }
+                    if(bgColor) document.getElementById('bg-color-picker').value = bgColor;
                     
                     // Re-apply mode to ensure shape is correct after load
                     if(data.type === 'tag') setMode('tag');
                     else setMode('card');
-                    renderLayerPanel();
                 });
             } else {
                 if(data.type === 'tag') setMode('tag');
@@ -234,31 +68,6 @@ function loadTemplate(id) {
             }
         }
     });
-}
-
-// NEW: Set Color Mode
-function setColorMode(mode) {
-    currentBgMode = mode;
-    const solidControls = document.getElementById('solid-color-controls');
-    const gradientControls = document.getElementById('gradient-color-controls');
-    const btnSolid = document.getElementById('btn-solid');
-    const btnGradient = document.getElementById('btn-gradient');
-
-    if (mode === 'solid') {
-        solidControls.style.display = 'block';
-        gradientControls.style.display = 'none';
-        btnSolid.classList.add('active');
-        btnGradient.classList.remove('active');
-        // Re-apply solid color
-        canvas.setBackgroundColor(bgColorPicker.getColor().toRGBA().toString(), canvas.renderAll.bind(canvas));
-
-    } else { // Gradient
-        solidControls.style.display = 'none';
-        gradientControls.style.display = 'block';
-        btnSolid.classList.remove('active');
-        btnGradient.classList.add('active');
-        updateGradientBackground();
-    }
 }
 
 // 4. MODE SWITCHING (THE FIX IS HERE)
@@ -346,9 +155,6 @@ function handleAddImage(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            // Store original image URL for cropping
-            originalImageURL = e.target.result;
-            
             fabric.Image.fromURL(e.target.result, function(img) {
                 // Scale to fit nicely
                 const scale = (canvas.width * 0.4) / img.width;
@@ -374,164 +180,24 @@ function deleteSelected() {
 
 // 6. SETUP LISTENERS (Events)
 function setupEventListeners() {
-    // --- Initialize Color Pickers ---
-    const pickrOptions = {
-        theme: 'nano',
-        swatches: [
-            '#D4AF37', '#C0C0C0', '#000000', '#FFFFFF',
-            '#F44336', '#E91E63', '#9C27B0', '#673AB7',
-            '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4',
-            '#009688', '#4CAF50', '#8BC34A', '#CDDC39',
-            '#FFEB3B', '#FFC107', '#FF9800', '#FF5722'
-        ],
-        components: {
-            preview: true,
-            opacity: true,
-            hue: true,
-            interaction: {
-                hex: true,
-                rgba: true,
-                hsla: true,
-                input: true,
-                clear: true,
-                save: true
-            }
-        }
-    };
-
-    // Background Color Picker
-    bgColorPicker = Pickr.create({ ...pickrOptions, el: '#bg-color-picker', default: '#0a0a0a' });
-    bgColorPicker.on('save', (color) => {
-        if (currentBgMode === 'solid') {
-            canvas.setBackgroundColor(color.toRGBA().toString(), canvas.renderAll.bind(canvas));
-        }
-        bgColorPicker.hide();
-    });
-
-    // Gradient Pickers
-    gradientColorPicker1 = Pickr.create({ ...pickrOptions, el: '#gradient-color-1', default: '#000000' });
-    gradientColorPicker1.on('save', (color) => {
-        updateGradientBackground();
-        gradientColorPicker1.hide();
-    });
-
-    gradientColorPicker2 = Pickr.create({ ...pickrOptions, el: '#gradient-color-2', default: '#D4AF37' });
-    gradientColorPicker2.on('save', (color) => {
-        updateGradientBackground();
-        gradientColorPicker2.hide();
-    });
-
-    document.getElementById('gradient-angle').addEventListener('input', updateGradientBackground);
-
-
-    // Text Color Picker
-    textColorPicker = Pickr.create({ ...pickrOptions, el: '#txt-color-picker', default: '#ffffff' });
-    textColorPicker.on('save', (color) => {
-        const active = canvas.getActiveObject();
-        if (active && active.type === 'i-text') {
-            active.set('fill', color.toRGBA().toString());
-            canvas.renderAll();
-        }
-        textColorPicker.hide();
+    // Background Color
+    document.getElementById('bg-color-picker').addEventListener('input', function(e) {
+        canvas.setBackgroundColor(e.target.value, canvas.renderAll.bind(canvas));
     });
 
     // Selection Events
-    canvas.on('selection:created', (e) => {
-        updateControls();
-        renderLayerPanel();
-        checkContrast();
-    });
-    canvas.on('selection:updated', (e) => {
-        updateControls();
-        renderLayerPanel();
-        checkContrast();
-    });
+    canvas.on('selection:created', updateControls);
+    canvas.on('selection:updated', updateControls);
     canvas.on('selection:cleared', () => {
         document.getElementById('layer-controls').style.display = 'none';
-        renderLayerPanel();
-    });
-
-    // Layer Events
-    canvas.on('object:added', renderLayerPanel);
-    canvas.on('object:removed', renderLayerPanel);
-    canvas.on('object:modified', renderLayerPanel);
-
-    // Grid Snapping
-    canvas.on('object:moving', (options) => {
-        if (snapEnabled) {
-            options.target.set({
-                left: Math.round(options.target.left / gridSize) * gridSize,
-                top: Math.round(options.target.top / gridSize) * gridSize
-            });
-        }
     });
 
     // Text & Controls Inputs
-    const props = ['txt-content', 'txt-font', 'txt-size', 'txt-weight', 'txt-spacing', 'txt-lineheight', 'common-scale', 'img-opacity', 'img-x', 'img-y'];
+    const props = ['txt-content', 'txt-font', 'txt-color', 'common-scale'];
     props.forEach(id => {
         const el = document.getElementById(id);
         if(el) el.addEventListener('input', updateCanvasFromInput);
     });
-
-    const alignButtons = ['align-left', 'align-center', 'align-right'];
-    alignButtons.forEach(id => {
-        document.getElementById(id).addEventListener('click', () => {
-            const active = canvas.getActiveObject();
-            if (active && active.type === 'i-text') {
-                active.set('textAlign', id.split('-')[1]);
-                canvas.renderAll();
-                updateControls(); 
-            }
-        });
-    });
-
-    // Drag & Drop Support
-    const wrapper = document.getElementById('canvas-wrapper');
-    wrapper.addEventListener('dragover', (e) => { e.preventDefault(); });
-    wrapper.addEventListener('drop', (e) => {
-        e.preventDefault();
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (f) => {
-                fabric.Image.fromURL(f.target.result, (img) => {
-                    const scale = (canvas.width * 0.5) / img.width;
-                    img.scale(scale);
-                    canvas.add(img);
-                    canvas.centerObject(img);
-                    canvas.setActiveObject(img);
-                    canvas.renderAll();
-                });
-            };
-            reader.readAsDataURL(e.dataTransfer.files[0]);
-        }
-    });
-}
-
-function updateGradientBackground() {
-    if (currentBgMode !== 'gradient') return;
-
-    const angle = parseInt(document.getElementById('gradient-angle').value, 10);
-    const color1 = gradientColorPicker1.getColor().toRGBA().toString();
-    const color2 = gradientColorPicker2.getColor().toRGBA().toString();
-
-    // Convert angle to coordinates
-    const anglePI = -parseInt(angle, 10) * (Math.PI / 180);
-    const x1 = Math.round(50 + Math.sin(anglePI) * 50) / 100;
-    const y1 = Math.round(50 + Math.cos(anglePI) * 50) / 100;
-    const x2 = Math.round(50 + Math.sin(anglePI + Math.PI) * 50) / 100;
-    const y2 = Math.round(50 + Math.cos(anglePI + Math.PI) * 50) / 100;
-
-    const gradient = new fabric.Gradient({
-        type: 'linear',
-        gradientUnits: 'percentage',
-        coords: { x1, y1, x2, y2 },
-        colorStops: [
-            { offset: 0, color: color1 },
-            { offset: 1, color: color2 }
-        ]
-    });
-
-    canvas.setBackgroundColor(gradient, canvas.renderAll.bind(canvas));
 }
 
 function updateCanvasFromInput(e) {
@@ -543,18 +209,8 @@ function updateCanvasFromInput(e) {
     if (active.type === 'i-text') {
         if(id === 'txt-content') active.set('text', val);
         if(id === 'txt-font') active.set('fontFamily', val);
-        if(id === 'txt-size') active.set('fontSize', parseInt(val, 10));
-        if(id === 'txt-weight') active.set('fontWeight', val);
-        if(id === 'txt-spacing') active.set('charSpacing', parseInt(val, 10));
-        if(id === 'txt-lineheight') active.set('lineHeight', parseFloat(val));
+        if(id === 'txt-color') active.set('fill', val);
     }
-    
-    if (active.type === 'image') {
-        if(id === 'img-opacity') active.set('opacity', parseFloat(val));
-        if(id === 'img-x') active.set('left', parseFloat(val));
-        if(id === 'img-y') active.set('top', parseFloat(val));
-    }
-
     if(id === 'common-scale') active.scale(parseFloat(val));
     
     canvas.renderAll();
@@ -566,229 +222,17 @@ function updateControls() {
 
     document.getElementById('layer-controls').style.display = 'block';
     
+    // Show/Hide text tools
     const textTools = document.getElementById('text-tools');
-    const imageTools = document.getElementById('image-tools');
-
-    // Reset Tools
-    textTools.style.display = 'none';
-    imageTools.style.display = 'none';
-
     if (active.type === 'i-text') {
         textTools.style.display = 'block';
         document.getElementById('txt-content').value = active.text;
         document.getElementById('txt-font').value = active.fontFamily;
-        if(textColorPicker) textColorPicker.setColor(active.fill);
-        document.getElementById('txt-size').value = active.fontSize;
-        document.getElementById('txt-weight').value = active.fontWeight;
-        document.getElementById('txt-spacing').value = active.charSpacing || 0;
-        document.getElementById('txt-lineheight').value = active.lineHeight || 1.2;
-
-        // Update alignment buttons
-        const align = active.textAlign || 'left';
-        ['align-left', 'align-center', 'align-right'].forEach(id => {
-            document.getElementById(id).classList.remove('active');
-        });
-        document.getElementById(`align-${align}`).classList.add('active');
-
-    } else if (active.type === 'image') {
-        imageTools.style.display = 'block';
-        document.getElementById('img-opacity').value = active.opacity || 1;
-        document.getElementById('img-x').value = Math.round(active.left || 0);
-        document.getElementById('img-y').value = Math.round(active.top || 0);
-    }
-    
-    document.getElementById('common-scale').value = active.scaleX || 1;
-}
-
-// --- LAYER MANAGEMENT ---
-function renderLayerPanel() {
-    const panel = document.getElementById('layer-panel');
-    if (!panel) return;
-    
-    panel.innerHTML = '';
-    const objects = canvas.getObjects().slice().reverse(); // Show top layers first
-    const activeObj = canvas.getActiveObject();
-
-    objects.forEach((obj, index) => {
-        // Skip clip path objects if any
-        if (obj === canvas.clipPath) return;
-
-        const div = document.createElement('div');
-        div.className = 'layer-item';
-        if (activeObj === obj) div.classList.add('active');
-
-        let icon = 'fa-layer-group';
-        let name = 'Layer ' + (objects.length - index);
-
-        if (obj.type === 'i-text') {
-            icon = 'fa-font';
-            name = obj.text || 'Text Layer';
-        } else if (obj.type === 'image') {
-            icon = 'fa-image';
-            name = 'Image Layer';
-        }
-
-        div.innerHTML = `<i class="fas ${icon}"></i> <span>${name}</span>`;
-        div.onclick = () => {
-            canvas.setActiveObject(obj);
-            canvas.renderAll();
-        };
-
-        panel.appendChild(div);
-    });
-}
-
-function moveLayerUp() {
-    const active = canvas.getActiveObject();
-    if (active) {
-        canvas.bringForward(active);
-        canvas.renderAll();
-        renderLayerPanel();
-    }
-}
-
-function moveLayerDown() {
-    const active = canvas.getActiveObject();
-    if (active) {
-        canvas.sendBackwards(active);
-        canvas.renderAll();
-        renderLayerPanel();
-    }
-}
-
-// --- GRID SYSTEM ---
-function toggleGrid() {
-    gridEnabled = !gridEnabled;
-    if (gridEnabled) {
-        const gridGroup = new fabric.Group([], { selectable: false, evented: false, id: 'grid-lines' });
-        
-        for (let i = 0; i < (canvas.width / gridSize); i++) {
-            gridGroup.addWithUpdate(new fabric.Line([ i * gridSize, 0, i * gridSize, canvas.height], { stroke: '#333', selectable: false }));
-            gridGroup.addWithUpdate(new fabric.Line([ 0, i * gridSize, canvas.width, i * gridSize], { stroke: '#333', selectable: false }));
-        }
-        
-        canvas.add(gridGroup);
-        canvas.sendToBack(gridGroup);
+        document.getElementById('txt-color').value = active.fill;
     } else {
-        const objects = canvas.getObjects();
-        objects.forEach(obj => {
-            if(obj.id === 'grid-lines') canvas.remove(obj);
-        });
+        textTools.style.display = 'none';
     }
-    canvas.renderAll();
-}
-
-function toggleSnap() {
-    snapEnabled = !snapEnabled;
-}
-
-// --- TEMPLATE SYSTEM ---
-function saveTemplate() {
-    const name = prompt("Enter a name for your design:");
-    if (!name) return;
-
-    // Get current gradient state if in gradient mode
-    const gradientState = currentBgMode === 'gradient' ? {
-        mode: 'gradient',
-        color1: gradientColorPicker1.getColor().toRGBA().toString(),
-        color2: gradientColorPicker2.getColor().toRGBA().toString(),
-        angle: document.getElementById('gradient-angle').value
-    } : {
-        mode: 'solid',
-        color: bgColorPicker.getColor().toRGBA().toString()
-    };
-
-    const designData = {
-        canvas: canvas.toJSON(),
-        backgroundMode: gradientState,
-        timestamp: new Date().toISOString()
-    };
-
-    const templates = JSON.parse(localStorage.getItem('TAPDTemplates')) || [];
-    
-    templates.push({
-        name: name,
-        date: new Date().toLocaleDateString(),
-        designData: designData
-    });
-
-    localStorage.setItem('TAPDTemplates', JSON.stringify(templates));
-    alert("Design saved successfully!");
-    if(document.getElementById('saved-templates-list').style.display === 'block') {
-        renderSavedTemplates();
-    }
-}
-
-function toggleTemplates() {
-    const list = document.getElementById('saved-templates-list');
-    if (list.style.display === 'none') {
-        list.style.display = 'block';
-        renderSavedTemplates();
-    } else {
-        list.style.display = 'none';
-    }
-}
-
-function renderSavedTemplates() {
-    const list = document.getElementById('saved-templates-list');
-    const templates = JSON.parse(localStorage.getItem('TAPDTemplates')) || [];
-    
-    list.innerHTML = '';
-    if (templates.length === 0) {
-        list.innerHTML = '<div style="color:#888; padding:10px; text-align:center;">No saved designs</div>';
-        return;
-    }
-
-    templates.forEach((t, i) => {
-        const div = document.createElement('div');
-        div.className = 'layer-item';
-        div.innerHTML = `
-            <div style="flex:1" onclick="loadSavedTemplate(${i})">
-                <div style="color:white; font-weight:bold;">${t.name}</div>
-                <div style="color:#666; font-size:0.8rem;">${t.date}</div>
-            </div>
-            <i class="fas fa-trash" onclick="deleteSavedTemplate(${i})" style="color:#ff4444; cursor:pointer;"></i>
-        `;
-        list.appendChild(div);
-    });
-}
-
-function loadSavedTemplate(index) {
-    const templates = JSON.parse(localStorage.getItem('TAPDTemplates')) || [];
-    if (templates[index] && templates[index].designData) {
-        const designData = templates[index].designData;
-        
-        canvas.loadFromJSON(designData.canvas, function() {
-            canvas.renderAll();
-            renderLayerPanel();
-            
-            // Restore background mode and colors
-            if (designData.backgroundMode) {
-                const bgMode = designData.backgroundMode;
-                
-                if (bgMode.mode === 'gradient') {
-                    setColorMode('gradient');
-                    gradientColorPicker1.setColor(bgMode.color1);
-                    gradientColorPicker2.setColor(bgMode.color2);
-                    document.getElementById('gradient-angle').value = bgMode.angle;
-                    updateGradientBackground();
-                } else {
-                    setColorMode('solid');
-                    bgColorPicker.setColor(bgMode.color);
-                    canvas.setBackgroundColor(bgMode.color, canvas.renderAll.bind(canvas));
-                }
-            }
-        });
-    }
-}
-
-function deleteSavedTemplate(index) {
-    if(!confirm("Delete this design?")) return;
-    
-    const templates = JSON.parse(localStorage.getItem('TAPDTemplates')) || [];
-    templates.splice(index, 1);
-    localStorage.setItem('TAPDTemplates', JSON.stringify(templates));
-    renderSavedTemplates();
+    document.getElementById('common-scale').value = active.scaleX;
 }
 
 /* --- REPLACE FROM LINE: function finishDesign() DOWNWARDS --- */
@@ -812,11 +256,24 @@ function finishDesign() {
     const productName = currentProduct ? currentProduct.name + " (Custom)" : "Custom Design";
     
     // Pass both Image AND Json
-    if(window.addToCart) {
-        window.addToCart(productName, currentPrice, designImage, productID, designJson);
-    } else {
-        alert("Cart Error: Please refresh the page.");
-    }
+    addToCart(productID, productName, currentPrice, designImage, designJson);
+}
+
+function addToCart(id, name, price, img, json) {
+    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+    
+    cart.push({
+        id: id,
+        name: name,
+        price: price,
+        img: img,
+        designJson: json, // <--- SAVING THE CODE HERE
+        qty: 1
+    });
+
+    localStorage.setItem('TAPDCart', JSON.stringify(cart));
+    updateCartCount();
+    toggleCart(); 
 }
 
 // 8. ADMIN TOOL
@@ -827,3 +284,51 @@ function exportDesignJSON() {
     });
 }
 
+// 9. UTILS
+function updateCartCount() {
+    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+    let qty = cart.reduce((acc, item) => acc + item.qty, 0);
+    const badge = document.getElementById('cart-count');
+    if(badge) { badge.innerText = qty; badge.style.display = qty > 0 ? 'flex' : 'none'; }
+}
+
+function toggleCart() {
+    document.getElementById('cart-drawer').classList.toggle('open');
+    renderCartContents();
+}
+
+function closeAllDrawers() {
+    document.getElementById('cart-drawer').classList.remove('open');
+}
+
+function renderCartContents() {
+    const container = document.getElementById('cart-items-container');
+    const totalEl = document.getElementById('cart-total');
+    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+    let total = 0;
+
+    container.innerHTML = '';
+    cart.forEach((item, index) => {
+        total += item.price * item.qty;
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+            <img src="${item.img}" style="width:60px; height:60px; object-fit:contain; background:#222; border-radius:4px;">
+            <div style="flex:1; margin-left:10px;">
+                <div style="color:white; font-size:0.9rem;">${item.name}</div>
+                <div style="color:#888;">₹${item.price}</div>
+            </div>
+            <span onclick="removeItem(${index})" style="color:#ff4444; cursor:pointer;">×</span>
+        `;
+        container.appendChild(div);
+    });
+    if(totalEl) totalEl.innerText = "₹" + total;
+}
+
+function removeItem(index) {
+    let cart = JSON.parse(localStorage.getItem('TAPDCart')) || [];
+    cart.splice(index, 1);
+    localStorage.setItem('TAPDCart', JSON.stringify(cart));
+    renderCartContents();
+    updateCartCount();
+}

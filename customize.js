@@ -31,6 +31,8 @@ let textColorPicker = null;
 let gradientColorPicker1 = null;
 let gradientColorPicker2 = null;
 let currentBgMode = 'solid';
+let cropper = null;
+let originalImageURL = null;
 
 let gridEnabled = false;
 let snapEnabled = false;
@@ -53,14 +55,80 @@ document.addEventListener('DOMContentLoaded', () => {
     renderColorPresets();
 });
 
+// Cropper Functions
+function openCropper() {
+    const activeObject = canvas.getActiveObject();
+    if (!activeObject || activeObject.type !== 'image' || !originalImageURL) {
+        alert("Please select an image to crop.");
+        return;
+    }
+
+    const modal = document.getElementById('cropper-modal');
+    const image = document.getElementById('cropper-image');
+    
+    image.src = originalImageURL;
+    modal.style.display = 'flex';
+
+    cropper = new Cropper(image, {
+        aspectRatio: 0,
+        viewMode: 1,
+    });
+}
+
+function cancelCrop() {
+    const modal = document.getElementById('cropper-modal');
+    modal.style.display = 'none';
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+}
+
+function applyCrop() {
+    if (!cropper) return;
+
+    const activeObject = canvas.getActiveObject();
+    if (!activeObject || activeObject.type !== 'image') return;
+
+    const croppedCanvas = cropper.getCroppedCanvas();
+    if (!croppedCanvas) return;
+
+    const croppedImageData = croppedCanvas.toDataURL();
+
+    // Preserve position and scale
+    const { left, top, scaleX, scaleY } = activeObject;
+
+    fabric.Image.fromURL(croppedImageData, (newImg) => {
+        newImg.set({
+            left,
+            top,
+            scaleX,
+            scaleY,
+            originX: 'left',
+            originY: 'top'
+        });
+
+        canvas.remove(activeObject);
+        canvas.add(newImg);
+        canvas.setActiveObject(newImg);
+        canvas.renderAll();
+    });
+
+    cancelCrop();
+}
+
 // NEW: Color Presets
 const colorPresets = [
-    { name: 'Midnight Gold', colors: ['#000000', '#D4AF37'] },
-    { name: 'Oceanic', colors: ['#0575E6', '#021B79'] },
-    { name: 'Sunset', colors: ['#FF512F', '#DD2476'] },
-    { name: 'Emerald', colors: ['#004D40', '#009688'] },
-    { name: 'Charcoal', colors: ['#2c3e50', '#34495e'] },
-    { name: 'Rose Gold', colors: ['#f7cac9', '#e6a4b4'] },
+    { name: 'Midnight Gold', colors: ['#000000', '#D4AF37'], category: 'metallic' },
+    { name: 'Oceanic', colors: ['#0575E6', '#021B79'], category: 'nature' },
+    { name: 'Sunset', colors: ['#FF512F', '#DD2476'], category: 'vibrant' },
+    { name: 'Emerald', colors: ['#004D40', '#009688'], category: 'nature' },
+    { name: 'Charcoal', colors: ['#2c3e50', '#34495e'], category: 'elegant' },
+    { name: 'Rose Gold', colors: ['#f7cac9', '#e6a4b4'], category: 'elegant' },
+    { name: 'Royal Purple', colors: ['#4A00E0', '#8E2DE2'], category: 'elegant' },
+    { name: 'Fire', colors: ['#F12711', '#F5AF19'], category: 'vibrant' },
+    { name: 'Forest', colors: ['#134E5E', '#71B280'], category: 'nature' },
+    { name: 'Silver', colors: ['#E0E0E0', '#757575'], category: 'metallic' },
 ];
 
 function renderColorPresets() {
@@ -71,7 +139,11 @@ function renderColorPresets() {
     colorPresets.forEach((preset, index) => {
         const div = document.createElement('div');
         div.className = 'preset-item';
+        if (preset.category) {
+            div.setAttribute('data-category', preset.category);
+        }
         div.onclick = () => applyColorPreset(index);
+        div.title = `Apply ${preset.name} color scheme`;
 
         const preview = document.createElement('div');
         preview.className = 'preset-preview';
@@ -90,6 +162,20 @@ function applyColorPreset(index) {
     const preset = colorPresets[index];
     if (!preset) return;
 
+    // Add visual feedback
+    const presetItems = document.querySelectorAll('.preset-item');
+    presetItems.forEach((item, i) => {
+        if (i === index) {
+            item.style.borderColor = '#D4AF37';
+            item.style.boxShadow = '0 0 20px rgba(212, 175, 55, 0.3)';
+            item.style.transform = 'translateY(-2px) scale(1.02)';
+        } else {
+            item.style.borderColor = '#333';
+            item.style.boxShadow = 'none';
+            item.style.transform = 'none';
+        }
+    });
+
     if (preset.colors.length > 1) {
         // Apply as gradient
         setColorMode('gradient');
@@ -102,6 +188,14 @@ function applyColorPreset(index) {
         bgColorPicker.setColor(preset.colors[0]);
         canvas.setBackgroundColor(preset.colors[0], canvas.renderAll.bind(canvas));
     }
+
+    // Reset feedback after animation
+    setTimeout(() => {
+        const activeItem = presetItems[index];
+        if (activeItem) {
+            activeItem.style.transform = 'translateY(-2px)';
+        }
+    }, 300);
 }
 
 // 3. LOAD TEMPLATE
@@ -252,6 +346,9 @@ function handleAddImage(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
+            // Store original image URL for cropping
+            originalImageURL = e.target.result;
+            
             fabric.Image.fromURL(e.target.result, function(img) {
                 // Scale to fit nicely
                 const scale = (canvas.width * 0.4) / img.width;
@@ -590,13 +687,29 @@ function saveTemplate() {
     const name = prompt("Enter a name for your design:");
     if (!name) return;
 
-    const designJson = JSON.stringify(canvas.toJSON());
+    // Get current gradient state if in gradient mode
+    const gradientState = currentBgMode === 'gradient' ? {
+        mode: 'gradient',
+        color1: gradientColorPicker1.getColor().toRGBA().toString(),
+        color2: gradientColorPicker2.getColor().toRGBA().toString(),
+        angle: document.getElementById('gradient-angle').value
+    } : {
+        mode: 'solid',
+        color: bgColorPicker.getColor().toRGBA().toString()
+    };
+
+    const designData = {
+        canvas: canvas.toJSON(),
+        backgroundMode: gradientState,
+        timestamp: new Date().toISOString()
+    };
+
     const templates = JSON.parse(localStorage.getItem('TAPDTemplates')) || [];
     
     templates.push({
         name: name,
         date: new Date().toLocaleDateString(),
-        json: designJson
+        designData: designData
     });
 
     localStorage.setItem('TAPDTemplates', JSON.stringify(templates));
@@ -642,13 +755,28 @@ function renderSavedTemplates() {
 
 function loadSavedTemplate(index) {
     const templates = JSON.parse(localStorage.getItem('TAPDTemplates')) || [];
-    if (templates[index]) {
-        canvas.loadFromJSON(templates[index].json, function() {
+    if (templates[index] && templates[index].designData) {
+        const designData = templates[index].designData;
+        
+        canvas.loadFromJSON(designData.canvas, function() {
             canvas.renderAll();
             renderLayerPanel();
-            // Sync background color picker if applicable
-            if(canvas.backgroundColor && bgColorPicker) {
-                bgColorPicker.setColor(canvas.backgroundColor);
+            
+            // Restore background mode and colors
+            if (designData.backgroundMode) {
+                const bgMode = designData.backgroundMode;
+                
+                if (bgMode.mode === 'gradient') {
+                    setColorMode('gradient');
+                    gradientColorPicker1.setColor(bgMode.color1);
+                    gradientColorPicker2.setColor(bgMode.color2);
+                    document.getElementById('gradient-angle').value = bgMode.angle;
+                    updateGradientBackground();
+                } else {
+                    setColorMode('solid');
+                    bgColorPicker.setColor(bgMode.color);
+                    canvas.setBackgroundColor(bgMode.color, canvas.renderAll.bind(canvas));
+                }
             }
         });
     }

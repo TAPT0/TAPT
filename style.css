@@ -13,6 +13,21 @@
     --text-muted: #888888;
     --font-head: 'Syncopate', sans-serif;
     --font-body: 'Inter', sans-serif;
+    /* Spacing, radii and shadows for consistent rhythm */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 2rem;
+    --space-xl: 4rem;
+    --space-xxl: 7.5rem;
+    --nav-height: 3.5rem;
+
+    --radius-sm: 0.375rem; /* 6px */
+    --radius-md: 0.75rem;  /* 12px */
+    --radius-lg: 1.5rem;   /* 24px */
+
+    --shadow-subtle: 0 8px 24px rgba(0,0,0,0.6);
+    --shadow-soft: 0 6px 18px rgba(0,0,0,0.55);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; cursor: auto; -webkit-tap-highlight-color: transparent; }
@@ -33,11 +48,72 @@ body {
 
 /* Accessibility & responsive helpers */
 img, svg, video, picture { max-width: 100%; height: auto; display: block; }
-.site-main { max-width: 1200px; margin: 0 auto; padding-left: 1rem; padding-right: 1rem; }
+.site-main { max-width: 1200px; margin: 0 auto; padding-left: 1rem; padding-right: 1rem; padding-top: calc(var(--nav-height) + var(--space-md)); }
 
 /* Improve tap targets and touch behavior */
 a, button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .nav-links a { padding: 0.5rem; display: inline-block; }
+
+/* -----------------------------
+   TYPOGRAPHY — hierarchy & rhythm
+   ----------------------------- */
+body {
+    font-family: var(--font-body), system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    font-size: 1rem; /* 16px */
+    line-height: 1.6;
+    color: var(--text-main);
+}
+
+h1, .hero-title, .section-title-3d {
+    font-family: var(--font-head);
+    font-weight: 800;
+    line-height: 1.05;
+    margin-bottom: 0.5rem;
+}
+
+h1 { font-size: clamp(2rem, 6vw, 3.5rem); }
+h2, .section-title { font-family: var(--font-head); font-size: clamp(1.5rem, 4vw, 2.25rem); line-height:1.15; margin-bottom:0.75rem; }
+h3 { font-size: 1.25rem; line-height:1.25; margin-bottom:0.5rem; }
+h4 { font-size: 1rem; line-height:1.3; margin-bottom:0.5rem; }
+p, li { font-size: 1rem; line-height: 1.6; color: var(--text-main); }
+
+.text-muted, .section-subtitle-3d, .footer-desc { color: var(--text-muted); }
+
+/* Improve contrast for small text where needed (keeps exact colors but ensures readable weight) */
+.footer-link, .footer-bottom-link { color: var(--text-main); opacity: 0.9; }
+
+/* -----------------------------
+   BUTTONS & INTERACTIVE
+   ----------------------------- */
+.btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; border-radius: var(--radius-md); font-weight: 700; text-transform: uppercase; font-family: var(--font-head); cursor: pointer; border: none; }
+.btn:active { transform: translateY(1px); }
+
+/* Map existing primary/secondary variants to the generic class for consistency */
+.hero-btn-3d, .cta-3d-btn, .btn-3d-content, .mobile-cta-btn, .coupon-btn, .checkout-btn { border-radius: var(--radius-md); }
+.hero-btn-3d.primary, .cta-3d-btn.primary, .checkout-btn { box-shadow: var(--shadow-soft); }
+.hero-btn-3d.secondary, .cta-3d-btn.secondary { box-shadow: var(--shadow-subtle); }
+
+.btn:focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 2px; }
+
+/* -----------------------------
+   CARDS & DEPTH
+   ----------------------------- */
+.showcase-3d-card, .feature-3d-card, .comparison-3d-card, .testimonial-3d-card, .trust-badge-3d, .story-3d-card {
+    border-radius: var(--radius-md);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+}
+
+/* -----------------------------
+   SPACING & SECTION RHYTHM
+   ----------------------------- */
+.site-main > section { padding: var(--space-xl) 0; }
+.section-header-3d { margin-bottom: var(--space-lg); }
+
+/* Tighter spacing for small screens */
+@media (max-width: 768px) {
+    h1 { font-size: clamp(1.6rem, 8vw, 2.2rem); }
+    .site-main > section { padding: var(--space-lg) 0; }
+}
 
 a { text-decoration: none; color: white; transition: 0.3s; cursor: pointer; }
 button { cursor: pointer; }
@@ -53,9 +129,9 @@ button { cursor: pointer; }
 
 .gold-glow-sphere {
     position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
-    width: 800px; height: 800px; 
+    width: 60vw; max-width: 50rem; height: 60vw; max-height: 50rem;
     background: radial-gradient(circle, rgba(229, 195, 101, 0.15) 0%, rgba(0,0,0,0) 70%);
-    z-index: -1; pointer-events: none; filter: blur(80px);
+    z-index: -1; pointer-events: none; filter: blur(5rem);
 }
 
 /* =========================================
@@ -63,7 +139,7 @@ button { cursor: pointer; }
    ========================================= */
 nav {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 20px 5%; position: fixed; top: 0; width: 100%; z-index: 100;
+    padding: var(--space-sm) var(--space-sm); position: fixed; top: 0; width: 100%; z-index: 100;
     background: rgba(5,5,5,0.85); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
 }
@@ -90,7 +166,7 @@ nav {
    ========================================= */
 .hero-layout {
     min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
-    padding: 120px 20px 60px 20px; position: relative; z-index: 1; text-align: center; overflow: hidden;
+    padding: 7.5rem 1.25rem 3.75rem 1.25rem; position: relative; z-index: 1; text-align: center; overflow: visible;
 }
 
 /* 3D Hero Container */
@@ -122,7 +198,7 @@ nav {
 
 /* Hero Content 3D */
 .hero-content-3d {
-    position: relative; z-index: 10; margin-bottom: 80px;
+    position: relative; z-index: 10; margin-bottom: 5rem;
     transform-style: preserve-3d; animation: hero-float 6s ease-in-out infinite;
 }
 
@@ -138,6 +214,15 @@ nav {
     transform: translateZ(50px);
 }
 
+/* Prevent hero text from overflowing on very large sizes */
+.hero-title {
+    max-width: 92vw;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
 .hero-title-gold {
     color: var(--tapt-gold); background: linear-gradient(45deg, var(--tapt-gold), #FEE799);
     -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
@@ -145,19 +230,19 @@ nav {
 }
 
 .hero-subtitle {
-    color: #999; font-size: clamp(0.9rem, 3vw, 1.1rem); margin-bottom: 60px;
+    color: #999; font-size: clamp(0.9rem, 3vw, 1.1rem); margin-bottom: 3.75rem;
     max-width: 600px; line-height: 1.6; font-weight: 300; margin-left: auto; margin-right: auto;
     transform: translateZ(30px);
 }
 
 /* 3D CTA Buttons */
 .hero-cta-3d {
-    display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+    display: flex; gap: 1.25rem; justify-content: center; flex-wrap: wrap;
     transform: translateZ(40px);
 }
 
 .hero-btn-3d {
-    position: relative; display: inline-block; padding: 16px 40px; text-decoration: none;
+    position: relative; display: inline-block; padding: 1rem 2.5rem; text-decoration: none;
     border-radius: 50px; font-weight: 700; font-size: 0.9rem; text-transform: uppercase;
     letter-spacing: 1px; font-family: var(--font-head); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     transform-style: preserve-3d; overflow: hidden;
@@ -195,15 +280,16 @@ nav {
 /* 3D Showcase Grid */
 .showcase-3d-grid {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 40px; width: 100%; max-width: 800px; margin: 0 auto;
+    gap: 2.5rem; width: 100%; max-width: 800px; margin: 0 auto;
     transform-style: preserve-3d; perspective: 1000px;
 }
 
 .showcase-3d-card {
-    background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px);
-    border: 1px solid var(--border); border-radius: 24px; padding: 40px;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    transform-style: preserve-3d; position: relative; overflow: hidden;
+    background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01));
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.06); border-radius: 1.5rem; padding: 2rem;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s;
+    transform-style: preserve-3d; position: relative; overflow: visible; z-index: 4;
 }
 
 .showcase-3d-card::before {
@@ -224,13 +310,15 @@ nav {
 /* 3D Card Stages */
 .card-3d-stage, .keychain-3d-stage {
     height: 200px; display: flex; align-items: center; justify-content: center;
-    perspective: 1000px; margin-bottom: 30px;
+    perspective: 1000px; margin-bottom: 1.875rem; overflow: visible;
 }
 
 /* 3D NFC Card */
 .nfc-card-3d {
-    width: 300px; height: 190px; position: relative; transform-style: preserve-3d;
-    transition: transform 0.6s; cursor: pointer;
+    width: min(90%, 18.75rem); /* ~300px */
+    aspect-ratio: 300/190;
+    position: relative; transform-style: preserve-3d;
+    transition: transform 0.6s; cursor: pointer; display: block;
 }
 
 .nfc-card-3d:hover {
@@ -239,19 +327,21 @@ nav {
 
 .card-3d-front, .card-3d-back {
     position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
-    background: linear-gradient(135deg, #1a1a1a, #2a2a2a); border-radius: 12px;
-    border: 1px solid var(--tapt-gold); display: flex; flex-direction: column;
-    justify-content: space-between; padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    background: linear-gradient(135deg, rgba(26,26,26,0.95), rgba(42,42,42,0.95));
+    border-radius: 1rem; border: 1px solid rgba(212,175,55,0.08);
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: var(--space-md); box-shadow: 0 1.5rem 3rem rgba(0,0,0,0.65), 0 0.5rem 1rem rgba(212,175,55,0.04) inset;
+    overflow: hidden;
 }
 
 .card-3d-back {
-    transform: rotateY(180deg); background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+    transform: rotateY(180deg); background: linear-gradient(135deg, rgba(42,42,42,0.98), rgba(26,26,26,0.98));
 }
 
 .card-chip {
-    width: 40px; height: 30px; background: linear-gradient(135deg, #FFD700, #FFA500);
-    border-radius: 4px; position: absolute; top: 20px; left: 20px;
-    box-shadow: 0 2px 10px rgba(255,215,0,0.5);
+    width: 2.5rem; height: 1.875rem; background: linear-gradient(135deg, #FFD700, #FFA500);
+    border-radius: 0.25rem; position: absolute; top: 1.25rem; left: 1.25rem;
+    box-shadow: 0 0.125rem 0.625rem rgba(255,215,0,0.45);
 }
 
 .card-logo {
@@ -386,7 +476,7 @@ nav {
 
 /* Section Headers */
 .section-header-3d {
-    text-align: center; margin-bottom: 80px; position: relative;
+    text-align: center; margin-bottom: var(--space-lg); position: relative;
     transform-style: preserve-3d; perspective: 1000px;
 }
 
@@ -405,21 +495,23 @@ nav {
 
 /* Features 3D Section */
 .features-3d-section {
-    padding: 120px 20px; background: linear-gradient(180deg, var(--bg-deep) 0%, #0a0a0a 100%);
-    position: relative; overflow: hidden;
+    padding: var(--space-xxl) var(--space-sm); background: linear-gradient(180deg, var(--bg-deep) 0%, #0a0a0a 100%);
+    position: relative; overflow: visible;
 }
 
 .features-3d-grid {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 40px; max-width: 1200px; margin: 0 auto;
+    gap: var(--space-lg); max-width: 1200px; margin: 0 auto;
     transform-style: preserve-3d; perspective: 1000px;
 }
 
 .feature-3d-card {
-    background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px);
-    border: 1px solid var(--border); border-radius: 20px; padding: 40px 30px;
-    text-align: center; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    transform-style: preserve-3d; position: relative; overflow: hidden;
+    background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01));
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,0.06); border-radius: 1.25rem; padding: var(--space-lg) var(--space-md);
+    text-align: center; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s;
+    transform-style: preserve-3d; position: relative; overflow: visible; z-index: 5;
+    box-shadow: 0 1.25rem 3rem rgba(0,0,0,0.6), 0 0.5rem 1.25rem rgba(212,175,55,0.03) inset;
 }
 
 .feature-3d-card::before {
@@ -476,17 +568,18 @@ nav {
 }
 
 .feature-3d-card p {
-    color: #888; font-size: 0.9rem; line-height: 1.6; transform: translateZ(10px);
+    color: #888; font-size: 0.95rem; line-height: 1.6; transform: translateZ(10px);
+    overflow-wrap: break-word; word-break: break-word; margin: 0 auto; max-width: 40ch;
 }
 
 /* Comparison 3D Section */
 .comparison-3d-section {
-    padding: 120px 20px; background: var(--bg-deep);
+    padding: var(--space-xxl) var(--space-sm); background: var(--bg-deep);
 }
 
 .comparison-3d-container {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 60px; max-width: 900px; margin: 0 auto;
+    gap: var(--space-xl); max-width: 900px; margin: 0 auto;
     transform-style: preserve-3d; perspective: 1000px;
 }
 
@@ -567,18 +660,18 @@ nav {
 
 /* Social Proof 3D Section */
 .social-proof-3d-section {
-    padding: 120px 20px; background: linear-gradient(180deg, #0a0a0a 0%, var(--bg-deep) 100%);
+    padding: var(--space-xxl) var(--space-sm); background: linear-gradient(180deg, #0a0a0a 0%, var(--bg-deep) 100%);
 }
 
 .testimonials-3d-grid {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 40px; max-width: 1200px; margin: 0 auto 80px;
+    gap: var(--space-lg); max-width: 1200px; margin: 0 auto var(--space-xl);
     transform-style: preserve-3d; perspective: 1000px;
 }
 
 .testimonial-3d-card {
     background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px);
-    border: 1px solid var(--border); border-radius: 20px; padding: 40px;
+    border: 1px solid var(--border); border-radius: 1.25rem; padding: var(--space-lg);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     transform-style: preserve-3d; position: relative;
 }
@@ -623,14 +716,14 @@ nav {
 }
 
 .trust-badges-3d {
-    display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;
+    display: flex; justify-content: center; gap: var(--space-lg); flex-wrap: wrap;
     max-width: 800px; margin: 0 auto;
 }
 
 .trust-badge-3d {
-    display: flex; flex-direction: column; align-items: center; gap: 10px;
-    padding: 20px; background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border); border-radius: 16px;
+    display: flex; flex-direction: column; align-items: center; gap: 0.625rem;
+    padding: var(--space-sm); background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border); border-radius: 1rem;
     transition: all 0.3s; transform-style: preserve-3d;
 }
 
@@ -650,11 +743,11 @@ nav {
 
 /* Story 3D Section */
 .story-3d-section {
-    padding: 120px 20px; background: var(--bg-deep);
+    padding: var(--space-xxl) var(--space-sm); background: var(--bg-deep);
 }
 
 .story-3d-container {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xl);
     max-width: 1200px; margin: 0 auto; align-items: center;
 }
 
@@ -1490,10 +1583,10 @@ nav {
 }
 
 @media (max-width: 600px) {
-    .hero-layout { padding-top: 100px; padding-bottom: 60px; }
-    .section-header-3d { margin-bottom: 60px; }
+    .hero-layout { padding-top: 6.25rem; padding-bottom: 3.75rem; }
+    .section-header-3d { margin-bottom: var(--space-md); }
     .features-3d-section, .comparison-3d-section, .social-proof-3d-section,
-    .story-3d-section, .cta-3d-section { padding: 80px 20px; }
+    .story-3d-section, .cta-3d-section { padding: var(--space-xl) var(--space-sm); }
     
     .nfc-card-3d { width: 260px; height: 165px; }
     .nfc-keychain-3d { width: 100px; height: 100px; }

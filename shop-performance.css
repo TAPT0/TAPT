@@ -1,0 +1,170 @@
+/* --- PERFORMANCE OPTIMIZED SHOP STYLES --- */
+
+/* Disable heavy animations on mobile for performance */
+@media (max-width: 768px) {
+    .floating-assets,
+    .hero-3d-bg,
+    .hero-orb,
+    .hero-grid-3d,
+    .featured-3d-container,
+    .stats-3d-bg,
+    .footer-3d-bg {
+        display: none !important;
+    }
+    
+    .floater-3d,
+    .stat-card-3d,
+    .tech-card-3d,
+    .process-step-3d,
+    .testimonial-card-3d {
+        animation: none !important;
+        transform: none !important;
+    }
+}
+
+/* Optimize animations for better performance */
+.floating-assets,
+.floater-3d {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+.hero-3d-bg,
+.hero-orb,
+.hero-grid-3d {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+}
+
+/* Reduce animation complexity */
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotateZ(0deg); }
+    50% { transform: translateY(-10px) rotateZ(2deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Optimized footer positioning */
+footer.TAPD-footer {
+    position: relative;
+    width: 100%;
+    margin-top: 0;
+    clear: both;
+    background: var(--darker);
+    border-top: 1px solid var(--border);
+}
+
+.footer-3d-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 50%, rgba(212,175,55,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.footer-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 20px 30px;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 60px;
+    align-items: start;
+}
+
+/* Mobile footer optimization */
+@media (max-width: 768px) {
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+    }
+    
+    .footer-links-group {
+        width: 100%;
+    }
+    
+    .footer-nav-column {
+        margin-bottom: 30px;
+    }
+}
+
+/* Performance optimizations for 3D elements */
+.featured-3d-container,
+.stats-3d-bg {
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+/* Reduce particle count for performance */
+@media (max-width: 1024px) {
+    .floating-assets .floater:nth-child(n+4),
+    .floating-assets .floater-3d:nth-child(n+3) {
+        display: none;
+    }
+}
+
+/* Optimize scroll performance */
+body {
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
+/* Disable parallax on mobile */
+@media (max-width: 768px) {
+    .cyber-grid {
+        background-attachment: scroll !important;
+    }
+    
+    .noise-overlay {
+        opacity: 0.3 !important;
+    }
+}
+
+/* Lazy loading optimization */
+.lazy-load {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.lazy-load.loaded {
+    opacity: 1;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .floating-assets,
+    .hero-3d-bg,
+    .floater-3d {
+        display: none !important;
+    }
+}

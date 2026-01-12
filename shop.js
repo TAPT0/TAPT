@@ -200,20 +200,8 @@ function renderShop(filter = 'all') {
                         <div class="twin-face twin-back" style="${backBgStyle}">
                             <div class="twin-layer twin-glare"></div>
                             ${product.backImage ? `
-                                <div style="position:absolute; top:15%; width:100%; text-align:center; color:#ececec; font-family:'Syncopate'; font-size:0.75rem; font-weight:700; pointer-events:none; text-shadow:0 2px 5px rgba(0,0,0,0.9);">
-                                    ${product.name.toUpperCase()}
-                                </div>
-                                <div style="position:absolute; bottom:12%; width:100%; text-align:center; color:#888; font-family:'Syncopate'; font-size:0.6rem; letter-spacing:3px; pointer-events:none; text-shadow:0 1px 3px rgba(0,0,0,0.9);">
-                                    TAPD. BOOST
-                                </div>
-                            ` : `
                                 <div class="twin-layer" style="background:url('https://grainy-gradients.vercel.app/noise.svg'); opacity:0.05;"></div>
-                                <div style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%) rotate(-90deg); font-family: 'Syncopate'; font-size: 2.5rem; color: rgba(255,255,255,0.03); font-weight: 800;">TAPD.</div>
-                                <div style="position: absolute; bottom: 25px; right: 25px; text-align: right;">
-                                    <div style="font-size: 0.6rem; color: #666; font-family: 'Inter';">SERIAL NO.</div>
-                                    <div style="font-family: 'monospace'; color: var(--gold);">${product.id.substring(0,6).toUpperCase()}</div>
-                                </div>
-                            `}
+                            ` : ''}
                         </div>
                     </div>
                 </div>

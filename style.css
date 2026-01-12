@@ -899,7 +899,9 @@ nav {
     width: 280px; height: 180px; position: relative; transform-style: preserve-3d;
     /* replaced full spin with a subtle float to avoid edge-on invisibility */
     animation: demo-card-float 6s ease-in-out infinite;
-    z-index: 50;
+    z-index: 99999;
+    filter: brightness(1.5) saturate(1.15);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(212,175,55,0.35);
 }
 
 @keyframes demo-card-float {
@@ -912,7 +914,7 @@ nav {
 
 /* Ensure CTA/demo card sits above decorative grid and floating assets */
 .cta-3d-visual, .cta-3d-card-demo, .demo-nfc-card {
-    position: relative; z-index: 5;
+    position: relative; z-index: 99999; pointer-events: none;
 }
 
 /* Stop the spinning card on small screens so it's always visible */
@@ -931,23 +933,39 @@ nav {
     .cta-3d-visual { z-index: 3; }
 }
 
+/* On large screens make the demo card fixed so it can escape ancestor stacking contexts */
+@media (min-width: 901px) {
+    .demo-nfc-card {
+        position: fixed !important;
+        right: 11%;
+        top: 60%;
+        transform: translateY(-50%);
+        width: clamp(180px, 15vw, 320px);
+        height: auto;
+        pointer-events: none;
+    }
+
+    /* ensure the visual container doesn't clip via overflow hidden */
+    .cta-3d-visual, .cta-3d-card-demo { overflow: visible; }
+}
+
 .demo-card-front {
     position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden;
-    background: linear-gradient(135deg, var(--tapt-gold), #FEE799); border-radius: 12px;
+    background: linear-gradient(135deg, #F7D77A, #FFD77A); border-radius: 12px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 40px rgba(212,175,55,0.3);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(212,175,55,0.35);
 }
 
 .demo-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 
 .demo-card-logo {
     font-family: var(--font-head); font-size: 2.5rem; font-weight: 900;
-    color: black; margin-bottom: 10px;
+    color: black; margin-bottom: 10px; text-shadow: 0 1px 0 rgba(255,255,255,0.35);
 }
 
 .demo-card-text {
     font-family: var(--font-head); font-size: 1rem; font-weight: 700;
-    color: black; text-transform: uppercase; letter-spacing: 2px;
+    color: black; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 1px 0 rgba(255,255,255,0.25);
 }
 
 .demo-card-subtext {

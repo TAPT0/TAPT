@@ -424,10 +424,14 @@ function toggleCart() {
     if(drawer.classList.contains('open')) { 
         drawer.classList.remove('open'); 
         overlay.style.display = 'none'; 
+        if(overlay) overlay.classList.remove('active');
+        document.body.style.overflow = '';
     } else { 
         renderCartItems(); 
         drawer.classList.add('open'); 
         overlay.style.display = 'block'; 
+        if(overlay) overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
         document.getElementById('account-drawer').classList.remove('open');
     }
 }
@@ -976,7 +980,12 @@ function toggleAuthModal(forceState) {
     const display = (typeof forceState !== 'undefined' ? forceState : modal.style.display === 'none') ? 'flex' : 'none';
     
     modal.style.display = display;
-    overlay.style.display = display;
+    if(overlay) {
+        overlay.style.display = display;
+        if(display === 'flex' || display === 'block') overlay.classList.add('active');
+        else overlay.classList.remove('active');
+    }
+    document.body.style.overflow = (display === 'flex' || display === 'block') ? 'hidden' : '';
 }
 
 /* =========================================
@@ -985,8 +994,10 @@ function toggleAuthModal(forceState) {
 function closeAllDrawers() {
     document.getElementById('cart-drawer').classList.remove('open');
     document.getElementById('account-drawer').classList.remove('open');
-    document.querySelector('.cart-overlay').style.display = 'none';
+    const ov = document.querySelector('.cart-overlay');
+    if(ov) { ov.style.display = 'none'; ov.classList.remove('active'); }
     document.getElementById('auth-modal').style.display = 'none';
+    document.body.style.overflow = '';
 }
 
 function handleUserClick() { 
@@ -995,10 +1006,12 @@ function handleUserClick() {
     
     if(drawer.classList.contains('open')) {
         drawer.classList.remove('open');
-        overlay.style.display = 'none';
+        if(overlay) { overlay.style.display = 'none'; overlay.classList.remove('active'); }
+        document.body.style.overflow = '';
     } else {
         drawer.classList.add('open');
-        overlay.style.display = 'block';
+        if(overlay) { overlay.style.display = 'block'; overlay.classList.add('active'); }
+        document.body.style.overflow = 'hidden';
         document.getElementById('cart-drawer').classList.remove('open');
     }
 }

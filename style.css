@@ -949,6 +949,29 @@ nav {
     .cta-3d-visual, .cta-3d-card-demo { overflow: visible; }
 }
 
+/* Force normal blending and clear text color for demo card so it remains visible above overlays */
+.demo-nfc-card, .demo-nfc-card * {
+    mix-blend-mode: normal !important;
+    isolation: isolate !important;
+}
+
+.demo-nfc-card, .demo-card-front, .demo-card-back {
+    color: #000 !important;
+    -webkit-text-fill-color: #000 !important;
+}
+
+/* Add a subtle radial highlight behind the demo card to increase contrast */
+.cta-3d-visual { position: relative; }
+.cta-3d-visual::before {
+    content: '';
+    position: absolute;
+    inset: -40px -120px -40px -40px;
+    pointer-events: none;
+    z-index: 99998;
+    background: radial-gradient(circle at 30% 50%, rgba(255,230,150,0.14), rgba(0,0,0,0) 40%);
+    border-radius: 8px;
+}
+
 .demo-card-front {
     position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden;
     background: linear-gradient(135deg, #F7D77A, #FFD77A); border-radius: 12px;

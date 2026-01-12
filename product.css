@@ -44,9 +44,10 @@ body.premium-product-page {
     position: relative;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     perspective: 1500px;
     background: radial-gradient(circle at center, rgba(212,175,55,0.05), transparent 70%);
+    padding-top: 80px;
 }
 
 .p-title {
@@ -266,6 +267,9 @@ body.premium-product-page {
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 50%;
     z-index: -1;
+    top: -10px;
+    left: 22%;
+    transform: translateX(-50%);
     animation: rotateCircle 20s linear infinite;
 }
 @keyframes rotateCircle { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -321,7 +325,7 @@ body.premium-product-page {
 /* Visual Controls */
 .visual-controls {
     position: absolute;
-    bottom: 40px;
+    top: 10px;
     display: flex;
     gap: 15px;
     background: rgba(0,0,0,0.5);

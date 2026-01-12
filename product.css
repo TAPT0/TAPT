@@ -315,14 +315,7 @@ body.premium-product-page {
 }
 
 .qr-code {
-    width: 80px;
-    height: 80px;
-    background: white;
-    border-radius: 4px;
-    align-self: center;
-    margin-top: 20px;
-    background-image: url('https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=TAPD');
-    background-size: cover;
+    display: none;
 }
 
 /* Visual Controls */

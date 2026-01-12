@@ -253,6 +253,13 @@ body {
 .nav-icon { color: white; font-size: 1.2rem; cursor: pointer; transition: 0.3s; position: relative; }
 .nav-icon:hover { color: var(--gold); transform: scale(1.1); }
 
+/* Navigation actions container for grouped buttons */
+.nav-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
 /* Cart trigger: circular gold-accented cart icon with badge */
 .cart-trigger {
     width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;

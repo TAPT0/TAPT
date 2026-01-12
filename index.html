@@ -33,7 +33,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
+    <!-- STYLES -->
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="navigation.css">
+    
+    <style>
+        /* Page-specific styles can go here */
+        .mobile-sticky-cta {
+            text-decoration:none; 
+            padding:10px 24px; 
+            background:var(--gold); 
+            color:black; 
+            border-radius:50px; 
+            font-size:0.75rem; 
+            font-weight:700; 
+            text-transform:uppercase; 
+            letter-spacing:1px; 
+            display:none;
+        }
+    </style>
     <link rel="stylesheet" href="shop.css">
 
     <!-- Analytics & Tracking -->
@@ -1236,14 +1254,14 @@
     <nav>
         <div class="logo">TAPD<span>.</span></div>
         <div class="nav-links">
-            <a href="index.html" style="color: var(--gold); text-decoration:none; margin-right:20px; font-size:0.9rem; letter-spacing:1px; text-transform:uppercase;">Home</a>
-            <a href="features.html" style="color: white; text-decoration:none; margin-right:20px; font-size:0.9rem; letter-spacing:1px; text-transform:uppercase;">Features</a>
-            <a href="#features" style="color: white; text-decoration:none; margin-right:20px; font-size:0.9rem; letter-spacing:1px; text-transform:uppercase;">Overview</a>
-            <a href="shop.html" style="color: white; text-decoration:none; margin-right:20px; font-size:0.9rem; letter-spacing:1px; text-transform:uppercase;">Pricing</a>
-            <a href="customize.html" style="color: white; text-decoration:none; font-size:0.9rem; letter-spacing:1px; text-transform:uppercase;">Create</a>
-            <a href="contact.html" style="color: white; text-decoration:none; font-size:0.9rem; letter-spacing:1px; text-transform:uppercase;">Contact</a>
+            <a href="index.html">Home</a>
+            <a href="overview.html">Overview</a>
+            <a href="features.html">Features</a>
+            <a href="shop.html">Pricing</a>
+            <a href="customize.html">Create</a>
+            <a href="contact.html">Contact</a>
         </div>
-        <a href="shop.html" class="mobile-sticky-cta" style="text-decoration:none; padding:10px 24px; background:var(--gold); color:black; border-radius:50px; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; display:none;">Buy Now</a>
+        <a href="shop.html" class="mobile-sticky-cta">Buy Now</a>
     </nav>
 
     <section class="hero-section">
@@ -1816,6 +1834,8 @@
         </div>
     </footer>
 
+    <script src="script.js"></script>
+    <script src="navigation.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     

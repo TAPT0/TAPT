@@ -1,0 +1,100 @@
+/* --- SHARED NAVIGATION SYSTEM --- */
+nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--border);
+    background: rgba(5, 5, 5, 0.85);
+    box-sizing: border-box;
+}
+
+.logo { 
+    font-family: 'Syncopate', sans-serif; 
+    font-weight: 700; 
+    font-size: 1.5rem; 
+    letter-spacing: -1px; 
+}
+.logo span { color: var(--gold); }
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    padding: 6px 12px;
+    border-radius: 15px;
+    position: relative;
+}
+
+.nav-links a:hover {
+    color: var(--gold);
+    background: rgba(212,175,55,0.1);
+}
+
+/* --- ACTIVE PAGE HIGHLIGHTING --- */
+.nav-links a.active {
+    color: var(--gold);
+    background: rgba(212,175,55,0.15);
+    border: 1px solid rgba(212,175,55,0.3);
+}
+
+/* --- SPECIAL BUTTON STYLES --- */
+.nav-links a.btn-primary {
+    background: var(--gold);
+    color: black;
+    font-weight: 600;
+    border: none;
+}
+
+.nav-links a.btn-primary:hover {
+    background: #FEE799;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(212,175,55,0.3);
+}
+
+.nav-links a.btn-secondary {
+    background: rgba(212,175,55,0.2);
+    color: white;
+    border: 1px solid var(--gold);
+    font-weight: 600;
+}
+
+.nav-links a.btn-secondary:hover {
+    background: var(--gold);
+    color: black;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(212,175,55,0.3);
+}
+
+/* --- MOBILE RESPONSIVE --- */
+@media (max-width: 768px) {
+    .nav-links {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .nav-links a {
+        font-size: 0.8rem;
+        padding: 4px 8px;
+    }
+    
+    .nav-links a.btn-primary,
+    .nav-links a.btn-secondary {
+        margin-right: 0;
+    }
+}

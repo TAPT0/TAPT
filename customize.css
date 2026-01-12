@@ -6,7 +6,7 @@ body { overflow-x: hidden; } /* Prevent scroll from large images */
 .studio-container {
     display: flex;
     min-height: 100vh;
-    padding-top: 80px; /* Offset for fixed nav */
+    padding-top: 5rem; /* Offset for fixed nav */
 }
 
 /* --- LEFT SIDE: PREVIEW STAGE --- */
@@ -45,8 +45,8 @@ body { overflow-x: hidden; } /* Prevent scroll from large images */
 
 /* Instructions below stage */
 .stage-instructions {
-    margin-top: 20px; color: #666; font-size: 0.8rem;
-    display: flex; gap: 10px; align-items: center;
+    margin-top: 1.25rem; color: #666; font-size: 0.8rem;
+    display: flex; gap: 0.625rem; align-items: center;
     z-index: 5;
 }
 
@@ -57,11 +57,11 @@ body { overflow-x: hidden; } /* Prevent scroll from large images */
 /* The Black Hole Cutout */
 .hw-hole {
     position: absolute;
-    top: 15px; /* Adjust distance from top */
+    top: 0.9375rem; /* Adjust distance from top */
     left: 50%;
     transform: translateX(-50%);
-    width: 20px;
-    height: 20px;
+    width: 1.25rem;
+    height: 1.25rem;
     
     /* Matches background to look transparent */
     background-color: #1a1a1a; 
@@ -78,16 +78,16 @@ body { overflow-x: hidden; } /* Prevent scroll from large images */
 /* The Silver Metal Ring */
 .hw-ring {
     position: absolute;
-    top: -12px; /* Sticks out top */
+    top: -0.75rem; /* Sticks out top */
     left: 50%;
     transform: translateX(-50%);
-    width: 35px;
-    height: 35px;
+    width: 2.1875rem;
+    height: 2.1875rem;
     
     /* Silver Metal styling */
-    border: 4px solid #C0C0C0; 
+    border: 0.25rem solid #C0C0C0; 
     border-radius: 50%;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+    box-shadow: 0.125rem 0.125rem 0.3125rem rgba(0,0,0,0.5);
     
     /* Clips the bottom to look attached */
     clip-path: polygon(0 0, 100% 0, 100% 60%, 0 60%);
@@ -104,22 +104,22 @@ body { overflow-x: hidden; } /* Prevent scroll from large images */
     flex: 1;
     background: rgba(10, 10, 10, 0.95);
     border-left: 1px solid rgba(255,255,255,0.1);
-    padding: 40px;
+    padding: 2.5rem;
     overflow-y: auto;
-    max-width: 500px;
+    max-width: 31.25rem;
 }
 
 .studio-title { font-family: 'Syncopate', sans-serif; font-size: 1.8rem; margin-bottom: 5px; color: white; }
-.control-group { margin-bottom: 30px; }
+.control-group { margin-bottom: 1.875rem; }
 .control-group label { display: block; color: #D4AF37; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; font-weight: 700; }
 
 /* Toggle Switch (Card/Tag) */
 .toggle-switch {
-    display: flex; background: #222; border-radius: 8px; padding: 4px;
+    display: flex; background: #222; border-radius: 0.5rem; padding: 0.25rem;
 }
 .toggle-btn {
-    flex: 1; background: transparent; color: #888; border: none; padding: 12px;
-    border-radius: 6px; cursor: pointer; transition: 0.3s; font-weight: 600;
+    flex: 1; background: transparent; color: #888; border: none; padding: 0.75rem;
+    border-radius: 0.375rem; cursor: pointer; transition: 0.3s; font-weight: 600;
 }
 .toggle-btn.active { background: #D4AF37; color: black; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
@@ -128,20 +128,20 @@ input[type="file"] { display: none; }
 .upload-trigger {
     display: flex; justify-content: space-between; align-items: center;
     background: rgba(255,255,255,0.05); border: 1px dashed #555;
-    padding: 15px 20px; border-radius: 8px; cursor: pointer;
+    padding: 0.9375rem 1.25rem; border-radius: 0.5rem; cursor: pointer;
     transition: 0.3s; color: white; font-size: 0.9rem;
 }
 .upload-trigger:hover { border-color: #D4AF37; background: rgba(212, 175, 55, 0.05); }
 
 /* Dividers */
-.divider { display: flex; align-items: center; margin: 30px 0; color: #444; font-size: 0.7rem; letter-spacing: 1px; }
+.divider { display: flex; align-items: center; margin: 1.875rem 0; color: #444; font-size: 0.7rem; letter-spacing: 1px; }
 .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #222; }
-.divider span { padding: 0 10px; }
+.divider span { padding: 0 0.625rem; }
 
 /* Inputs & Selects */
 .TAPD-input, .TAPD-select { 
     width: 100%; background: #222; border: 1px solid #444; 
-    padding: 12px; color: white; border-radius: 6px; outline: none; 
+    padding: 0.75rem; color: white; border-radius: 0.375rem; outline: none; 
     box-sizing: border-box;
 }
 .TAPD-input:focus, .TAPD-select:focus { border-color: #D4AF37; }
@@ -149,15 +149,15 @@ input[type="file"] { display: none; }
 /* Control Buttons */
 .add-text-btn {
     width: 100%; background: #222; color: white; border: 1px dashed #444;
-    padding: 12px; border-radius: 6px; cursor: pointer; transition: 0.2s;
-    font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 0.75rem; border-radius: 0.375rem; cursor: pointer; transition: 0.2s;
+    font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.625rem;
 }
 .add-text-btn:hover { border-color: #D4AF37; color: #D4AF37; background: rgba(212, 175, 55, 0.05); }
 
 .delete-text-btn {
     width: 100%; background: rgba(255, 85, 85, 0.1); color: #ff5555;
-    border: 1px solid rgba(255, 85, 85, 0.2); padding: 10px; margin-top: 15px;
-    border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold;
+    border: 1px solid rgba(255, 85, 85, 0.2); padding: 0.625rem; margin-top: 0.9375rem;
+    border-radius: 0.375rem; cursor: pointer; font-size: 0.8rem; font-weight: bold;
 }
 .delete-text-btn:hover { background: #ff5555; color: white; }
 
@@ -168,28 +168,28 @@ input[type="file"] { display: none; }
 
 input[type=range] { width: 100%; -webkit-appearance: none; background: transparent; }
 input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
-    background: #D4AF37; cursor: pointer; margin-top: -6px;
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    -webkit-appearance: none; height: 1rem; width: 1rem; border-radius: 50%;
+    background: #D4AF37; cursor: pointer; margin-top: -0.375rem;
+    box-shadow: 0 0 0.625rem rgba(212, 175, 55, 0.5);
 }
-input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #333; border-radius: 2px; }
+input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 0.25rem; cursor: pointer; background: #333; border-radius: 0.125rem; }
 
 /* Action Area (Bottom) */
-.action-area { margin-top: 50px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); }
-.price-display { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.action-area { margin-top: 3.125rem; padding-top: 1.875rem; border-top: 1px solid rgba(255,255,255,0.1); }
+.price-display { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
 .add-cart-btn {
     width: 100%; background: #D4AF37; color: black; border: none;
-    padding: 18px; font-size: 1.1rem; font-weight: 800;
+    padding: 1.125rem; font-size: 1.1rem; font-weight: 800;
     text-transform: uppercase; letter-spacing: 1px;
-    border-radius: 8px; cursor: pointer; transition: 0.3s;
+    border-radius: 0.5rem; cursor: pointer; transition: 0.3s;
     font-family: 'Syncopate', sans-serif;
-    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    clip-path: polygon(0.625rem 0, 100% 0, 100% calc(100% - 0.625rem), calc(100% - 0.625rem) 100%, 0 100%, 0 0.625rem);
 }
 .add-cart-btn:hover { background: white; transform: translateY(-2px); box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); }
 
 /* Mobile Response */
 @media (max-width: 900px) {
-    .studio-container { flex-direction: column; padding-top: 60px; }
+    .studio-container { flex-direction: column; padding-top: 3.75rem; }
     .studio-stage { min-height: 50vh; }
-    .studio-controls { width: 100%; max-width: none; border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding: 30px 20px; }
+    .studio-controls { width: 100%; max-width: none; border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding: 1.875rem 1.25rem; }
 }

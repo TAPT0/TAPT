@@ -48,13 +48,13 @@ body {
     background-image: 
         linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-    background-size: 60px 60px;
+    background-size: 3.75rem 3.75rem;
     transform: perspective(500px) rotateX(60deg) scale(2.5);
     transform-origin: top center;
     opacity: 0.6; z-index: -1;
     animation: gridMove 20s linear infinite;
 }
-@keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
+@keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 0 6.25rem; } }
 
 /* =========================================
    2. FLOATING BACKGROUND ASSETS
@@ -72,11 +72,11 @@ body {
     animation: fallAndSpin linear infinite;
 }
 .floater.card::after {
-    content: ''; position: absolute; top: 15px; left: 10px; width: 20px; height: 15px;
-    background: rgba(255, 255, 255, 0.1); border-radius: 2px;
+    content: ''; position: absolute; top: 0.9375rem; left: 0.625rem; width: 1.25rem; height: 0.9375rem;
+    background: rgba(255, 255, 255, 0.1); border-radius: 0.125rem;
 }
-.floater.card { width: 100px; height: 60px; border-radius: 6px; }
-.floater.tag { width: 60px; height: 60px; border-radius: 50%; }
+.floater.card { width: 6.25rem; height: 3.75rem; border-radius: 0.375rem; }
+.floater.tag { width: 3.75rem; height: 3.75rem; border-radius: 50%; }
 .floater.left { left: 5%; }
 .floater.right { right: 5%; }
 .t1 { animation-duration: 15s; animation-delay: 0s; top: -10%; }
@@ -96,8 +96,8 @@ body {
 }
 
 .floater-3d.nfc-chip {
-    width: 80px;
-    height: 80px;
+    width: 5rem;
+    height: 5rem;
     left: 8%;
 }
 
@@ -109,13 +109,13 @@ body {
     animation: chipFloat 4s ease-in-out infinite;
     background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05));
     border: 2px solid rgba(212,175,55,0.4);
-    border-radius: 8px;
+    border-radius: 0.5rem;
     box-shadow: 0 0 30px rgba(212,175,55,0.3), inset 0 0 20px rgba(212,175,55,0.1);
 }
 
 .chip-circuit {
     position: absolute;
-    inset: 10px;
+    inset: 0.625rem;
     background: linear-gradient(90deg, transparent 40%, rgba(212,175,55,0.6) 50%, transparent 60%);
     background-size: 4px 4px;
     animation: circuitPulse 2s ease-in-out infinite;
@@ -124,7 +124,7 @@ body {
 
 .chip-glow {
     position: absolute;
-    inset: -5px;
+    inset: -0.3125rem;
     background: radial-gradient(circle, rgba(212,175,55,0.4), transparent 70%);
     border-radius: 10px;
     animation: glowPulse 3s ease-in-out infinite;
@@ -132,8 +132,8 @@ body {
 }
 
 .floater-3d.geometric-shape {
-    width: 60px;
-    height: 60px;
+    width: 3.75rem;
+    height: 3.75rem;
     right: 12%;
 }
 
@@ -180,12 +180,12 @@ body {
     position: absolute;
     border-radius: 50%;
     border: 2px solid rgba(212,175,55,0.2);
-    inset: -10px;
+    inset: -0.625rem;
     animation: ringsExpand 2s ease-in-out infinite;
 }
 
 .tag-rings::after {
-    inset: -20px;
+    inset: -1.25rem;
     animation-delay: 0.5s;
 }
 

@@ -897,23 +897,48 @@ nav {
 
 .demo-nfc-card {
     width: 280px; height: 180px; position: relative; transform-style: preserve-3d;
-    animation: demo-card-spin 10s linear infinite;
+    /* replaced full spin with a subtle float to avoid edge-on invisibility */
+    animation: demo-card-float 6s ease-in-out infinite;
+    z-index: 50;
 }
 
-@keyframes demo-card-spin {
-    0% { transform: rotateY(0deg) rotateX(0deg); }
-    25% { transform: rotateY(90deg) rotateX(10deg); }
-    50% { transform: rotateY(180deg) rotateX(0deg); }
-    75% { transform: rotateY(270deg) rotateX(-10deg); }
-    100% { transform: rotateY(360deg) rotateX(0deg); }
+@keyframes demo-card-float {
+    0% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+    25% { transform: translateY(-8px) rotateX(2deg) rotateY(2deg); }
+    50% { transform: translateY(-4px) rotateX(-2deg) rotateY(-2deg); }
+    75% { transform: translateY(-8px) rotateX(2deg) rotateY(1deg); }
+    100% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+}
+
+/* Ensure CTA/demo card sits above decorative grid and floating assets */
+.cta-3d-visual, .cta-3d-card-demo, .demo-nfc-card {
+    position: relative; z-index: 5;
+}
+
+/* Stop the spinning card on small screens so it's always visible */
+@media (max-width: 900px) {
+    .demo-nfc-card {
+        animation: none !important;
+        transform: none !important;
+        width: min(90%, 18.75rem);
+        height: auto;
+    }
+
+    .demo-card-front, .demo-card-back {
+        position: relative; transform: none; backface-visibility: visible;
+    }
+
+    .cta-3d-visual { z-index: 3; }
 }
 
 .demo-card-front {
-    position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+    position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden;
     background: linear-gradient(135deg, var(--tapt-gold), #FEE799); border-radius: 12px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 40px rgba(212,175,55,0.3);
 }
+
+.demo-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 
 .demo-card-logo {
     font-family: var(--font-head); font-size: 2.5rem; font-weight: 900;
@@ -962,7 +987,7 @@ nav {
     background-size: 60px 60px;
     transform: perspective(500px) rotateX(60deg) scale(2.5);
     transform-origin: top center;
-    opacity: 0.6; z-index: -1;
+    opacity: 0.12; z-index: 0;
     animation: gridMove 20s linear infinite;
 }
 

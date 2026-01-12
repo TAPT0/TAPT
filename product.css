@@ -508,9 +508,39 @@ body.premium-product-page {
 }
 
 @media (max-width: 900px) {
-    .product-hero { flex-direction: column; }
-    .product-visual { min-height: 400px; }
-    .reviews-container { grid-template-columns: 1fr; }
+    /* Prevent horizontal overflow */
+    html, body {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+    }
+    
+    .product-hero { 
+        flex-direction: column; 
+        min-height: 70vh;
+        padding-top: 70px;
+    }
+    
+    .product-details {
+        padding: 30px 15px;
+        max-width: 100%;
+    }
+    
+    .product-visual { 
+        min-height: 300px; 
+        padding: 20px;
+    }
+    
+    .reviews-container { 
+        grid-template-columns: 1fr; 
+        gap: 20px;
+    }
+    
+    /* Disable heavy animations */
+    .floating-3d,
+    .glow-effect {
+        display: none !important;
+    }
 }
 
 

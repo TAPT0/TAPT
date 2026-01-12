@@ -70,8 +70,6 @@ function injectGlobalElements() {
     
     <div id="celebration-overlay" onclick="closeCelebration()">
         <div class="celebration-content">
-            <h2>UNLOCKED</h2>
-            <p id="celeb-discount-amount">SAVED ₹0</p>
             <div id="confetti-container"></div>
         </div>
     </div>
@@ -349,10 +347,8 @@ window.removeFromCart = function(id) {
 /* --- CELEBRATION ANIMATION LOGIC (NEW) --- */
 function showCelebration(amountOff) {
     const overlay = document.getElementById('celebration-overlay');
-    const discountText = document.getElementById('celeb-discount-amount');
     
-    if(overlay && discountText) {
-        discountText.innerText = `SAVED ₹${amountOff.toLocaleString()}`;
+    if(overlay) {
         overlay.classList.add('active');
         createConfetti();
     }
